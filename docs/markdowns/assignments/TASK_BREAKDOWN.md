@@ -8,10 +8,24 @@
 ## Phase 0 – Project Setup
 
 ### Task 0.1: `init: initialize Spring Boot project`
-- Khởi tạo project Spring Boot (Spring Initializr hoặc manual)
-- Java 17+, Maven
-- Dependencies: `spring-boot-starter-web`
-- Cấu hình `application.yml` cơ bản (port, app name)
+- Khởi tạo project Spring Boot (Spring Initializr: start.spring.io)
+  - **Project**: Maven / Java 17+
+  - **Group**: `com.linkforge` / **Artifact**: `linkforge-backend`
+  - **Dependencies**:
+    - `Spring Web`
+    - `Spring Data JPA`
+    - `Validation`
+    - `Spring Boot Actuator`
+    - `Spring Data Redis (Access + Driver)`
+    - `PostgreSQL Driver`
+    - `Flyway Migration`
+    - `Lombok`
+- Manual dependencies (thêm sau vào `pom.xml`):
+  - `io.hypersistence:tsid` (Base62/TSID)
+  - `springdoc-openapi-starter-webmvc-ui` (Swagger)
+  - `micrometer-registry-prometheus` (Metrics)
+  - `org.testcontainers:postgresql` (Testing)
+- Cấu hình `application.yml` cơ bản (server.port, spring.application.name)
 - **Verify**: `mvn spring-boot:run` → app start thành công
 
 ### Task 0.2: `chore: add core dependencies and project structure`
