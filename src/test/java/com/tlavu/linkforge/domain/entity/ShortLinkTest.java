@@ -8,9 +8,11 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ShortLinkTest {
 
@@ -22,7 +24,7 @@ class ShortLinkTest {
         OriginalUrl url = OriginalUrl.of("http://example.com");
         Instant expiresAt = Instant.now().plus(1, ChronoUnit.DAYS);
 
-        ShortLink link = ShortLink.create(id, code, url, expiresAt);
+        ShortLink link = ShortLink.create(id, code, url, expiresAt, "hash");
 
         assertThat(link.getId()).isEqualTo(id);
         assertThat(link.getShortCode()).isEqualTo(code);
@@ -50,7 +52,7 @@ class ShortLinkTest {
         // future");
         // So this test should pass.
 
-        assertThatThrownBy(() -> ShortLink.create(id, code, url, past))
+        assertThatThrownBy(() -> ShortLink.create(id, code, url, past, "hash"))
                 .isInstanceOf(InvalidShortLinkException.class)
                 .hasMessageContaining("future");
     }
@@ -63,16 +65,35 @@ class ShortLinkTest {
         OriginalUrl url = OriginalUrl.of("http://example.com");
         Instant expiresAt = Instant.now().plus(1, ChronoUnit.HOURS);
 
-        ShortLink link = ShortLink.create(id, code, url, expiresAt);
+        ShortLink link = ShortLink.create(id, code, url, expiresAt, "hash");
 
         assertThat(link.isExpired(Instant.now())).isFalse();
         assertThat(link.isExpired(Instant.now().plus(2, ChronoUnit.HOURS))).isTrue();
     }
 
     @Test
+    void validCreateWithExpiration() {
+        Optional<Instant> expiration = Optional.of(Instant.now().plusSeconds(3600));
+        ShortLink shortLink = ShortLink.create(
+                1L,
+                ShortCode.of("abc"),
+                OriginalUrl.of("http://example.com"),
+                expiration.orElse(null),
+                "tokenHash");
+        boolean expired = shortLink.isExpired(Instant.now());
+        assertThat(expired).isFalse();
+    }
+
+    @Test
+    void createWithNullId_throwsException() {
+        assertThrows(InvalidShortLinkException.class,
+                () -> ShortLink.create(null, ShortCode.of("abc"), OriginalUrl.of("http://example.com"), null, "hash"));
+    }
+
+    @Test
     @DisplayName("Should increment click count")
     void shouldIncrementClickCount() {
-        ShortLink link = ShortLink.create(1L, ShortCode.of("a"), OriginalUrl.of("http://c.com"), null);
+        ShortLink link = ShortLink.create(1L, ShortCode.of("a"), OriginalUrl.of("http://c.com"), null, "hash");
         assertThat(link.getClickCount()).isZero();
 
         link.incrementClickCount();
@@ -82,7 +103,7 @@ class ShortLinkTest {
     @Test
     @DisplayName("Should enable and disable link")
     void shouldEnableAndDisable() {
-        ShortLink link = ShortLink.create(1L, ShortCode.of("a"), OriginalUrl.of("http://c.com"), null);
+        ShortLink link = ShortLink.create(1L, ShortCode.of("a"), OriginalUrl.of("http://c.com"), null, "hash");
         assertThat(link.isEnabled()).isTrue();
 
         link.disable();
