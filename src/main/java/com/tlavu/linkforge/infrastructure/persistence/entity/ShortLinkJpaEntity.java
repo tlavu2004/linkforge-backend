@@ -38,7 +38,7 @@ public class ShortLinkJpaEntity {
     private Long clickCount;
 
     @Column(name = "is_active", nullable = false)
-    private Boolean isActive;
+    private Boolean active;
 
     @Column(name = "delete_token_hash", length = 64)
     private String deleteTokenHash;
