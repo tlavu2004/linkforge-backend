@@ -4,38 +4,33 @@ import com.tlavu.linkforge.domain.entity.ShortLink;
 import com.tlavu.linkforge.domain.valueobject.OriginalUrl;
 import com.tlavu.linkforge.domain.valueobject.ShortCode;
 import com.tlavu.linkforge.infrastructure.persistence.entity.ShortLinkJpaEntity;
-import org.springframework.stereotype.Component;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 
-@Component
-public class ShortLinkMapper {
+@Mapper(componentModel = "spring")
+public interface ShortLinkMapper {
 
-    public ShortLink toDomain(ShortLinkJpaEntity entity) {
-        if (entity == null) {
+    @Mapping(target = "shortCode", source = "code", qualifiedByName = "toShortCode")
+    @Mapping(target = "originalUrl", source = "originalUrl", qualifiedByName = "toOriginalUrl")
+    @Mapping(target = "deleteTokenHash", source = "deleteTokenHash")
+    ShortLink toDomain(ShortLinkJpaEntity entity);
+
+    @Mapping(target = "code", source = "shortCode.code")
+    @Mapping(target = "originalUrl", source = "originalUrl.url")
+    ShortLinkJpaEntity toJpaEntity(ShortLink domain);
+
+    @Named("toShortCode")
+    default ShortCode toShortCode(String code) {
+        if (code == null)
             return null;
-        }
-        return new ShortLink(
-                entity.getId(),
-                ShortCode.of(entity.getCode()),
-                OriginalUrl.of(entity.getOriginalUrl()),
-                entity.getCreatedAt(),
-                entity.getExpiresAt(),
-                entity.getIsActive(),
-                entity.getClickCount(),
-                entity.getDeleteTokenHash());
+        return ShortCode.of(code);
     }
 
-    public ShortLinkJpaEntity toJpaEntity(ShortLink domain) {
-        if (domain == null) {
+    @Named("toOriginalUrl")
+    default OriginalUrl toOriginalUrl(String url) {
+        if (url == null)
             return null;
-        }
-        return new ShortLinkJpaEntity(
-                domain.getId(),
-                domain.getShortCode().code(),
-                domain.getOriginalUrl().url(),
-                domain.getCreatedAt(),
-                domain.getExpiresAt(),
-                domain.getClickCount(),
-                domain.isEnabled(),
-                domain.getDeleteTokenHash());
+        return OriginalUrl.of(url);
     }
 }
