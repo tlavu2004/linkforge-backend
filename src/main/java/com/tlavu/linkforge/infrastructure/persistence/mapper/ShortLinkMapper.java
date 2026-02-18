@@ -14,10 +14,12 @@ public interface ShortLinkMapper {
     @Mapping(target = "shortCode", source = "code", qualifiedByName = "toShortCode")
     @Mapping(target = "originalUrl", source = "originalUrl", qualifiedByName = "toOriginalUrl")
     @Mapping(target = "deleteTokenHash", source = "deleteTokenHash")
+    @Mapping(target = "enabled", source = "isActive")
     ShortLink toDomain(ShortLinkJpaEntity entity);
 
     @Mapping(target = "code", source = "shortCode.code")
     @Mapping(target = "originalUrl", source = "originalUrl.url")
+    @Mapping(target = "isActive", source = "enabled")
     ShortLinkJpaEntity toJpaEntity(ShortLink domain);
 
     @Named("toShortCode")

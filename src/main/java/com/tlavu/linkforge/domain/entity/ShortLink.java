@@ -26,13 +26,13 @@ public class ShortLink {
 
     // Reconstruction constructor (for persistence/mapping)
     public ShortLink(Long id, ShortCode shortCode, OriginalUrl originalUrl, Instant createdAt, Instant expiresAt,
-            boolean isEnabled, long clickCount, String deleteTokenHash) {
+            boolean enabled, long clickCount, String deleteTokenHash) {
         this.id = id;
         this.shortCode = shortCode;
         this.originalUrl = originalUrl;
         this.createdAt = createdAt;
         this.expiresAt = expiresAt;
-        this.isEnabled = isEnabled;
+        this.isEnabled = enabled;
         this.clickCount = clickCount;
         this.deleteTokenHash = deleteTokenHash;
     }
