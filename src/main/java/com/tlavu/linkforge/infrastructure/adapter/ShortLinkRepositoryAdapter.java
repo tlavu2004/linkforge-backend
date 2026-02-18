@@ -1,0 +1,44 @@
+package com.tlavu.linkforge.infrastructure.adapter;
+
+import com.tlavu.linkforge.domain.entity.ShortLink;
+import com.tlavu.linkforge.domain.repository.ShortLinkRepository;
+import com.tlavu.linkforge.domain.valueobject.ShortCode;
+import com.tlavu.linkforge.infrastructure.persistence.entity.ShortLinkJpaEntity;
+import com.tlavu.linkforge.infrastructure.persistence.mapper.ShortLinkMapper;
+import com.tlavu.linkforge.infrastructure.persistence.repository.ShortLinkJpaRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+
+import java.util.Optional;
+
+@Component
+@RequiredArgsConstructor
+public class ShortLinkRepositoryAdapter implements ShortLinkRepository {
+
+    private final ShortLinkJpaRepository jpaRepository;
+    private final ShortLinkMapper mapper;
+
+    @Override
+    public Optional<ShortLink> findByShortCode(ShortCode shortCode) {
+        return jpaRepository.findByCode(shortCode.code()) // Use .code() accessor
+                .map(mapper::toDomain);
+    }
+
+    @Override
+    public ShortLink save(ShortLink shortLink) {
+        ShortLinkJpaEntity entity = mapper.toJpaEntity(shortLink);
+        ShortLinkJpaEntity savedEntity = jpaRepository.save(entity);
+        return mapper.toDomain(savedEntity);
+    }
+
+    @Override
+    public Optional<ShortLink> findById(Long id) {
+        return jpaRepository.findById(id)
+                .map(mapper::toDomain);
+    }
+
+    @Override
+    public void delete(Long id) {
+        jpaRepository.deleteById(id);
+    }
+}

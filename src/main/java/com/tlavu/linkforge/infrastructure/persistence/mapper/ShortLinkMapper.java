@@ -1,0 +1,38 @@
+package com.tlavu.linkforge.infrastructure.persistence.mapper;
+
+import com.tlavu.linkforge.domain.entity.ShortLink;
+import com.tlavu.linkforge.domain.valueobject.OriginalUrl;
+import com.tlavu.linkforge.domain.valueobject.ShortCode;
+import com.tlavu.linkforge.infrastructure.persistence.entity.ShortLinkJpaEntity;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
+
+@Mapper(componentModel = "spring")
+public interface ShortLinkMapper {
+
+    @Mapping(target = "shortCode", source = "code", qualifiedByName = "toShortCode")
+    @Mapping(target = "originalUrl", source = "originalUrl", qualifiedByName = "toOriginalUrl")
+    @Mapping(target = "deleteTokenHash", source = "deleteTokenHash")
+    @Mapping(target = "enabled", source = "isActive")
+    ShortLink toDomain(ShortLinkJpaEntity entity);
+
+    @Mapping(target = "code", source = "shortCode.code")
+    @Mapping(target = "originalUrl", source = "originalUrl.url")
+    @Mapping(target = "isActive", source = "enabled")
+    ShortLinkJpaEntity toJpaEntity(ShortLink domain);
+
+    @Named("toShortCode")
+    default ShortCode toShortCode(String code) {
+        if (code == null)
+            return null;
+        return ShortCode.of(code);
+    }
+
+    @Named("toOriginalUrl")
+    default OriginalUrl toOriginalUrl(String url) {
+        if (url == null)
+            return null;
+        return OriginalUrl.of(url);
+    }
+}

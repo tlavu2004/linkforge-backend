@@ -127,8 +127,9 @@
 
 ### Task 2.1: `feat(infra): add PostgreSQL and Flyway configuration`
 - Thêm dependencies: `postgresql`, `flyway-core`
-- Cấu hình `application.yml`:
-  - PostgreSQL datasource (local hoặc Docker)
+- Cấu hình `application.yml` (Profiles):
+  - Dev: Local Docker PostgreSQL
+  - Prod: NeonDB (via ENV vars)
   - Flyway migration settings
   - JPA/Hibernate settings (ddl-auto: validate)
 - Tạo `docker-compose.yml` cho PostgreSQL
@@ -381,8 +382,8 @@
 ## Phase 10 – Dockerization & Documentation
 
 ### Task 10.1: `chore: add Dockerfile and docker-compose`
-- Tạo multi-stage `Dockerfile` (build + runtime)
-- Update `docker-compose.yml`: app + PostgreSQL + Redis
+- Tạo multi-stage `Dockerfile` (optimized for Render deployment)
+- Update `docker-compose.yml`: app + PostgreSQL + Redis (Local Dev environment)
 - **Verify**: `docker-compose up` → app running, endpoints work
 
 ### Task 10.2: `feat: add OpenAPI/Swagger documentation`

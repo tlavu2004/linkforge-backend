@@ -518,3 +518,22 @@ Phase 3 (Scale writes): Event-driven
 
 ✅ **Kết quả cuối**: *LinkForge* – một dự án nhỏ nhưng thể hiện tư duy backend & system design ở mức production mindset, với architectural decisions có thể giải thích rõ ràng trong phỏng vấn.
 
+---
+
+## 11. Deployment Strategy (Hybrid)
+
+Để tối ưu chi phí và môi trường development:
+
+### 11.1 Backend (Spring Boot)
+- **Production**: Deploy lên **Render** (Docker container).
+- **Environment**:
+  - `SPRING_PROFILES_ACTIVE=prod`
+  - `DATABASE_URL`: Trỏ về NeonDB.
+
+### 11.2 Frontend (Next.js/React - Planned)
+- **Production**: Deploy lên **Vercel**.
+- **Strategy**: Standard Vercel build (không dùng Docker) để tận dụng Edge Network & Optimization.
+
+### 11.3 Database (PostgreSQL)
+- **Development**: **Local Docker Compose** (nhanh, offline, dễ reset/seed data).
+- **Production**: **NeonDB** (Serverless PostgreSQL, tách biệt computation/storage, cost-effective).S
