@@ -214,30 +214,13 @@
   2. Check `isActive` → throw nếu false
   3. Check `isExpired()` → throw nếu expired
   4. Return original URL
-- Chưa có cache (thêm ở Phase 6)
+- Chưa có cache (thêm ở Phase 7)
 - **Unit test**: mock repository, test happy path, not found, expired, inactive
-- **Verify**: `mvn test` pass
-
-### Task 4.4: `feat(app): add DeleteShortLinkUseCase`
-- Tạo `DeleteShortLinkUseCase`:
-  1. Lookup by code via repository
-  2. Verify delete token (hash & compare)
-  3. Call `entity.deactivate()` → soft delete
-  4. Save updated entity
-- **Unit test**: valid token, invalid token, link not found
-- **Verify**: `mvn test` pass
-
-### Task 4.5: `feat(app): add GetShortLinkUseCase`
-- Tạo `GetShortLinkUseCase`:
-  1. Lookup by code
-  2. Check isActive
-  3. Return metadata DTO (không trả deleteToken)
-- **Unit test**: happy path, not found, inactive
 - **Verify**: `mvn test` pass
 
 ---
 
-## Phase 5 – Controller Layer (API)
+## Phase 5 – Controller Layer (Core API)
 
 ### Task 5.1: `feat(api): add global exception handler`
 - Tạo `GlobalExceptionHandler` (`@RestControllerAdvice`)
@@ -252,11 +235,10 @@
 - Tất cả trả về `ApiResponse` format
 - **Verify**: project compile thành công
 
-### Task 5.2: `feat(api): add ShortLinkController (CRUD endpoints)`
+### Task 5.2: `feat(api): add ShortLinkController (Create endpoint)`
 - Tạo `ShortLinkController`:
   - `POST /api/v1/links` → `CreateShortLinkUseCase`
-  - `GET /api/v1/links/{code}` → `GetShortLinkUseCase`
-  - `DELETE /api/v1/links/{code}?token={deleteToken}` → `DeleteShortLinkUseCase`
+  - (Chưa có GET/DELETE, sẽ thêm ở Phase 6)
 - Mỗi endpoint trả về `ApiResponse<T>`
 - Bean validation trên request (`@Valid`)
 - **Verify**: app start, test bằng curl/Postman
@@ -269,15 +251,39 @@
 - **Verify**: `curl -v localhost:8080/r/{code}` → 301 + Location header
 
 ### Task 5.4: `test(api): add controller integration tests`
-- MockMvc tests cho tất cả endpoints:
+- MockMvc tests cho các core endpoints:
   - POST create → 201, verify response format + deleteToken present
-  - GET metadata → 200, verify response
-  - DELETE with valid token → 200
-  - DELETE with invalid token → 403
   - GET redirect → 301 + Location
   - GET not found → 404
   - POST invalid URL → 400
 - **Verify**: `mvn test` pass
+
+---
+
+## Phase 6 – Management Features (Delete & Get Info)
+
+### Task 6.1: `feat(app): add DeleteShortLinkUseCase`
+- Tạo `DeleteShortLinkUseCase`:
+  1. Lookup by code via repository
+  2. Verify delete token (hash & compare)
+  3. Call `entity.deactivate()` → soft delete
+  4. Save updated entity
+- **Unit test**: valid token, invalid token, link not found
+- **Verify**: `mvn test` pass
+
+### Task 6.2: `feat(app): add GetShortLinkUseCase`
+- Tạo `GetShortLinkUseCase`:
+  1. Lookup by code
+  2. Check isActive
+  3. Return metadata DTO (không trả deleteToken)
+- **Unit test**: happy path, not found, inactive
+- **Verify**: `mvn test` pass
+
+### Task 6.3: `feat(api): add Delete & Get endpoints to ShortLinkController`
+- Update `ShortLinkController`:
+  - `GET /api/v1/links/{code}` → `GetShortLinkUseCase`
+  - `DELETE /api/v1/links/{code}?token={deleteToken}` → `DeleteShortLinkUseCase`
+- **Verify**: app start, test bằng curl/Postman
 
 ---
 

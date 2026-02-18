@@ -516,7 +516,7 @@ Phase 3 (Scale writes): Event-driven
 
 ---
 
-✅ **Kết quả cuối**: *LinkForge* – một dự án nhỏ nhưng thể hiện tư duy backend & system design ở mức production mindset, với architectural decisions có thể giải thích rõ ràng trong phỏng vấn.
+**Kết quả cuối**: *LinkForge* – một dự án nhỏ nhưng thể hiện tư duy backend & system design ở mức production mindset, với architectural decisions có thể giải thích rõ ràng trong phỏng vấn.
 
 ---
 
@@ -536,4 +536,4 @@ Phase 3 (Scale writes): Event-driven
 
 ### 11.3 Database (PostgreSQL)
 - **Development**: **Local Docker Compose** (nhanh, offline, dễ reset/seed data).
-- **Production**: **NeonDB** (Serverless PostgreSQL, tách biệt computation/storage, cost-effective).S
+- **Production**: **NeonDB** (Serverless PostgreSQL, tách biệt computation/storage, cost-effective).
