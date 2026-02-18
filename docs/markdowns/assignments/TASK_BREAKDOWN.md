@@ -30,22 +30,28 @@
 
 ### Task 0.2: `chore: add core dependencies and project structure`
 - Thêm dependencies: `spring-boot-starter-data-jpa`, `spring-boot-starter-validation`, `lombok`, `tsid-creator`
-- Tạo package structure theo Clean Architecture:
+- Tạo package structure theo Clean Architecture (4 layers):
   ```
-  com.linkforge/
-    ├── modules/
-    │    ├── shortlink/
-    │    │    ├── controller/
-    │    │    ├── application/usecase/
-    │    │    ├── application/dto/
-    │    │    ├── domain/entity/
-    │    │    ├── domain/valueobject/
-    │    │    ├── domain/service/
-    │    │    ├── domain/exception/
-    │    │    ├── repository/
-    │    │    └── infrastructure/
-    │    └── common/
-    └── LinkForgeApplication.java
+  com.tlavu.linkforge/
+    ├── domain/            # Enterprise Business Rules
+    │    ├── entity/
+    │    ├── valueobject/
+    │    ├── service/      # Domain Services
+    │    ├── exception/
+    │    └── repository/   # Repository Interfaces (Ports)
+    ├── application/       # Application Business Rules
+    │    ├── usecase/
+    │    └── dto/
+    ├── infrastructure/    # Frameworks & Drivers
+    │    ├── persistence/  # JPA Entities & Repositories
+    │    ├── config/
+    │    └── adapter/
+    ├── presentation/      # Interface Adapters
+    │    ├── controller/
+    │    └── request/response/
+    ├── shared/            # Common/Shared Kernel
+    │    └── util/
+    └── LinkforgeApplication.java
   ```
 - **Verify**: project compile thành công
 
