@@ -49,9 +49,6 @@ public class ShortLink {
         if (originalUrl == null) {
             throw new InvalidShortLinkException("OriginalUrl cannot be null");
         }
-        // deleteTokenHash can be null? Probably enforce it?
-        // Let's allow it to be null for now if logic allows, or enforce it.
-        // TASK_BREAKDOWN 1.4 says fields include it.
 
         // Validate expiration is in future if present
         if (expiresAt != null && expiresAt.isBefore(Instant.now())) {
