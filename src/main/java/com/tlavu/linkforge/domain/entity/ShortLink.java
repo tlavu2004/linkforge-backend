@@ -20,7 +20,7 @@ public class ShortLink {
     private final Instant createdAt;
 
     private Instant expiresAt;
-    private boolean isEnabled;
+    private boolean enabled;
     private long clickCount;
     private String deleteTokenHash;
 
@@ -32,7 +32,7 @@ public class ShortLink {
         this.originalUrl = originalUrl;
         this.createdAt = createdAt;
         this.expiresAt = expiresAt;
-        this.isEnabled = enabled;
+        this.enabled = enabled;
         this.clickCount = clickCount;
         this.deleteTokenHash = deleteTokenHash;
     }
@@ -70,11 +70,11 @@ public class ShortLink {
     }
 
     public void enable() {
-        this.isEnabled = true;
+        this.enabled = true;
     }
 
     public void disable() {
-        this.isEnabled = false;
+        this.enabled = false;
     }
 
     public void incrementClickCount() {
