@@ -45,6 +45,8 @@ public class ResolveShortLinkUseCaseImpl implements ResolveShortLinkUseCase {
                 shortLink.getShortCode().code(),
                 shortLink.getOriginalUrl().url(),
                 shortLink.getCreatedAt(),
-                shortLink.getExpiresAt());
+                shortLink.getExpiresAt(),
+                null // deleteToken not returned when resolving
+        );
     }
 }

@@ -23,14 +23,14 @@ public class CreateShortLinkUseCaseImpl implements CreateShortLinkUseCase {
     public ShortLinkResponse execute(CreateShortLinkCommand command) {
         OriginalUrl originalUrl = OriginalUrl.of(command.originalUrl());
         ShortCode shortCode = shortCodeGenerator.generate();
+        String deleteToken = java.util.UUID.randomUUID().toString();
 
         ShortLink shortLink = ShortLink.create(
                 io.hypersistence.tsid.TSID.fast().toLong(),
                 shortCode,
                 originalUrl,
                 command.expiresAt(),
-                null // deleteTokenHash - optional for now
-        );
+                deleteToken);
 
         ShortLink savedLink = shortLinkRepository.save(shortLink);
 
@@ -38,6 +38,7 @@ public class CreateShortLinkUseCaseImpl implements CreateShortLinkUseCase {
                 savedLink.getShortCode().code(),
                 savedLink.getOriginalUrl().url(),
                 savedLink.getCreatedAt(),
-                savedLink.getExpiresAt());
+                savedLink.getExpiresAt(),
+                deleteToken);
     }
 }
