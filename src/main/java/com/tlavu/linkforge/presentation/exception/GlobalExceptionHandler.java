@@ -1,5 +1,6 @@
 package com.tlavu.linkforge.presentation.exception;
 
+import com.tlavu.linkforge.domain.exception.InvalidDeleteTokenException;
 import com.tlavu.linkforge.domain.exception.InvalidShortCodeException;
 import com.tlavu.linkforge.domain.exception.InvalidShortLinkException;
 import com.tlavu.linkforge.domain.exception.InvalidUrlException;
@@ -34,7 +35,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({
             InvalidUrlException.class,
             InvalidShortCodeException.class,
-            InvalidShortLinkException.class
+            InvalidShortLinkException.class,
+            InvalidDeleteTokenException.class
     })
     public ResponseEntity<ApiResponse<Void>> handleBadRequest(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
