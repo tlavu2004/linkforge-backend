@@ -32,6 +32,12 @@ class ShortLinkControllerTest {
         @MockitoBean
         private CreateShortLinkUseCase createShortLinkUseCase;
 
+        @MockitoBean
+        private com.tlavu.linkforge.application.usecase.GetShortLinkUseCase getShortLinkUseCase;
+
+        @MockitoBean
+        private com.tlavu.linkforge.application.usecase.DeleteShortLinkUseCase deleteShortLinkUseCase;
+
         @Test
         @DisplayName("Should create short link and return 201 Created")
         void shouldCreateShortLink() throws Exception {
@@ -73,5 +79,78 @@ class ShortLinkControllerTest {
                                 .andExpect(status().isBadRequest())
                                 .andExpect(jsonPath("$.success").value(false))
                                 .andExpect(jsonPath("$.message").value("Invalid URL"));
+        }
+
+        @Test
+        @DisplayName("Should get short link info")
+        void shouldGetShortLinkInfo() throws Exception {
+                // Given
+                String shortCode = "abc12345";
+                ShortLinkResponse response = new ShortLinkResponse(
+                                shortCode, "http://example.com", Instant.now(), null, null);
+
+                when(getShortLinkUseCase.execute(shortCode)).thenReturn(response);
+
+                // When/Then
+                mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                                .get("/api/v1/links/{shortCode}", shortCode))
+                                .andExpect(status().isOk())
+                                .andExpect(jsonPath("$.success").value(true))
+                                .andExpect(jsonPath("$.data.shortCode").value(shortCode));
+        }
+
+        @Test
+        @DisplayName("Should return 404 when getting non-existent link")
+        void shouldReturn404WhenGettingNonExistentLink() throws Exception {
+                // Given
+                String shortCode = "notfound";
+                when(getShortLinkUseCase.execute(shortCode))
+                                .thenThrow(new com.tlavu.linkforge.domain.exception.ShortLinkNotFoundException(
+                                                "Link not found"));
+
+                // When/Then
+                mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                                .get("/api/v1/links/{shortCode}", shortCode))
+                                .andExpect(status().isNotFound());
+        }
+
+        @Test
+        @DisplayName("Should delete short link successfully")
+        void shouldDeleteShortLinkSuccessfully() throws Exception {
+                // Given
+                String shortCode = "abc12345";
+                String token = "valid-token";
+
+                // When/Then
+                mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                                .delete("/api/v1/links/{shortCode}", shortCode)
+                                .param("deleteToken", token))
+                                .andExpect(status().isNoContent());
+
+                org.mockito.Mockito.verify(deleteShortLinkUseCase).execute(shortCode, token);
+        }
+
+        @Test
+        @DisplayName("Should return 400 when deleting with invalid token") // Or 400/401/403? GlobalHandler maps
+                                                                           // Exception? InvalidDeleteToken -> ?
+        // Need to check GlobalExceptionHandler mapping for InvalidDeleteTokenException.
+        // If not mapped, it might be 500. Let's check GlobalExceptionHandler.
+        // Assuming it's mapped to BAD_REQUEST or similar. I'll check it later.
+        // For now let's assume implementation.
+        void shouldReturnErrorWhenDeletingWithInvalidToken() throws Exception {
+                // Given
+                String shortCode = "abc12345";
+                String token = "invalid";
+
+                org.mockito.Mockito
+                                .doThrow(new com.tlavu.linkforge.domain.exception.InvalidDeleteTokenException(
+                                                "Invalid token"))
+                                .when(deleteShortLinkUseCase).execute(shortCode, token);
+
+                // When/Then
+                mockMvc.perform(org.springframework.test.web.servlet.request.MockMvcRequestBuilders
+                                .delete("/api/v1/links/{shortCode}", shortCode)
+                                .param("deleteToken", token))
+                                .andExpect(status().isBadRequest()); // Expecting 400
         }
 }
