@@ -23,54 +23,55 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(ShortLinkController.class)
 class ShortLinkControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+        @Autowired
+        private MockMvc mockMvc;
 
-    @Autowired
-    private ObjectMapper objectMapper;
+        @Autowired
+        private ObjectMapper objectMapper;
 
-    @MockitoBean
-    private CreateShortLinkUseCase createShortLinkUseCase;
+        @MockitoBean
+        private CreateShortLinkUseCase createShortLinkUseCase;
 
-    @Test
-    @DisplayName("Should create short link and return 201 Created")
-    void shouldCreateShortLink() throws Exception {
-        // Given
-        CreateShortLinkCommand command = new CreateShortLinkCommand("http://example.com", null);
-        ShortLinkResponse response = new ShortLinkResponse(
-                "abc12345",
-                "http://example.com",
-                Instant.now(),
-                null);
+        @Test
+        @DisplayName("Should create short link and return 201 Created")
+        void shouldCreateShortLink() throws Exception {
+                // Given
+                CreateShortLinkCommand command = new CreateShortLinkCommand("http://example.com", null);
+                ShortLinkResponse response = new ShortLinkResponse(
+                                "abc12345",
+                                "http://example.com",
+                                Instant.now(),
+                                null,
+                                "delete-token-123");
 
-        when(createShortLinkUseCase.execute(any(CreateShortLinkCommand.class))).thenReturn(response);
+                when(createShortLinkUseCase.execute(any(CreateShortLinkCommand.class))).thenReturn(response);
 
-        // When/Then
-        mockMvc.perform(post("/api/v1/links")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(command)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.success").value(true))
-                .andExpect(jsonPath("$.data.shortCode").value("abc12345"))
-                .andExpect(jsonPath("$.data.originalUrl").value("http://example.com"));
-    }
+                // When/Then
+                mockMvc.perform(post("/api/v1/links")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(command)))
+                                .andExpect(status().isCreated())
+                                .andExpect(jsonPath("$.success").value(true))
+                                .andExpect(jsonPath("$.data.shortCode").value("abc12345"))
+                                .andExpect(jsonPath("$.data.originalUrl").value("http://example.com"));
+        }
 
-    @Test
-    @DisplayName("Should return 400 Bad Request when URL is invalid")
-    void shouldReturn400WhenUrlIsInvalid() throws Exception {
-        // Given
-        CreateShortLinkCommand command = new CreateShortLinkCommand("invalid-url", null);
+        @Test
+        @DisplayName("Should return 400 Bad Request when URL is invalid")
+        void shouldReturn400WhenUrlIsInvalid() throws Exception {
+                // Given
+                CreateShortLinkCommand command = new CreateShortLinkCommand("invalid-url", null);
 
-        // Mock exception
-        when(createShortLinkUseCase.execute(any(CreateShortLinkCommand.class)))
-                .thenThrow(new com.tlavu.linkforge.domain.exception.InvalidUrlException("Invalid URL"));
+                // Mock exception
+                when(createShortLinkUseCase.execute(any(CreateShortLinkCommand.class)))
+                                .thenThrow(new com.tlavu.linkforge.domain.exception.InvalidUrlException("Invalid URL"));
 
-        // When/Then
-        mockMvc.perform(post("/api/v1/links")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(command)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.success").value(false))
-                .andExpect(jsonPath("$.message").value("Invalid URL"));
-    }
+                // When/Then
+                mockMvc.perform(post("/api/v1/links")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(command)))
+                                .andExpect(status().isBadRequest())
+                                .andExpect(jsonPath("$.success").value(false))
+                                .andExpect(jsonPath("$.message").value("Invalid URL"));
+        }
 }

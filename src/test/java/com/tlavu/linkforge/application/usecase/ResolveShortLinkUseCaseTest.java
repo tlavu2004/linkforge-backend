@@ -50,6 +50,7 @@ class ResolveShortLinkUseCaseTest {
         assertThat(response).isNotNull();
         assertThat(response.shortCode()).isEqualTo(codeStr);
         assertThat(response.originalUrl()).isEqualTo("http://example.com");
+        assertThat(response.deleteToken()).isNull();
 
         verify(shortLinkRepository).findByShortCode(any(ShortCode.class));
     }
