@@ -39,6 +39,7 @@ public class CreateShortLinkUseCaseImpl implements CreateShortLinkUseCase {
                 savedLink.getOriginalUrl().url(),
                 savedLink.getCreatedAt(),
                 savedLink.getExpiresAt(),
-                deleteToken);
+                savedLink.isEnabled(),
+                savedLink.getDeleteTokenHash());
     }
 }

@@ -26,6 +26,10 @@ public class ResolveShortLinkUseCaseImpl implements ResolveShortLinkUseCase {
         ShortLink shortLink = shortLinkRepository.findByShortCode(code)
                 .orElseThrow(() -> new ShortLinkNotFoundException("Short link not found: " + shortCode));
 
+        if (!shortLink.isEnabled()) {
+            throw new ShortLinkNotFoundException("Short link not found: " + shortCode);
+        }
+
         if (shortLink.isExpired(Instant.now())) {
             throw new ShortLinkExpiredException("Short link has expired: " + shortCode);
         }
@@ -34,18 +38,13 @@ public class ResolveShortLinkUseCaseImpl implements ResolveShortLinkUseCase {
         // skip it or do sync?
         // The requirement for Phase 4 doesn't explicitly mention click tracking yet,
         // it's in Phase 7.
-        // However, usually "resolve" implies a visit.
-        // But let's stick to the plan: Phase 7 is for async click tracking.
-        // If we want sync tracking now, we could add `shortLink.incrementClickCount()`
-        // and `repository.save(shortLink)`.
-        // But `readOnly = true` suggests no write.
-        // Let's leave click tracking for Phase 7 as planned.
 
         return new ShortLinkResponse(
                 shortLink.getShortCode().code(),
                 shortLink.getOriginalUrl().url(),
                 shortLink.getCreatedAt(),
                 shortLink.getExpiresAt(),
+                shortLink.isEnabled(),
                 null // deleteToken not returned when resolving
         );
     }

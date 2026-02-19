@@ -50,6 +50,7 @@ class ResolveShortLinkUseCaseTest {
         assertThat(response).isNotNull();
         assertThat(response.shortCode()).isEqualTo(codeStr);
         assertThat(response.originalUrl()).isEqualTo("http://example.com");
+        assertThat(response.enabled()).isTrue();
         assertThat(response.deleteToken()).isNull();
 
         verify(shortLinkRepository).findByShortCode(any(ShortCode.class));
@@ -87,5 +88,23 @@ class ResolveShortLinkUseCaseTest {
         assertThatThrownBy(() -> useCase.execute(codeStr))
                 .isInstanceOf(ShortLinkExpiredException.class)
                 .hasMessageContaining(codeStr);
+    }
+
+    @Test
+    @DisplayName("Should throw exception when link is disabled")
+    void shouldThrowExceptionWhenLinkIsDisabled() {
+        // Given
+        String codeStr = "disabled";
+        ShortCode code = ShortCode.of(codeStr);
+        ShortLink shortLink = ShortLink.create(1L, code, OriginalUrl.of("http://example.com"), null, "hash");
+        shortLink.disable();
+
+        when(shortLinkRepository.findByShortCode(any(ShortCode.class))).thenReturn(Optional.of(shortLink));
+
+        // When/Then
+        assertThatThrownBy(() -> useCase.execute(codeStr))
+                .isInstanceOf(ShortLinkNotFoundException.class)
+                .hasMessageContaining(codeStr);
+
     }
 }
