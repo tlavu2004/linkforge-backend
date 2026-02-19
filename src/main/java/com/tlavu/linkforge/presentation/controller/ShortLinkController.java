@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class ShortLinkController {
 
     private final CreateShortLinkUseCase createShortLinkUseCase;
+    private final com.tlavu.linkforge.application.usecase.GetShortLinkUseCase getShortLinkUseCase;
+    private final com.tlavu.linkforge.application.usecase.DeleteShortLinkUseCase deleteShortLinkUseCase;
 
     @PostMapping
     public ResponseEntity<ApiResponse<ShortLinkResponse>> createShortLink(
@@ -26,5 +28,20 @@ public class ShortLinkController {
         ShortLinkResponse response = createShortLinkUseCase.execute(command);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success("Short link created successfully", response));
+    }
+
+    @org.springframework.web.bind.annotation.GetMapping("/{shortCode}")
+    public ResponseEntity<ApiResponse<ShortLinkResponse>> getShortLink(
+            @org.springframework.web.bind.annotation.PathVariable String shortCode) {
+        ShortLinkResponse response = getShortLinkUseCase.execute(shortCode);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @org.springframework.web.bind.annotation.DeleteMapping("/{shortCode}")
+    public ResponseEntity<Void> deleteShortLink(
+            @org.springframework.web.bind.annotation.PathVariable String shortCode,
+            @org.springframework.web.bind.annotation.RequestParam String deleteToken) {
+        deleteShortLinkUseCase.execute(shortCode, deleteToken);
+        return ResponseEntity.noContent().build();
     }
 }
