@@ -1,8 +1,10 @@
 package com.tlavu.linkforge.application.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import java.time.Instant;
 
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public record ShortLinkResponse(
         String shortCode,

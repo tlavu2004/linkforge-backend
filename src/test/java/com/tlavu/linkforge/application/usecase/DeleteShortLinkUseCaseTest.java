@@ -25,6 +25,9 @@ class DeleteShortLinkUseCaseTest {
     @Mock
     private ShortLinkRepository shortLinkRepository;
 
+    @Mock
+    private com.tlavu.linkforge.infrastructure.cache.ShortLinkCacheService shortLinkCacheService;
+
     @InjectMocks
     private DeleteShortLinkUseCaseImpl deleteShortLinkUseCase;
 
@@ -50,6 +53,7 @@ class DeleteShortLinkUseCaseTest {
         // Then
         assertFalse(shortLink.isEnabled());
         verify(shortLinkRepository).save(shortLink);
+        verify(shortLinkCacheService).evictShortLink(shortCodeStr);
     }
 
     @Test

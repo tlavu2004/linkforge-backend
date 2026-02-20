@@ -21,6 +21,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -30,17 +31,21 @@ class ResolveShortLinkUseCaseTest {
     @Mock
     private ShortLinkRepository shortLinkRepository;
 
+    @Mock
+    private com.tlavu.linkforge.infrastructure.cache.ShortLinkCacheService shortLinkCacheService;
+
     @InjectMocks
     private ResolveShortLinkUseCaseImpl useCase;
 
     @Test
-    @DisplayName("Should resolve short link successfully")
-    void shouldResolveShortLinkSuccessfully() {
+    @DisplayName("Should resolve short link successfully (Cache Miss)")
+    void shouldResolveShortLinkSuccessfully_CacheMiss() {
         // Given
         String codeStr = "abc12345";
         ShortCode code = ShortCode.of(codeStr);
         ShortLink shortLink = ShortLink.create(1L, code, OriginalUrl.of("http://example.com"), null, "hash");
 
+        when(shortLinkCacheService.getShortLink(codeStr)).thenReturn(Optional.empty());
         when(shortLinkRepository.findByShortCode(any(ShortCode.class))).thenReturn(Optional.of(shortLink));
 
         // When
@@ -53,7 +58,28 @@ class ResolveShortLinkUseCaseTest {
         assertThat(response.enabled()).isTrue();
         assertThat(response.deleteToken()).isNull();
 
+        verify(shortLinkCacheService).getShortLink(codeStr);
         verify(shortLinkRepository).findByShortCode(any(ShortCode.class));
+        verify(shortLinkCacheService).saveShortLink(eq(codeStr), any(ShortLinkResponse.class));
+    }
+
+    @Test
+    @DisplayName("Should resolve short link from Cache (Cache Hit)")
+    void shouldResolveShortLinkFromCache_CacheHit() {
+        // Given
+        String codeStr = "abc12345";
+        ShortLinkResponse cachedResponse = new ShortLinkResponse(codeStr, "http://example.com", Instant.now(), null,
+                true, null);
+
+        when(shortLinkCacheService.getShortLink(codeStr)).thenReturn(Optional.of(cachedResponse));
+
+        // When
+        ShortLinkResponse response = useCase.execute(codeStr);
+
+        // Then
+        assertThat(response).isEqualTo(cachedResponse);
+        verify(shortLinkCacheService).getShortLink(codeStr);
+        verify(shortLinkRepository, org.mockito.Mockito.never()).findByShortCode(any());
     }
 
     @Test
@@ -61,6 +87,7 @@ class ResolveShortLinkUseCaseTest {
     void shouldThrowNotFoundException() {
         // Given
         String codeStr = "notfound";
+        when(shortLinkCacheService.getShortLink(codeStr)).thenReturn(Optional.empty());
         when(shortLinkRepository.findByShortCode(any(ShortCode.class))).thenReturn(Optional.empty());
 
         // When/Then
@@ -82,6 +109,7 @@ class ResolveShortLinkUseCaseTest {
         ShortLink expiredLink = new ShortLink(1L, code, OriginalUrl.of("http://example.com"),
                 Instant.now().minus(2, ChronoUnit.DAYS), past, true, 0L, "hash");
 
+        when(shortLinkCacheService.getShortLink(codeStr)).thenReturn(Optional.empty());
         when(shortLinkRepository.findByShortCode(any(ShortCode.class))).thenReturn(Optional.of(expiredLink));
 
         // When/Then
@@ -99,6 +127,7 @@ class ResolveShortLinkUseCaseTest {
         ShortLink shortLink = ShortLink.create(1L, code, OriginalUrl.of("http://example.com"), null, "hash");
         shortLink.disable();
 
+        when(shortLinkCacheService.getShortLink(codeStr)).thenReturn(Optional.empty());
         when(shortLinkRepository.findByShortCode(any(ShortCode.class))).thenReturn(Optional.of(shortLink));
 
         // When/Then

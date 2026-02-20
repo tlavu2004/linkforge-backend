@@ -5,6 +5,7 @@ import com.tlavu.linkforge.domain.exception.InvalidDeleteTokenException;
 import com.tlavu.linkforge.domain.exception.ShortLinkNotFoundException;
 import com.tlavu.linkforge.domain.repository.ShortLinkRepository;
 import com.tlavu.linkforge.domain.valueobject.ShortCode;
+import com.tlavu.linkforge.infrastructure.cache.ShortLinkCacheService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class DeleteShortLinkUseCaseImpl implements DeleteShortLinkUseCase {
 
     private final ShortLinkRepository shortLinkRepository;
+    private final ShortLinkCacheService shortLinkCacheService;
 
     @Override
     @Transactional
@@ -30,5 +32,8 @@ public class DeleteShortLinkUseCaseImpl implements DeleteShortLinkUseCase {
 
         shortLink.disable();
         shortLinkRepository.save(shortLink);
+
+        // Evict from cache
+        shortLinkCacheService.evictShortLink(shortCode);
     }
 }
