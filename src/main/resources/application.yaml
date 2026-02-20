@@ -33,6 +33,7 @@ spring:
       port: ${REDIS_PORT:6379}
       timeout: 2000
   jpa:
+    show-sql: true
     hibernate:
       ddl-auto: validate
     properties:
@@ -41,9 +42,11 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
-  logging:
-    level:
-      com.tlavu.linkforge: DEBUG
+
+logging:
+  level:
+    com.tlavu.linkforge: DEBUG
+    org.hibernate.SQL: DEBUG
 
 ---
 # Production Profile
