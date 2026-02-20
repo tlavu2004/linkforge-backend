@@ -14,4 +14,6 @@ public interface ShortLinkRepository {
     Optional<ShortLink> findById(Long id);
 
     void delete(Long id);
+
+    void incrementClickCount(ShortCode shortCode);
 }

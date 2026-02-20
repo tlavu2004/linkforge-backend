@@ -41,4 +41,9 @@ public class ShortLinkRepositoryAdapter implements ShortLinkRepository {
     public void delete(Long id) {
         jpaRepository.deleteById(id);
     }
+
+    @Override
+    public void incrementClickCount(ShortCode shortCode) {
+        jpaRepository.incrementClickCountByCode(shortCode.code());
+    }
 }
