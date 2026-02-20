@@ -2,11 +2,14 @@ package com.tlavu.linkforge.application.usecase;
 
 import com.tlavu.linkforge.application.dto.ShortLinkResponse;
 import com.tlavu.linkforge.domain.entity.ShortLink;
+import com.tlavu.linkforge.domain.event.ShortLinkAccessedEvent;
 import com.tlavu.linkforge.domain.exception.ShortLinkExpiredException;
 import com.tlavu.linkforge.domain.exception.ShortLinkNotFoundException;
 import com.tlavu.linkforge.domain.repository.ShortLinkRepository;
 import com.tlavu.linkforge.domain.valueobject.ShortCode;
+import com.tlavu.linkforge.infrastructure.cache.ShortLinkCacheService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,7 +20,8 @@ import java.time.Instant;
 public class ResolveShortLinkUseCaseImpl implements ResolveShortLinkUseCase {
 
     private final ShortLinkRepository shortLinkRepository;
-    private final com.tlavu.linkforge.infrastructure.cache.ShortLinkCacheService shortLinkCacheService;
+    private final ShortLinkCacheService shortLinkCacheService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Override
     @Transactional(readOnly = true)
@@ -25,6 +29,8 @@ public class ResolveShortLinkUseCaseImpl implements ResolveShortLinkUseCase {
         // 1. Check cache
         var cachedResponse = shortLinkCacheService.getShortLink(shortCode);
         if (cachedResponse.isPresent()) {
+            // Still track click even on cache hit
+            eventPublisher.publishEvent(new ShortLinkAccessedEvent(shortCode, Instant.now()));
             return cachedResponse.get();
         }
 
@@ -53,6 +59,9 @@ public class ResolveShortLinkUseCaseImpl implements ResolveShortLinkUseCase {
 
         // 4. Save to cache
         shortLinkCacheService.saveShortLink(shortCode, response);
+
+        // 5. Publish access event for async click tracking
+        eventPublisher.publishEvent(new ShortLinkAccessedEvent(shortCode, Instant.now()));
 
         return response;
     }
