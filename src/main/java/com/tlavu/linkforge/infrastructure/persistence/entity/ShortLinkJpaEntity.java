@@ -22,8 +22,8 @@ public class ShortLinkJpaEntity {
     @Id
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 10)
-    private String code;
+    @Column(name = "short_code", nullable = false, unique = true, length = 10)
+    private String shortCode;
 
     @Column(name = "original_url", nullable = false, columnDefinition = "TEXT")
     private String originalUrl;

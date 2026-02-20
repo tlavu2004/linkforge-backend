@@ -20,7 +20,7 @@ public class ShortLinkRepositoryAdapter implements ShortLinkRepository {
 
     @Override
     public Optional<ShortLink> findByShortCode(ShortCode shortCode) {
-        return jpaRepository.findByCode(shortCode.code()) // Use .code() accessor
+        return jpaRepository.findByShortCode(shortCode.code()) // Use .code() accessor
                 .map(mapper::toDomain);
     }
 
@@ -44,6 +44,6 @@ public class ShortLinkRepositoryAdapter implements ShortLinkRepository {
 
     @Override
     public void incrementClickCount(ShortCode shortCode) {
-        jpaRepository.incrementClickCountByCode(shortCode.code());
+        jpaRepository.incrementClickCountByShortCode(shortCode.code());
     }
 }

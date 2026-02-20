@@ -11,9 +11,9 @@ import java.util.Optional;
 
 @Repository
 public interface ShortLinkJpaRepository extends JpaRepository<ShortLinkJpaEntity, Long> {
-    Optional<ShortLinkJpaEntity> findByCode(String code);
+    Optional<ShortLinkJpaEntity> findByShortCode(String shortCode);
 
     @Modifying
-    @Query("UPDATE ShortLinkJpaEntity s SET s.clickCount = s.clickCount + 1 WHERE s.code = :code")
-    void incrementClickCountByCode(@Param("code") String code);
+    @Query("UPDATE ShortLinkJpaEntity s SET s.clickCount = s.clickCount + 1 WHERE s.shortCode = :shortCode")
+    void incrementClickCountByShortCode(@Param("shortCode") String shortCode);
 }
