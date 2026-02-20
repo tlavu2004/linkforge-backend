@@ -41,6 +41,9 @@ spring:
   flyway:
     enabled: true
     locations: classpath:db/migration
+  logging:
+    level:
+      com.tlavu.linkforge: DEBUG
 
 ---
 # Production Profile
