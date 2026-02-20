@@ -17,12 +17,19 @@ import java.time.Instant;
 public class ResolveShortLinkUseCaseImpl implements ResolveShortLinkUseCase {
 
     private final ShortLinkRepository shortLinkRepository;
+    private final com.tlavu.linkforge.infrastructure.cache.ShortLinkCacheService shortLinkCacheService;
 
     @Override
     @Transactional(readOnly = true)
     public ShortLinkResponse execute(String shortCode) {
-        ShortCode code = ShortCode.of(shortCode);
+        // 1. Check cache
+        var cachedResponse = shortLinkCacheService.getShortLink(shortCode);
+        if (cachedResponse.isPresent()) {
+            return cachedResponse.get();
+        }
 
+        // 2. Query DB
+        ShortCode code = ShortCode.of(shortCode);
         ShortLink shortLink = shortLinkRepository.findByShortCode(code)
                 .orElseThrow(() -> new ShortLinkNotFoundException("Short link not found: " + shortCode));
 
@@ -34,12 +41,8 @@ public class ResolveShortLinkUseCaseImpl implements ResolveShortLinkUseCase {
             throw new ShortLinkExpiredException("Short link has expired: " + shortCode);
         }
 
-        // We might want to increment click count here async (Task 7.1), but for now
-        // skip it or do sync?
-        // The requirement for Phase 4 doesn't explicitly mention click tracking yet,
-        // it's in Phase 7.
-
-        return new ShortLinkResponse(
+        // 3. Create response
+        ShortLinkResponse response = new ShortLinkResponse(
                 shortLink.getShortCode().code(),
                 shortLink.getOriginalUrl().url(),
                 shortLink.getCreatedAt(),
@@ -47,5 +50,10 @@ public class ResolveShortLinkUseCaseImpl implements ResolveShortLinkUseCase {
                 shortLink.isEnabled(),
                 null // deleteToken not returned when resolving
         );
+
+        // 4. Save to cache
+        shortLinkCacheService.saveShortLink(shortCode, response);
+
+        return response;
     }
 }
