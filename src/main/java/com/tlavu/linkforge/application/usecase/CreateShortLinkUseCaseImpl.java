@@ -17,6 +17,7 @@ public class CreateShortLinkUseCaseImpl implements CreateShortLinkUseCase {
 
     private final ShortLinkRepository shortLinkRepository;
     private final ShortCodeGenerator shortCodeGenerator;
+    private final com.tlavu.linkforge.infrastructure.metrics.MetricsService metricsService;
 
     @Override
     @Transactional
@@ -33,6 +34,8 @@ public class CreateShortLinkUseCaseImpl implements CreateShortLinkUseCase {
                 deleteToken);
 
         ShortLink savedLink = shortLinkRepository.save(shortLink);
+
+        metricsService.incrementLinksCreated();
 
         return new ShortLinkResponse(
                 savedLink.getShortCode().code(),
