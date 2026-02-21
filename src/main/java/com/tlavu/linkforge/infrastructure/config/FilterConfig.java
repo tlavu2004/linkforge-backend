@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import com.tlavu.linkforge.infrastructure.logging.CorrelationIdFilter;
 
 @Configuration
 public class FilterConfig {
@@ -37,6 +39,19 @@ public class FilterConfig {
 
         // Give it an order so it runs early in the filter chain
         registrationBean.setOrder(1);
+
+        return registrationBean;
+    }
+
+    @Bean
+    public FilterRegistrationBean<CorrelationIdFilter> correlationIdFilterRegistrationBean(
+            CorrelationIdFilter correlationIdFilter) {
+        FilterRegistrationBean<CorrelationIdFilter> registrationBean = new FilterRegistrationBean<>();
+
+        registrationBean.setFilter(correlationIdFilter);
+        registrationBean.addUrlPatterns("/*");
+        // Must run before everything else (including RateLimitFilter)
+        registrationBean.setOrder(Ordered.HIGHEST_PRECEDENCE);
 
         return registrationBean;
     }
