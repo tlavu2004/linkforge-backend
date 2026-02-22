@@ -383,14 +383,14 @@
 
 ---
 
-## Phase 10 – Dockerization & Documentation
+## Phase 11 – Dockerization & Swagger
 
-### Task 10.1: `chore: add Dockerfile and docker-compose`
+### Task 11.1: `chore: add Dockerfile and docker-compose`
 - Tạo multi-stage `Dockerfile` (optimized for Render deployment)
 - Update `docker-compose.yml`: app + PostgreSQL + Redis (Local Dev environment)
 - **Verify**: `docker-compose up` → app running, endpoints work
 
-### Task 10.2: `feat: add OpenAPI/Swagger documentation`
+### Task 11.2: `feat: add OpenAPI/Swagger documentation`
 - Thêm dependency: `springdoc-openapi-starter-webmvc-ui`
 - Annotate controllers với OpenAPI annotations
 - Cấu hình info (title, version, description)
@@ -435,6 +435,18 @@
 ### Task 13.3: `feat(payment): integrate PayPal and SEPay`
 - Bổ sung implementation tương tự cho PayPal và SEPay.
 - Viết integration test (hoặc note cách manual test sandbox).
+
+---
+
+## Phase 14 – Documentation & Final Polish
+### Task 14.1: `docs: add README.md`
+- Architecture overview & diagram
+- Tech stack
+- How to run (`docker-compose up`)
+- API documentation link
+- Design decisions & trade-offs
+- Future evolution path
+- **Verify**: README reads well, links work
 
 ---
 
