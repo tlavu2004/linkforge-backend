@@ -31,16 +31,13 @@
 - Expiration (link hết hạn)
 - Rate limiting (IP-based)
 - Analytics cơ bản
+- Hệ thống User (Registration/Login)
+- Thanh toán và gói Premium (VNPay, PayPal, SEPay, PayOS sandbox)
 
 ### 1.5 Out-of-scope (không làm)
-- Authentication / User system (không cần cho public shortener)
 - Microservices
 - Kubernetes / Service Mesh
 - Real-time analytics dashboard
-
-> **Tại sao không cần auth?** Các dịch vụ rút gọn link phổ biến (TinyURL, is.gd)
-> hoạt động không cần đăng nhập — ai cũng tạo link được. Chống abuse bằng
-> **rate limiting theo IP** và **delete token** thay vì user system.
 
 ---
 
@@ -138,7 +135,8 @@ Deliverable:
   - `createdAt: Instant`
   - `expiresAt: Instant?`
   - `clickCount: Long`
-  - `isActive: Boolean` (soft delete thay vì xóa record)
+  - (Removed) `isActive: Boolean` (chuyển sang hard delete)
+  - `userId: Long?` (liên kết với User quản lý)
 
 > **Tại sao TSID?** Auto-increment dễ bị enumerate (tấn công brute-force dự đoán ID).
 > TSID (Time-Sorted ID) vừa unique, vừa sortable, vừa không predictable.
@@ -160,7 +158,11 @@ Deliverable:
 - [ ] Short code phải unique toàn hệ thống (guaranteed by TSID → Base62)
 - [ ] Không redirect nếu link đã hết hạn → return HTTP 410 Gone
 - [ ] Click count không được âm (enforce tại domain)
-- [ ] Soft-delete: link bị xóa vẫn giữ record, chỉ set `isActive = false`
+- [ ] Hard-delete: xóa record hoàn toàn khỏi database khi gọi lệnh delete.
+
+#### 1.3 User & Payment Domain (New)
+- [ ] Entity `User`: username, password (hashed), email, role.
+- [ ] Entity `PaymentTransaction`: lưu lịch sử thanh toán, loại gateway (VNPay, PayPal, etc.) status.
 
 Deliverable:
 - Domain layer **không phụ thuộc Spring/JPA**, chỉ thuần Java
@@ -185,11 +187,12 @@ Bảng: `short_links`
 | created_at | TIMESTAMP WITH TIME ZONE | not null, default now() |
 | expires_at | TIMESTAMP WITH TIME ZONE | nullable |
 | click_count | BIGINT | default 0 |
-| is_active | BOOLEAN | default true |
+| user_id | BIGINT | FK to users (nullable) |
+| delete_token_hash | VARCHAR(64) | nullable (cho public link) |
 
 Index:
 - [ ] Unique index cho `code` (B-tree, lookup chính)
-- [ ] Partial index cho `expires_at WHERE is_active = true` (cleanup job)
+- [ ] Index cho `expires_at` (cleanup job)
 - [ ] Index cho `created_at` (phục vụ analytics/sorting)
 
 > **Tại sao TIMESTAMP WITH TIME ZONE?** Tránh bug timezone khi deploy trên server
@@ -201,7 +204,7 @@ Index:
   - `save(ShortLink): ShortLink`
   - `findByCode(ShortCode): Optional<ShortLink>`
   - `findById(Long): Optional<ShortLink>`
-  - `softDelete(Long): void`
+  - `delete(Long): void` (Hard delete)
 
 - [ ] JPA implementation trong `infrastructure` (Adapter)
 - [ ] Mapping entity ↔ domain model rõ ràng (MapStruct hoặc manual mapper)
@@ -285,7 +288,7 @@ Deliverable:
 
 - [ ] `POST /api/v1/links` – Tạo short link (public, no auth)
 - [ ] `GET /api/v1/links/{code}` – Lấy thông tin link (public metadata)
-- [ ] `DELETE /api/v1/links/{code}?token={deleteToken}` – Soft delete (xác minh bằng delete token)
+- [ ] `DELETE /api/v1/links/{code}?token={deleteToken}` – Hard delete (xác minh bằng delete token)
 - [ ] `GET /r/{code}` – Redirect (tách riêng khỏi API path)
 
 > **API Versioning**: Prefix `/api/v1/` cho phép evolve API mà không break client cũ.
@@ -343,7 +346,7 @@ Deliverable:
   - Link có `expiresAt`: TTL = `expiresAt - now`
   - Link không expire: TTL = 24h (avoid stale cache forever)
 - [ ] Cache population: on DB hit (lazy)
-- [ ] Cache invalidation: on update/delete → xóa cache entry
+- [ ] Cache invalidation: on delete → xóa cache entry
 
 ```
 Resolve Flow:
@@ -400,6 +403,16 @@ Deliverable:
 
 #### 8.3 Expiration Job
 - [ ] Scheduled job dọn link hết hạn
+
+### Phase 8 – User Auth & Payments (New)
+#### 8.1 User Authentication
+- [ ] Xây dựng Entity `User` và auth endpoints (Register, Login).
+- [ ] Tích hợp bảo mật (JWT) để bảo vệ route quản lý.
+
+#### 8.2 Payment Gateways
+- [ ] Cấu hình các Payment Adapters (VNPay, PayPal, SEPay, PayOS sandbox).
+- [ ] Endpoints tạo payment URL và xử lý Callbacks/Webhooks.
+- [ ] Cập nhật trạng thái VIP cho User sau khi thanh toán thành công.
 
 ---
 

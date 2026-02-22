@@ -93,14 +93,13 @@
 
 ### Task 1.4: `feat(domain): add ShortLink entity`
 - Tạo `ShortLink` entity (thuần Java, không JPA annotations)
-- Fields: `id`, `code` (ShortCode), `originalUrl` (OriginalUrl), `createdAt`, `expiresAt`, `clickCount`, `isActive`, `deleteTokenHash`
+- Fields: `id`, `code` (ShortCode), `originalUrl` (OriginalUrl), `createdAt`, `expiresAt`, `clickCount`, `userId`, `deleteTokenHash`
 - Domain methods:
   - `isExpired(): boolean`
   - `incrementClickCount(): void`
-  - `deactivate(): void`
   - `matchesDeleteToken(String rawToken): boolean`
 - Enforce invariants: clickCount >= 0, originalUrl not null
-- **Unit test**: tạo entity, check expiration, increment click, deactivate, delete token matching
+- **Unit test**: tạo entity, check expiration, increment click, delete token matching
 - **Verify**: `mvn test` pass
 
 ### Task 1.5: `feat(domain): add domain exceptions`
@@ -145,12 +144,12 @@
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     expires_at TIMESTAMP WITH TIME ZONE,
     click_count BIGINT NOT NULL DEFAULT 0,
-    is_active BOOLEAN NOT NULL DEFAULT true,
+    user_id BIGINT,
     delete_token_hash VARCHAR(64),
     CONSTRAINT uk_short_links_code UNIQUE (code)
   );
   CREATE INDEX idx_short_links_created_at ON short_links (created_at);
-  CREATE INDEX idx_short_links_expires_at ON short_links (expires_at) WHERE is_active = true;
+  CREATE INDEX idx_short_links_expires_at ON short_links (expires_at);
   ```
 - **Verify**: app start → Flyway migration applied → table exists
 
@@ -266,17 +265,16 @@
 - Tạo `DeleteShortLinkUseCase`:
   1. Lookup by code via repository
   2. Verify delete token (hash & compare)
-  3. Call `entity.deactivate()` → soft delete
-  4. Save updated entity
+  3. Gọi `repository.delete(id)` → hard delete
 - **Unit test**: valid token, invalid token, link not found
 - **Verify**: `mvn test` pass
 
 ### Task 6.2: `feat(app): add GetShortLinkUseCase`
 - Tạo `GetShortLinkUseCase`:
   1. Lookup by code
-  2. Check isActive
+  2. Check expiration (optional)
   3. Return metadata DTO (không trả deleteToken)
-- **Unit test**: happy path, not found, inactive
+- **Unit test**: happy path, not found
 - **Verify**: `mvn test` pass
 
 ### Task 6.3: `feat(api): add Delete & Get endpoints to ShortLinkController`
@@ -406,6 +404,37 @@
 - Design decisions & trade-offs
 - Future evolution path
 - **Verify**: README reads well, links work
+
+---
+
+## Phase 12 – User Authentication
+### Task 12.1: `feat(auth): setup User entity and security`
+- Thêm dependency Spring Security, JWT (e.g., jjwt).
+- Tạo `User` entity (id, email, password_hash, role, is_vip).
+- Tạo DB migration `V...__create_users_table.sql`.
+- Cấu hình SecurityFilterChain, passwaord encoder.
+
+### Task 12.2: `feat(auth): add register and login endpoints`
+- Implement `AuthUseCase` (register, login, generate JWT token).
+- Cấu hình JwtAuthenticationFilter để bảo mật route.
+- API: `POST /api/v1/auth/register`, `POST /api/v1/auth/login`.
+
+---
+
+## Phase 13 – Payment Gateways
+### Task 13.1: `feat(payment): implement core payment services`
+- Cấu hình các config keys cho VNPay, PayPal, SEPay, PayOS.
+- Mở rộng domain model với `PaymentTransaction`.
+- Tạo `IPaymentGateway` interface (generateUrl, processCallback).
+
+### Task 13.2: `feat(payment): integrate VNPay and PayOS`
+- Map config sang VNPay/PayOS SDK/API.
+- Implement checkout endpoint `POST /api/v1/payments/checkout`.
+- Implement `GET/POST /api/v1/payments/callback/{provider}` xử lý IPN/Callback để cấp VIP.
+
+### Task 13.3: `feat(payment): integrate PayPal and SEPay`
+- Bổ sung implementation tương tự cho PayPal và SEPay.
+- Viết integration test (hoặc note cách manual test sandbox).
 
 ---
 
