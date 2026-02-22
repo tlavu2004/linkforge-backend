@@ -35,12 +35,7 @@ public class RedisRateLimiter implements RateLimiter {
                     String.valueOf(maxRequests),
                     String.valueOf(timeWindowSeconds));
 
-            if (result == null) {
-                log.warn("Rate limit Lua script returned null for key: {}. Allowing request by default.", key);
-                return true;
-            }
-
-            return result == 1L;
+            return Long.valueOf(1L).equals(result);
         } catch (Exception e) {
             log.error("Failed to execute rate limit for key: {}. Error: {}", key, e.getMessage());
             // Fail open: Default to true to not block legitimate traffic on Redis failure
