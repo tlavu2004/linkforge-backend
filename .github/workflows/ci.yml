@@ -4,9 +4,24 @@ on:
   push:
     branches:
       - main
+      - develop
+      - 'feature/*'
+      - 'fix/*'
+      - 'refactor/*'
+      - 'test/*'
+      - 'chore/*'
+      - 'ci/*'
+      - 'docs/*'
+      - 'style/*'
+      - 'perf/*'
+      - 'build/*'
+      - 'release/*'
+      - 'hotfix/*'
+      - 'wip/*'
   pull_request:
     branches:
       - main
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io
