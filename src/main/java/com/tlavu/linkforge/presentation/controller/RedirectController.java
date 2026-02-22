@@ -14,8 +14,8 @@ import java.net.URI;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
-// ... imports retained
 
 @RestController
 @RequestMapping
@@ -26,9 +26,9 @@ public class RedirectController {
     private final ResolveShortLinkUseCase resolveShortLinkUseCase;
 
     @Operation(summary = "Redirect to Original URL", description = "Takes a short code and redirects the client with a 301 status code to the target original URL.")
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "301", description = "Redirecting to original URL")
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "Short link not found")
-    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "410", description = "Short link expired")
+    @ApiResponse(responseCode = "301", description = "Redirecting to original URL")
+    @ApiResponse(responseCode = "404", description = "Short link not found")
+    @ApiResponse(responseCode = "410", description = "Short link expired")
     @GetMapping("/r/{shortCode}")
     public ResponseEntity<Void> redirect(
             @Parameter(description = "The short code generated for the URL") @PathVariable String shortCode) {
