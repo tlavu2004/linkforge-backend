@@ -44,13 +44,11 @@ public class FilterConfig {
     }
 
     @Bean
-    public FilterRegistrationBean<CorrelationIdFilter> correlationIdFilterRegistrationBean(
-            CorrelationIdFilter correlationIdFilter) {
+    public FilterRegistrationBean<CorrelationIdFilter> correlationIdFilterRegistrationBean() {
         FilterRegistrationBean<CorrelationIdFilter> registrationBean = new FilterRegistrationBean<>();
 
-        registrationBean.setFilter(correlationIdFilter);
-        registrationBean.addUrlPatterns("/*");
-        // Must run before everything else (including RateLimitFilter)
+        registrationBean.setFilter(new CorrelationIdFilter());
+        registrationBean.addUrlPatterns("/api/*", "/r/*", "/actuator/*");
         registrationBean.setOrder(Ordered.HIGHEST_PRECEDENCE);
 
         return registrationBean;
