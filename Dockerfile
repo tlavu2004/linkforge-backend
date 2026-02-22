@@ -1,5 +1,5 @@
 # Stage 1: Build the application
-FROM maven:3.9.6-amazoncorretto-17 AS builder
+FROM maven:3.9.6-amazoncorretto-21 AS builder
 WORKDIR /app
 
 # Copy the pom.xml and source code
@@ -10,7 +10,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests
 
 # Stage 2: Create the runtime image
-FROM amazoncorretto:17-alpine
+FROM amazoncorretto:21-alpine
 WORKDIR /app
 
 # Copy the generated JAR file from the builder stage
