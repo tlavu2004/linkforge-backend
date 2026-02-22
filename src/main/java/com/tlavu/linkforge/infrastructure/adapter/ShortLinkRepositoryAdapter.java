@@ -13,6 +13,7 @@ import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
+@SuppressWarnings("null")
 public class ShortLinkRepositoryAdapter implements ShortLinkRepository {
 
     private final ShortLinkJpaRepository jpaRepository;

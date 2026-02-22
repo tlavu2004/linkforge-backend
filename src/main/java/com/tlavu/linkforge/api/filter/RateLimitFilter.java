@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.lang.NonNull;
 
 import java.io.IOException;
 
@@ -21,14 +22,13 @@ public class RateLimitFilter extends OncePerRequestFilter {
     private final int timeWindowSeconds;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
-            throws ServletException, IOException {
+    protected void doFilterInternal(
+            @NonNull HttpServletRequest request,
+            @NonNull HttpServletResponse response,
+            @NonNull FilterChain filterChain) throws ServletException, IOException {
 
         String clientIp = extractClientIp(request);
 
-        // Rate limit key combines endpoint pattern and IP
-        // Example: POST /api/v1/links -> key: POST:/api/v1/links:192.168.1.1
-        // For simplicity, we rate limit on the IP globally across protected endpoints
         String rateLimitKey = "ip:" + clientIp;
 
         if (!rateLimiter.isAllowed(rateLimitKey, maxRequests, timeWindowSeconds)) {

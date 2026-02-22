@@ -21,6 +21,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RequestMapping
 @RequiredArgsConstructor
 @Tag(name = "Redirection", description = "Endpoint for redirecting short links to their original URLs")
+@SuppressWarnings("null")
 public class RedirectController {
 
     private final ResolveShortLinkUseCase resolveShortLinkUseCase;
