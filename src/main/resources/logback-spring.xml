@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    
+    <!-- Define log format with correlation ID for local console -->
+    <property name="CONSOLE_LOG_PATTERN" value="%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} [vId=%X{correlationId:-}] %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}"/>
+
+    <!-- Console Appender -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Dev Profile uses readable console logs with the added correlation ID -->
+    <!-- Production Profile uses JSON for log aggregators (e.g., ELK) -->
+    <!-- To enable JSON logging, you'd add a dependency like logstash-logback-encoder -->
+    <!-- For simplicity in this project without adding heavy logstash deps, we'll configure a structured plain-text / fake-json pattern for prod if needed, or stick to advanced pattern. 
+         Normally you'd use LogstashEncoder here -->
+         
+    <!-- For now, we apply the console pattern everywhere, but include the [vId=...] correlation ID -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+
+</configuration>

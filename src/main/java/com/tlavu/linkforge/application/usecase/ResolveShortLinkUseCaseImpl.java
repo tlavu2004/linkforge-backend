@@ -22,17 +22,23 @@ public class ResolveShortLinkUseCaseImpl implements ResolveShortLinkUseCase {
     private final ShortLinkRepository shortLinkRepository;
     private final ShortLinkCacheService shortLinkCacheService;
     private final ApplicationEventPublisher eventPublisher;
+    private final com.tlavu.linkforge.infrastructure.metrics.MetricsService metricsService;
 
     @Override
     @Transactional(readOnly = true)
     public ShortLinkResponse execute(String shortCode) {
+        metricsService.incrementLinksResolved();
+
         // 1. Check cache
         var cachedResponse = shortLinkCacheService.getShortLink(shortCode);
         if (cachedResponse.isPresent()) {
+            metricsService.incrementCacheHits();
             // Still track click even on cache hit
             eventPublisher.publishEvent(new ShortLinkAccessedEvent(shortCode, Instant.now()));
             return cachedResponse.get();
         }
+
+        metricsService.incrementCacheMisses();
 
         // 2. Query DB
         ShortCode code = ShortCode.of(shortCode);
