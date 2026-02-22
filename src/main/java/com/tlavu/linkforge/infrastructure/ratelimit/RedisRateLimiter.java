@@ -12,6 +12,7 @@ import java.util.Collections;
 
 @Service
 @Slf4j
+@SuppressWarnings("null")
 public class RedisRateLimiter implements RateLimiter {
 
     private final StringRedisTemplate redisTemplate;

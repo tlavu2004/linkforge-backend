@@ -12,6 +12,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@SuppressWarnings("null")
 public class ShortLinkCacheServiceImpl implements ShortLinkCacheService {
 
     private final RedisTemplate<String, Object> redisTemplate;
