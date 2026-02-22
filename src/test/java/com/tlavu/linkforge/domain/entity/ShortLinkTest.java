@@ -31,7 +31,6 @@ class ShortLinkTest {
         assertThat(link.getOriginalUrl()).isEqualTo(url);
         assertThat(link.getCreatedAt()).isNotNull();
         assertThat(link.getExpiresAt()).isEqualTo(expiresAt);
-        assertThat(link.isEnabled()).isTrue();
         assertThat(link.getClickCount()).isZero();
     }
 
@@ -100,16 +99,4 @@ class ShortLinkTest {
         assertThat(link.getClickCount()).isEqualTo(1);
     }
 
-    @Test
-    @DisplayName("Should enable and disable link")
-    void shouldEnableAndDisable() {
-        ShortLink link = ShortLink.create(1L, ShortCode.of("a"), OriginalUrl.of("http://c.com"), null, "hash");
-        assertThat(link.isEnabled()).isTrue();
-
-        link.disable();
-        assertThat(link.isEnabled()).isFalse();
-
-        link.enable();
-        assertThat(link.isEnabled()).isTrue();
-    }
 }

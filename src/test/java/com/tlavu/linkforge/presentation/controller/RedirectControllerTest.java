@@ -20,39 +20,39 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(RedirectController.class)
 class RedirectControllerTest {
 
-    @Autowired
-    private MockMvc mockMvc;
+        @Autowired
+        private MockMvc mockMvc;
 
-    @MockitoBean
-    private ResolveShortLinkUseCase resolveShortLinkUseCase;
+        @MockitoBean
+        private ResolveShortLinkUseCase resolveShortLinkUseCase;
 
-    @Test
-    @DisplayName("Should redirect to original URL with 301 status")
-    void shouldRedirectToOriginalUrl() throws Exception {
-        // Given
-        String shortCode = "abc12345";
-        String originalUrl = "http://example.com";
-        ShortLinkResponse response = new ShortLinkResponse(
-                shortCode, originalUrl, Instant.now(), null, true, null);
+        @Test
+        @DisplayName("Should redirect to original URL with 301 status")
+        void shouldRedirectToOriginalUrl() throws Exception {
+                // Given
+                String shortCode = "abc12345";
+                String originalUrl = "http://example.com";
+                ShortLinkResponse response = new ShortLinkResponse(
+                                shortCode, originalUrl, Instant.now(), null, null);
 
-        when(resolveShortLinkUseCase.execute(shortCode)).thenReturn(response);
+                when(resolveShortLinkUseCase.execute(shortCode)).thenReturn(response);
 
-        // When/Then
-        mockMvc.perform(get("/r/{shortCode}", shortCode))
-                .andExpect(status().isMovedPermanently())
-                .andExpect(header().string("Location", originalUrl));
-    }
+                // When/Then
+                mockMvc.perform(get("/r/{shortCode}", shortCode))
+                                .andExpect(status().isMovedPermanently())
+                                .andExpect(header().string("Location", originalUrl));
+        }
 
-    @Test
-    @DisplayName("Should return 404 Not Found when link does not exist")
-    void shouldReturn404WhenLinkNotFound() throws Exception {
-        // Given
-        String shortCode = "notfound";
-        when(resolveShortLinkUseCase.execute(shortCode))
-                .thenThrow(new ShortLinkNotFoundException("Link not found"));
+        @Test
+        @DisplayName("Should return 404 Not Found when link does not exist")
+        void shouldReturn404WhenLinkNotFound() throws Exception {
+                // Given
+                String shortCode = "notfound";
+                when(resolveShortLinkUseCase.execute(shortCode))
+                                .thenThrow(new ShortLinkNotFoundException("Link not found"));
 
-        // When/Then
-        mockMvc.perform(get("/r/{shortCode}", shortCode))
-                .andExpect(status().isNotFound());
-    }
+                // When/Then
+                mockMvc.perform(get("/r/{shortCode}", shortCode))
+                                .andExpect(status().isNotFound());
+        }
 }

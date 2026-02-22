@@ -30,8 +30,7 @@ public class DeleteShortLinkUseCaseImpl implements DeleteShortLinkUseCase {
             throw new InvalidDeleteTokenException("Invalid delete token");
         }
 
-        shortLink.disable();
-        shortLinkRepository.save(shortLink);
+        shortLinkRepository.delete(shortLink.getId());
 
         // Evict from cache
         shortLinkCacheService.evictShortLink(shortCode);

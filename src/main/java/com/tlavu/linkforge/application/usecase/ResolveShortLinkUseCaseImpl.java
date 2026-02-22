@@ -45,10 +45,6 @@ public class ResolveShortLinkUseCaseImpl implements ResolveShortLinkUseCase {
         ShortLink shortLink = shortLinkRepository.findByShortCode(code)
                 .orElseThrow(() -> new ShortLinkNotFoundException("Short link not found: " + shortCode));
 
-        if (!shortLink.isEnabled()) {
-            throw new ShortLinkNotFoundException("Short link not found: " + shortCode);
-        }
-
         if (shortLink.isExpired(Instant.now())) {
             throw new ShortLinkExpiredException("Short link has expired: " + shortCode);
         }
@@ -59,7 +55,6 @@ public class ResolveShortLinkUseCaseImpl implements ResolveShortLinkUseCase {
                 shortLink.getOriginalUrl().url(),
                 shortLink.getCreatedAt(),
                 shortLink.getExpiresAt(),
-                shortLink.isEnabled(),
                 null // deleteToken not returned when resolving
         );
 

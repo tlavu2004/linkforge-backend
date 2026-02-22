@@ -5,11 +5,10 @@ CREATE TABLE short_links (
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     expires_at TIMESTAMP WITH TIME ZONE,
     click_count BIGINT NOT NULL DEFAULT 0,
-    is_active BOOLEAN NOT NULL DEFAULT true,
     delete_token_hash VARCHAR(64),
     
     CONSTRAINT uk_short_links_short_code UNIQUE (short_code)
 );
 
 CREATE INDEX idx_short_links_created_at ON short_links (created_at);
-CREATE INDEX idx_short_links_expires_at ON short_links (expires_at) WHERE is_active = true;
+CREATE INDEX idx_short_links_expires_at ON short_links (expires_at);

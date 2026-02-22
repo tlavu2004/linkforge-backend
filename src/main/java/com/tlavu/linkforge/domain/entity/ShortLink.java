@@ -20,19 +20,17 @@ public class ShortLink {
     private final Instant createdAt;
 
     private Instant expiresAt;
-    private boolean enabled;
     private long clickCount;
     private String deleteTokenHash;
 
     // Reconstruction constructor (for persistence/mapping)
     public ShortLink(Long id, ShortCode shortCode, OriginalUrl originalUrl, Instant createdAt, Instant expiresAt,
-            boolean enabled, long clickCount, String deleteTokenHash) {
+            long clickCount, String deleteTokenHash) {
         this.id = id;
         this.shortCode = shortCode;
         this.originalUrl = originalUrl;
         this.createdAt = createdAt;
         this.expiresAt = expiresAt;
-        this.enabled = enabled;
         this.clickCount = clickCount;
         this.deleteTokenHash = deleteTokenHash;
     }
@@ -61,17 +59,8 @@ public class ShortLink {
                 originalUrl,
                 Instant.now(),
                 expiresAt,
-                true, // Enabled by default
                 0L, // Zero clicks
                 deleteTokenHash);
-    }
-
-    public void enable() {
-        this.enabled = true;
-    }
-
-    public void disable() {
-        this.enabled = false;
     }
 
     public void incrementClickCount() {

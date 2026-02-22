@@ -15,7 +15,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
@@ -51,8 +50,7 @@ class DeleteShortLinkUseCaseTest {
         deleteShortLinkUseCase.execute(shortCodeStr, deleteToken);
 
         // Then
-        assertFalse(shortLink.isEnabled());
-        verify(shortLinkRepository).save(shortLink);
+        verify(shortLinkRepository).delete(shortLink.getId());
         verify(shortLinkCacheService).evictShortLink(shortCodeStr);
     }
 
@@ -75,7 +73,7 @@ class DeleteShortLinkUseCaseTest {
         // When/Then
         assertThrows(InvalidDeleteTokenException.class,
                 () -> deleteShortLinkUseCase.execute(shortCodeStr, invalidToken));
-        verify(shortLinkRepository, never()).save(any());
+        verify(shortLinkRepository, never()).delete(any());
     }
 
     @Test
