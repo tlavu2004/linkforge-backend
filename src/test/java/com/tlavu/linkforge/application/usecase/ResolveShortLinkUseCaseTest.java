@@ -55,7 +55,6 @@ class ResolveShortLinkUseCaseTest {
         assertThat(response).isNotNull();
         assertThat(response.shortCode()).isEqualTo(codeStr);
         assertThat(response.originalUrl()).isEqualTo("http://example.com");
-        assertThat(response.enabled()).isTrue();
         assertThat(response.deleteToken()).isNull();
 
         verify(shortLinkCacheService).getShortLink(codeStr);
@@ -69,7 +68,7 @@ class ResolveShortLinkUseCaseTest {
         // Given
         String codeStr = "abc12345";
         ShortLinkResponse cachedResponse = new ShortLinkResponse(codeStr, "http://example.com", Instant.now(), null,
-                true, null);
+                null);
 
         when(shortLinkCacheService.getShortLink(codeStr)).thenReturn(Optional.of(cachedResponse));
 
@@ -107,7 +106,7 @@ class ResolveShortLinkUseCaseTest {
         // now.
         // We can use the reconstruction constructor (public constructor).
         ShortLink expiredLink = new ShortLink(1L, code, OriginalUrl.of("http://example.com"),
-                Instant.now().minus(2, ChronoUnit.DAYS), past, true, 0L, "hash");
+                Instant.now().minus(2, ChronoUnit.DAYS), past, 0L, "hash");
 
         when(shortLinkCacheService.getShortLink(codeStr)).thenReturn(Optional.empty());
         when(shortLinkRepository.findByShortCode(any(ShortCode.class))).thenReturn(Optional.of(expiredLink));
@@ -118,22 +117,4 @@ class ResolveShortLinkUseCaseTest {
                 .hasMessageContaining(codeStr);
     }
 
-    @Test
-    @DisplayName("Should throw exception when link is disabled")
-    void shouldThrowExceptionWhenLinkIsDisabled() {
-        // Given
-        String codeStr = "disabled";
-        ShortCode code = ShortCode.of(codeStr);
-        ShortLink shortLink = ShortLink.create(1L, code, OriginalUrl.of("http://example.com"), null, "hash");
-        shortLink.disable();
-
-        when(shortLinkCacheService.getShortLink(codeStr)).thenReturn(Optional.empty());
-        when(shortLinkRepository.findByShortCode(any(ShortCode.class))).thenReturn(Optional.of(shortLink));
-
-        // When/Then
-        assertThatThrownBy(() -> useCase.execute(codeStr))
-                .isInstanceOf(ShortLinkNotFoundException.class)
-                .hasMessageContaining(codeStr);
-
-    }
 }

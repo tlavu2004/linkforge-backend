@@ -54,29 +54,6 @@ class GetShortLinkUseCaseTest {
     }
 
     @Test
-    @DisplayName("Should return short link info even if disabled")
-    void shouldReturnInfoEvenIfDisabled() {
-        // Given
-        String shortCodeStr = "disabled";
-        ShortCode shortCode = ShortCode.of(shortCodeStr);
-        ShortLink shortLink = ShortLink.create(
-                1L,
-                shortCode,
-                OriginalUrl.of("http://example.com"),
-                null,
-                "token");
-        shortLink.disable(); // Disable it
-
-        when(shortLinkRepository.findByShortCode(shortCode)).thenReturn(Optional.of(shortLink));
-
-        // When
-        ShortLinkResponse response = getShortLinkUseCase.execute(shortCodeStr);
-
-        // Then
-        assertThat(response.shortCode()).isEqualTo(shortCodeStr);
-    }
-
-    @Test
     @DisplayName("Should throw exception when link not found")
     void shouldThrowExceptionWhenNotFound() {
         // Given

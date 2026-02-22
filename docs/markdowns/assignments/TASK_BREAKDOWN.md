@@ -427,14 +427,25 @@
 - Mở rộng domain model với `PaymentTransaction`.
 - Tạo `IPaymentGateway` interface (generateUrl, processCallback).
 
-### Task 13.2: `feat(payment): integrate VNPay and PayOS`
-- Map config sang VNPay/PayOS SDK/API.
-- Implement checkout endpoint `POST /api/v1/payments/checkout`.
-- Implement `GET/POST /api/v1/payments/callback/{provider}` xử lý IPN/Callback để cấp VIP.
+### Task 13.2: `feat(payment): integrate VNPay`
+- Map config sang VNPay SDK/API.
+- Implement checkout logic và tạo URL thanh toán.
+- Xử lý VNPay IPN/Callback để cấp VIP.
 
-### Task 13.3: `feat(payment): integrate PayPal and SEPay`
-- Bổ sung implementation tương tự cho PayPal và SEPay.
-- Viết integration test (hoặc note cách manual test sandbox).
+### Task 13.3: `feat(payment): integrate PayOS`
+- Map config sang PayOS SDK/API.
+- Implement checkout logic và tạo URL thanh toán (VietQR).
+- Xử lý PayOS Webhook để cấp VIP.
+
+### Task 13.4: `feat(payment): integrate PayPal`
+- Map config sang PayPal API/SDK.
+- Implement checkout logic.
+- Xử lý PayPal Webhook.
+
+### Task 13.5: `feat(payment): integrate SEPay`
+- Map config sang SEPay API.
+- Cấu hình nhận diện giao dịch chuyển khoản.
+- Xử lý SEPay Webhook rẽ nhánh cấp VIP.
 
 ---
 
@@ -458,14 +469,18 @@
 | 1 – Domain | 6 | Business logic (thuần Java) |
 | 2 – Database | 4 | Persistence layer |
 | 3 – Code Gen | 1 | TSID → Base62 |
-| 4 – Use Cases | 5 | Application logic |
+| 4 – Use Cases | 3 | Application logic |
 | 5 – API | 4 | Controllers + tests |
-| 6 – Cache | 4 | Redis integration |
-| 7 – Click Tracking | 1 | Async events |
-| 8 – Rate Limit | 2 | Anti-abuse |
-| 9 – Observability | 2 | Logging + metrics |
-| 10 – Deploy & Docs | 3 | Docker + Swagger + README |
-| **Tổng** | **35** | |
+| 6 – Management | 3 | Delete & Get Info |
+| 7 – Cache | 4 | Redis integration |
+| 8 – Click Tracking | 1 | Async events |
+| 9 – Rate Limit | 2 | Anti-abuse |
+| 10 – Observability | 2 | Logging + metrics |
+| 11 – Dockerization | 2 | Docker + Swagger |
+| 12 – Auth | 2 | Security & User Entity |
+| 13 – Payments | 5 | VNPay, PayOS, PayPal, SEPay |
+| 14 – Docs | 1 | README |
+| **Tổng** | **43** | |
 
 > **Nguyên tắc**: Mỗi task phải compile + test pass trước khi commit.
 > Không commit code broken. Mỗi commit là một đơn vị hoàn chỉnh.
