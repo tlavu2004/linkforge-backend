@@ -34,6 +34,12 @@ class ResolveShortLinkUseCaseTest {
     @Mock
     private com.tlavu.linkforge.infrastructure.cache.ShortLinkCacheService shortLinkCacheService;
 
+    @Mock
+    private com.tlavu.linkforge.infrastructure.metrics.MetricsService metricsService;
+
+    @Mock
+    private org.springframework.context.ApplicationEventPublisher eventPublisher;
+
     @InjectMocks
     private ResolveShortLinkUseCaseImpl useCase;
 

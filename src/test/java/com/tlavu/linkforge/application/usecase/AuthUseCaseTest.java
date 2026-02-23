@@ -27,11 +27,20 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
+import com.tlavu.linkforge.infrastructure.config.JwtProperties;
+import com.tlavu.linkforge.domain.entity.RefreshToken;
+import com.tlavu.linkforge.domain.repository.RefreshTokenRepository;
+
+import java.time.Instant;
+
 @ExtendWith(MockitoExtension.class)
 class AuthUseCaseTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private RefreshTokenRepository refreshTokenRepository;
 
     @Mock
     private PasswordEncoder passwordEncoder;
@@ -40,16 +49,21 @@ class AuthUseCaseTest {
     private JwtService jwtService;
 
     @Mock
+    private JwtProperties jwtProperties;
+
+    @Mock
     private AuthenticationManager authenticationManager;
 
     @InjectMocks
     private AuthUseCase authUseCase;
 
     private User mockUser;
+    private RefreshToken mockRefreshToken;
 
     @BeforeEach
     void setUp() {
         mockUser = User.create(1L, "test@example.com", "hashed_password", Role.USER);
+        mockRefreshToken = new RefreshToken(1L, 1L, "mock_refresh_token", Instant.now().plusMillis(604800000L));
     }
 
     @Test
@@ -61,6 +75,8 @@ class AuthUseCaseTest {
         when(passwordEncoder.encode(request.password())).thenReturn("hashed_password");
         when(userRepository.save(any(User.class))).thenReturn(mockUser);
         when(jwtService.generateToken(anyString(), anyLong(), anyString())).thenReturn("mock_jwt_token");
+        when(jwtProperties.getRefreshTokenExpiration()).thenReturn(604800000L);
+        when(refreshTokenRepository.save(any(RefreshToken.class))).thenReturn(mockRefreshToken);
 
         // Act
         AuthResponse response = authUseCase.register(request);
@@ -97,6 +113,8 @@ class AuthUseCaseTest {
         LoginRequest request = new LoginRequest("test@example.com", "password123");
         when(userRepository.findByEmail(request.email())).thenReturn(Optional.of(mockUser));
         when(jwtService.generateToken(anyString(), anyLong(), anyString())).thenReturn("mock_jwt_token");
+        when(jwtProperties.getRefreshTokenExpiration()).thenReturn(604800000L);
+        when(refreshTokenRepository.save(any(RefreshToken.class))).thenReturn(mockRefreshToken);
 
         // Act
         AuthResponse response = authUseCase.login(request);
