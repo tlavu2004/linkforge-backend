@@ -12,11 +12,11 @@ public class ToggleVipStatusUseCase {
 
     private final UserRepository userRepository;
 
-    public void execute(Long userId, boolean isVip) {
+    public void execute(Long userId, boolean vip) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new DomainException("User not found"));
 
-        if (isVip) {
+        if (vip) {
             user.grantLifetimeVip();
         } else {
             user.revokeVip();

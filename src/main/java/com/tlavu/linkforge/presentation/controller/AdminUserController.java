@@ -19,7 +19,7 @@ public class AdminUserController {
     public ResponseEntity<ApiResponse<Void>> toggleVip(
             @PathVariable Long userId,
             @RequestBody @Valid ToggleVipRequest request) {
-        toggleVipStatusUseCase.execute(userId, request.isVip());
+        toggleVipStatusUseCase.execute(userId, request.vip());
         return ResponseEntity.ok(ApiResponse.success("User VIP status updated successfully", null));
     }
 }
