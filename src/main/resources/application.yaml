@@ -4,6 +4,12 @@ spring:
   profiles:
     active: dev
 
+application:
+  security:
+    jwt:
+      secret-key: c2VjcmV0LWtleS1zaG91bGQtYmUtYXQtbGVhc3QtMjU2LWJpdHMtbG9uZy1mb3ItSFMyNTY=
+      expiration: 86400000
+
 server:
   port: 8080
 
