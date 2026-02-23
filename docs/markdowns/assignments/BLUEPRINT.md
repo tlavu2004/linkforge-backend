@@ -404,15 +404,7 @@ Deliverable:
 #### 8.3 Expiration Job
 - [ ] Scheduled job dọn link hết hạn
 
-### Phase 8 – User Auth & Payments (New)
-#### 8.1 User Authentication
-- [ ] Xây dựng Entity `User` và auth endpoints (Register, Login).
-- [ ] Tích hợp bảo mật (JWT) để bảo vệ route quản lý.
 
-#### 8.2 Payment Gateways
-- [ ] Cấu hình các Payment Adapters (VNPay, PayPal, SEPay, PayOS sandbox).
-- [ ] Endpoints tạo payment URL và xử lý Callbacks/Webhooks.
-- [ ] Cập nhật trạng thái VIP cho User sau khi thanh toán thành công.
 
 ---
 
@@ -550,3 +542,14 @@ Phase 3 (Scale writes): Event-driven
 ### 11.3 Database (PostgreSQL)
 - **Development**: **Local Docker Compose** (nhanh, offline, dễ reset/seed data).
 - **Production**: **NeonDB** (Serverless PostgreSQL, tách biệt computation/storage, cost-effective).
+
+---
+
+## 12. User Auth & Payments
+### 12.1 User Authentication & Authorization
+- [ ] Xây dựng Entity `User` (id, email, passwordHash, role, isVip, vipExpiration).
+  - Trạng thái VIP: Người dùng được tự động xác nhận có là VIP hay không (nếu là admin gán tay, `vipExpiration` có thể là `null` hoặc set tới năm 9999 đại diện cho không giới hạn).
+- [ ] Role management: Chỉ Admin mới có quyền truy cập endpoint quản lý User.
+- [ ] Admin Endpoints:
+  - Toggle thủ công VIP status của 1 user (bật/tắt)
+- [ ] Auth endpoints (Register, Login) và JWT tích hợp.
