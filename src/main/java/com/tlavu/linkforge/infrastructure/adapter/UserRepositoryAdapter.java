@@ -2,9 +2,10 @@ package com.tlavu.linkforge.infrastructure.adapter;
 
 import com.tlavu.linkforge.domain.entity.User;
 import com.tlavu.linkforge.domain.repository.UserRepository;
-import com.tlavu.linkforge.infrastructure.persistence.UserJpaRepository;
 import com.tlavu.linkforge.infrastructure.persistence.entity.UserJpaEntity;
 import com.tlavu.linkforge.infrastructure.persistence.mapper.UserMapper;
+import com.tlavu.linkforge.infrastructure.persistence.repository.UserJpaRepository;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

@@ -1,4 +1,4 @@
-package com.tlavu.linkforge.infrastructure.persistence;
+package com.tlavu.linkforge.infrastructure.persistence.repository;
 
 import com.tlavu.linkforge.infrastructure.persistence.entity.UserJpaEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
