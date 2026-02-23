@@ -31,6 +31,9 @@ class ShortLinkControllerTest {
         private ObjectMapper objectMapper;
 
         @MockitoBean
+        private com.tlavu.linkforge.infrastructure.security.JwtService jwtService;
+
+        @MockitoBean
         private CreateShortLinkUseCase createShortLinkUseCase;
 
         @MockitoBean

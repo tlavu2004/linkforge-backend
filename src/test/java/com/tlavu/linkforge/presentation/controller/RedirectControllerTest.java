@@ -24,6 +24,9 @@ class RedirectControllerTest {
         private MockMvc mockMvc;
 
         @MockitoBean
+        private com.tlavu.linkforge.infrastructure.security.JwtService jwtService;
+
+        @MockitoBean
         private ResolveShortLinkUseCase resolveShortLinkUseCase;
 
         @Test

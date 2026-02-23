@@ -70,7 +70,7 @@ class AuthUseCaseTest {
         assertThat(response.email()).isEqualTo("test@example.com");
         assertThat(response.role()).isEqualTo(Role.USER);
         assertThat(response.userId()).isEqualTo(1L);
-        assertThat(response.isVip()).isFalse();
+        assertThat(response.vip()).isFalse();
 
         verify(userRepository).save(any(User.class));
     }
