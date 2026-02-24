@@ -47,4 +47,9 @@ public class ShortLinkRepositoryAdapter implements ShortLinkRepository {
     public void incrementClickCount(ShortCode shortCode) {
         jpaRepository.incrementClickCountByShortCode(shortCode.code());
     }
+
+    @Override
+    public int deleteExpiredLinks(java.time.Instant now) {
+        return jpaRepository.deleteByExpiresAtBefore(now);
+    }
 }
