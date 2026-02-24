@@ -16,4 +16,8 @@ public interface ShortLinkJpaRepository extends JpaRepository<ShortLinkJpaEntity
     @Modifying
     @Query("UPDATE ShortLinkJpaEntity s SET s.clickCount = s.clickCount + 1 WHERE s.shortCode = :shortCode")
     void incrementClickCountByShortCode(@Param("shortCode") String shortCode);
+
+    @Modifying
+    @Query("DELETE FROM ShortLinkJpaEntity s WHERE s.expiresAt < :now")
+    int deleteByExpiresAtBefore(@Param("now") java.time.Instant now);
 }

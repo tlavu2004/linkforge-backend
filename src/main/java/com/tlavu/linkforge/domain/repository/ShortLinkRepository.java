@@ -16,4 +16,6 @@ public interface ShortLinkRepository {
     void delete(Long id);
 
     void incrementClickCount(ShortCode shortCode);
+
+    int deleteExpiredLinks(java.time.Instant now);
 }
