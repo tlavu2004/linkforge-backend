@@ -20,7 +20,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+
 @WebMvcTest(ShortLinkController.class)
+@AutoConfigureMockMvc(addFilters = false)
 @SuppressWarnings("null")
 class ShortLinkControllerTest {
 
@@ -29,6 +32,9 @@ class ShortLinkControllerTest {
 
         @Autowired
         private ObjectMapper objectMapper;
+
+        @MockitoBean
+        private com.tlavu.linkforge.infrastructure.security.JwtService jwtService;
 
         @MockitoBean
         private CreateShortLinkUseCase createShortLinkUseCase;

@@ -4,6 +4,13 @@ spring:
   profiles:
     active: dev
 
+application:
+  security:
+    jwt:
+      secret-key: c2VjcmV0LWtleS1zaG91bGQtYmUtYXQtbGVhc3QtMjU2LWJpdHMtbG9uZy1mb3ItSFMyNTY=
+      expiration: 900000 # 15 minutes
+      refresh-token-expiration: 604800000 # 7 days
+
 server:
   port: 8080
 

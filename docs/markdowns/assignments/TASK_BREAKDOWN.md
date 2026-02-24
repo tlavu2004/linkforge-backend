@@ -407,17 +407,24 @@
 
 ---
 
-## Phase 12 – User Authentication
-### Task 12.1: `feat(auth): setup User entity and security`
+## Phase 12 – User Authentication & Authorization
+### Task 12.1: `feat(auth): setup User entity, Role enum and security`
 - Thêm dependency Spring Security, JWT (e.g., jjwt).
-- Tạo `User` entity (id, email, password_hash, role, is_vip).
-- Tạo DB migration `V...__create_users_table.sql`.
-- Cấu hình SecurityFilterChain, passwaord encoder.
+- Tạo Enum `Role` (USER, ADMIN).
+- Tạo `User` entity (id, email, password_hash, role, is_vip, vip_expires_at).
+- Implement VIP logic methods trong `User` (grantLifetimeVip, revokeVip, vv).
+- Tạo DB migration `V2__create_users_table.sql`.
+- Cấu hình SecurityFilterChain, PasswordEncoder.
 
-### Task 12.2: `feat(auth): add register and login endpoints`
+### Task 12.2: `feat(auth): add register and login endpoints (JWT)`
 - Implement `AuthUseCase` (register, login, generate JWT token).
-- Cấu hình JwtAuthenticationFilter để bảo mật route.
+- Cấu hình `JwtAuthenticationFilter` để bảo vệ route và parse Roles.
 - API: `POST /api/v1/auth/register`, `POST /api/v1/auth/login`.
+
+### Task 12.3: `feat(auth): add admin VIP management endpoints`
+- Implement `ToggleVipStatusUseCase` (tìm User, thay đổi trạng thái isVip tĩnh viễn, lưu DB).
+- Cấu hình Spring Security để hạn chế dải URL `/api/v1/admin/**` chỉ cho role `ADMIN`.
+- API: `POST /api/v1/admin/users/{userId}/vip/toggle`
 
 ---
 
