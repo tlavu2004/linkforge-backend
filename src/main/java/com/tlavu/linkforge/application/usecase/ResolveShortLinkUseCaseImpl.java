@@ -32,10 +32,15 @@ public class ResolveShortLinkUseCaseImpl implements ResolveShortLinkUseCase {
         // 1. Check cache
         var cachedResponse = shortLinkCacheService.getShortLink(shortCode);
         if (cachedResponse.isPresent()) {
+            ShortLinkResponse response = cachedResponse.get();
+            if (response.expiresAt() != null && response.expiresAt().isBefore(Instant.now())) {
+                shortLinkCacheService.evictShortLink(shortCode);
+                throw new ShortLinkExpiredException("Short link has expired: " + shortCode);
+            }
             metricsService.incrementCacheHits();
             // Still track click even on cache hit
             eventPublisher.publishEvent(new ShortLinkAccessedEvent(shortCode, Instant.now()));
-            return cachedResponse.get();
+            return response;
         }
 
         metricsService.incrementCacheMisses();
