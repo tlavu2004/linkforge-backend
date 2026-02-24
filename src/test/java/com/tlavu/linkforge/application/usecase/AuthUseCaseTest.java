@@ -3,6 +3,7 @@ package com.tlavu.linkforge.application.usecase;
 import com.tlavu.linkforge.application.dto.AuthResponse;
 import com.tlavu.linkforge.application.dto.LoginRequest;
 import com.tlavu.linkforge.application.dto.RegisterRequest;
+import com.tlavu.linkforge.application.dto.RegisterResponse;
 import com.tlavu.linkforge.domain.entity.Role;
 import com.tlavu.linkforge.domain.entity.User;
 import com.tlavu.linkforge.domain.exception.DomainException;
@@ -74,15 +75,11 @@ class AuthUseCaseTest {
         when(userRepository.existsByEmail(request.email())).thenReturn(false);
         when(passwordEncoder.encode(request.password())).thenReturn("hashed_password");
         when(userRepository.save(any(User.class))).thenReturn(mockUser);
-        when(jwtService.generateToken(anyString(), anyLong(), anyString())).thenReturn("mock_jwt_token");
-        when(jwtProperties.getRefreshTokenExpiration()).thenReturn(604800000L);
-        when(refreshTokenRepository.save(any(RefreshToken.class))).thenReturn(mockRefreshToken);
 
         // Act
-        AuthResponse response = authUseCase.register(request);
+        RegisterResponse response = authUseCase.register(request);
 
         // Assert
-        assertThat(response.token()).isEqualTo("mock_jwt_token");
         assertThat(response.email()).isEqualTo("test@example.com");
         assertThat(response.role()).isEqualTo(Role.USER);
         assertThat(response.userId()).isEqualTo(1L);
@@ -120,7 +117,7 @@ class AuthUseCaseTest {
         AuthResponse response = authUseCase.login(request);
 
         // Assert
-        assertThat(response.token()).isEqualTo("mock_jwt_token");
+        assertThat(response.accessToken()).isEqualTo("mock_jwt_token");
         assertThat(response.email()).isEqualTo(mockUser.getEmail());
         assertThat(response.role()).isEqualTo(mockUser.getRole());
 

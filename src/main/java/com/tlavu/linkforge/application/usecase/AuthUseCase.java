@@ -4,6 +4,7 @@ import io.hypersistence.tsid.TSID;
 import com.tlavu.linkforge.application.dto.AuthResponse;
 import com.tlavu.linkforge.application.dto.LoginRequest;
 import com.tlavu.linkforge.application.dto.RegisterRequest;
+import com.tlavu.linkforge.application.dto.RegisterResponse;
 import com.tlavu.linkforge.application.dto.TokenRefreshRequest;
 import com.tlavu.linkforge.application.dto.LogoutRequest;
 import com.tlavu.linkforge.domain.entity.RefreshToken;
@@ -34,7 +35,7 @@ public class AuthUseCase {
         private final JwtProperties jwtProperties;
         private final AuthenticationManager authenticationManager;
 
-        public AuthResponse register(RegisterRequest request) {
+        public RegisterResponse register(RegisterRequest request) {
                 if (userRepository.existsByEmail(request.email())) {
                         throw new DomainException("Email is already taken");
                 }
@@ -47,7 +48,11 @@ public class AuthUseCase {
                 );
 
                 User savedUser = userRepository.save(user);
-                return generateAuthResponse(savedUser);
+                return new RegisterResponse(
+                                savedUser.getId(),
+                                savedUser.getEmail(),
+                                savedUser.getRole(),
+                                savedUser.isVipActive(Instant.now()));
         }
 
         public AuthResponse login(LoginRequest request) {

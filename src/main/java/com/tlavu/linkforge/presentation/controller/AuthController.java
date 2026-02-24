@@ -4,6 +4,7 @@ import com.tlavu.linkforge.presentation.response.ApiResponse;
 import com.tlavu.linkforge.application.dto.AuthResponse;
 import com.tlavu.linkforge.application.dto.LoginRequest;
 import com.tlavu.linkforge.application.dto.RegisterRequest;
+import com.tlavu.linkforge.application.dto.RegisterResponse;
 import com.tlavu.linkforge.application.usecase.AuthUseCase;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -28,9 +29,9 @@ public class AuthController {
     private final AuthUseCase authUseCase;
 
     @PostMapping("/register")
-    @Operation(summary = "Register a new user", description = "Creates a new user and returns JWT + Refresh Token")
-    public ResponseEntity<ApiResponse<AuthResponse>> register(@RequestBody @Valid RegisterRequest request) {
-        AuthResponse response = authUseCase.register(request);
+    @Operation(summary = "Register a new user", description = "Creates a new user account without tokens")
+    public ResponseEntity<ApiResponse<RegisterResponse>> register(@RequestBody @Valid RegisterRequest request) {
+        RegisterResponse response = authUseCase.register(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(response));
     }
 
