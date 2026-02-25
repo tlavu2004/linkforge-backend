@@ -32,7 +32,8 @@ public class PaymentController {
     @PostMapping("/vip-upgrade")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Create VIP Upgrade Payment Link", description = "Initiates a VNPay transaction and returns the checkout URL")
-    public ResponseEntity<ApiResponse<String>> createVipUpgradeLink(
+    public ResponseEntity<com.tlavu.linkforge.presentation.response.ApiResponse<String>> createVipUpgradeLink(
+            @jakarta.validation.Valid @RequestBody com.tlavu.linkforge.application.dto.CreatePaymentLinkRequest requestBody,
             HttpServletRequest request,
             Authentication authentication) {
 
@@ -43,7 +44,7 @@ public class PaymentController {
 
         String ipAddress = VNPayUtil.getIpAddress(request);
 
-        String paymentUrl = createPaymentLinkUseCase.execute(userId, ipAddress);
+        String paymentUrl = createPaymentLinkUseCase.execute(userId, requestBody.packageCode(), ipAddress);
 
         return ResponseEntity.ok(ApiResponse.success("Payment link generated", paymentUrl));
     }

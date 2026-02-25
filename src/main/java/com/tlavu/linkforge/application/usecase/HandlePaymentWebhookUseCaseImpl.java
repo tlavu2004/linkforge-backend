@@ -50,11 +50,27 @@ public class HandlePaymentWebhookUseCaseImpl implements HandlePaymentWebhookUseC
                         // Success
                         transaction.markAsPaid(Instant.now());
 
-                        // Grant VIP
+                        // Grant VIP based on package
                         userRepository.findById(transaction.getUserId()).ifPresent(user -> {
-                            user.grantLifetimeVip();
-                            userRepository.save(user);
-                            log.info("Granted Lifetime VIP to User ID: {}", user.getId());
+                            try {
+                                com.tlavu.linkforge.domain.entity.VipPackage vipPackage = com.tlavu.linkforge.domain.entity.VipPackage
+                                        .fromCode(transaction.getPackageCode());
+
+                                Instant expiration = Instant.now().plus(vipPackage.getDurationDuration(),
+                                        vipPackage.getDurationUnit());
+                                // if user is already VIP and expiration is further into the future, we extend
+                                // it
+                                if (user.isVipActive(Instant.now()) && user.getVipExpiresAt() != null) {
+                                    expiration = user.getVipExpiresAt().plus(vipPackage.getDurationDuration(),
+                                            vipPackage.getDurationUnit());
+                                }
+                                user.grantTemporaryVip(expiration);
+                                log.info("Granted {} VIP to User ID: {}, expiring at: {}", vipPackage.name(),
+                                        user.getId(), expiration);
+                                userRepository.save(user);
+                            } catch (Exception e) {
+                                log.error("Failed to apply VIP package to user: {}", e.getMessage());
+                            }
                         });
 
                     } else {

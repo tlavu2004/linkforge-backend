@@ -1,6 +1,5 @@
 package com.tlavu.linkforge.application.usecase;
 
-import io.hypersistence.tsid.TSID;
 import com.tlavu.linkforge.domain.entity.PaymentTransaction;
 import com.tlavu.linkforge.domain.repository.PaymentTransactionRepository;
 import com.tlavu.linkforge.infrastructure.config.VNPayConfig;
@@ -23,12 +22,15 @@ public class CreatePaymentLinkUseCaseImpl implements CreatePaymentLinkUseCase {
 
     @Override
     @Transactional
-    public String execute(Long userId, String ipAddress) {
-        long amountVal = 50000; // 50,000 VND
-        String orderCode = "VIP" + TSID.fast().toLong();
+    public String execute(Long userId, String packageCode, String ipAddress) {
+        com.tlavu.linkforge.domain.entity.VipPackage vipPackage = com.tlavu.linkforge.domain.entity.VipPackage
+                .fromCode(packageCode);
+        long amountVal = vipPackage.getPriceVnd(); // Dynamic amount
+        String orderCode = "VIP" + io.hypersistence.tsid.TSID.fast().toLong();
 
-        long id = TSID.fast().toLong();
-        PaymentTransaction transaction = PaymentTransaction.create(id, userId, orderCode, (int) amountVal);
+        long id = io.hypersistence.tsid.TSID.fast().toLong();
+        PaymentTransaction transaction = PaymentTransaction.create(id, userId, orderCode, (int) amountVal,
+                vipPackage.getCode());
         paymentTransactionRepository.save(transaction);
 
         Map<String, String> vnp_Params = new HashMap<>();

@@ -12,12 +12,14 @@ public class PaymentTransaction {
     private final Long userId;
     private final String orderCode;
     private final int amount;
+    private final String packageCode;
     private PaymentStatus status;
     private final Instant createdAt;
     private Instant paidAt;
 
-    public static PaymentTransaction create(Long id, Long userId, String orderCode, int amount) {
-        return new PaymentTransaction(id, userId, orderCode, amount, PaymentStatus.PENDING, Instant.now(), null);
+    public static PaymentTransaction create(Long id, Long userId, String orderCode, int amount, String packageCode) {
+        return new PaymentTransaction(id, userId, orderCode, amount, packageCode, PaymentStatus.PENDING, Instant.now(),
+                null);
     }
 
     public void markAsPaid(Instant paidAt) {

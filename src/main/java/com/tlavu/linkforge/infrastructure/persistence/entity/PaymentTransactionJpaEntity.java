@@ -29,6 +29,9 @@ public class PaymentTransactionJpaEntity {
     @Column(nullable = false)
     private int amount;
 
+    @Column(name = "package_code", length = 50)
+    private String packageCode;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
     private PaymentStatus status;
