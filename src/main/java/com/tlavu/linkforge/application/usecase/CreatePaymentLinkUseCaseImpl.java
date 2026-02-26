@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Service
@@ -46,13 +45,14 @@ public class CreatePaymentLinkUseCaseImpl implements CreatePaymentLinkUseCase {
         vnp_Params.put("vnp_ReturnUrl", vnPayConfig.getReturnUrl());
         vnp_Params.put("vnp_IpAddr", ipAddress != null ? ipAddress : "127.0.0.1");
 
-        Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Asia/Ho_Chi_Minh"));
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
-        String vnp_CreateDate = formatter.format(cld.getTime());
+        java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+        java.time.ZonedDateTime now = java.time.ZonedDateTime.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh"));
+
+        String vnp_CreateDate = formatter.format(now);
         vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
 
-        cld.add(Calendar.MINUTE, 15);
-        String vnp_ExpireDate = formatter.format(cld.getTime());
+        java.time.ZonedDateTime expireDate = now.plusMinutes(15);
+        String vnp_ExpireDate = formatter.format(expireDate);
         vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
 
         // Sort parameters to create HmacSHA512 checksum string
