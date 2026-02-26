@@ -10,6 +10,8 @@ application:
       secret-key: c2VjcmV0LWtleS1zaG91bGQtYmUtYXQtbGVhc3QtMjU2LWJpdHMtbG9uZy1mb3ItSFMyNTY=
       expiration: 900000 # 15 minutes
       refresh-token-expiration: 604800000 # 7 days
+  frontend:
+    url: ${FRONTEND_URL:http://localhost:5173}
 
 server:
   port: 8080
