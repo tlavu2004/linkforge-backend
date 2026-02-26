@@ -44,6 +44,9 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
 
+                        // Webhook from VNPay (No JWT token attached)
+                        .requestMatchers("/api/v1/payments/vnpay-return").permitAll()
+
                         // Admin endpoints
                         .requestMatchers("/api/v1/admin/**").hasAuthority("ROLE_ADMIN")
 
