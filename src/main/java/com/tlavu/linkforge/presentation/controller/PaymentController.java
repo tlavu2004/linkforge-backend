@@ -40,6 +40,15 @@ public class PaymentController {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         com.tlavu.linkforge.domain.entity.User user = userRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        if (user.getRole() == com.tlavu.linkforge.domain.entity.Role.ADMIN) {
+            throw new IllegalArgumentException("Admins do not need to purchase VIP packages.");
+        }
+
+        if (user.isVipActive(java.time.Instant.now()) && user.getVipExpiresAt() == null) {
+            throw new IllegalArgumentException("You already have Lifetime VIP. No need to purchase again.");
+        }
+
         Long userId = user.getId();
 
         String ipAddress = VNPayUtil.getIpAddress(request);
