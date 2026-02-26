@@ -36,6 +36,7 @@ public class CreateShortLinkUseCaseImpl implements CreateShortLinkUseCase {
         ShortCode shortCode = shortCodeGenerator.generate();
         String deleteToken = java.util.UUID.randomUUID().toString();
 
+        Long userId = null;
         boolean isVip = false;
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !auth.getPrincipal().equals("anonymousUser")) {
@@ -49,6 +50,7 @@ public class CreateShortLinkUseCaseImpl implements CreateShortLinkUseCase {
                 Optional<User> userOpt = userRepository.findByEmail(email);
                 if (userOpt.isPresent()) {
                     isVip = userOpt.get().isVipActive(Instant.now());
+                    userId = userOpt.get().getId();
                 }
             }
         }
@@ -62,6 +64,7 @@ public class CreateShortLinkUseCaseImpl implements CreateShortLinkUseCase {
                 shortCode,
                 originalUrl,
                 command.expiresAt(),
+                userId,
                 deleteToken);
 
         ShortLink savedLink = shortLinkRepository.save(shortLink);
@@ -73,6 +76,7 @@ public class CreateShortLinkUseCaseImpl implements CreateShortLinkUseCase {
                 savedLink.getOriginalUrl().url(),
                 savedLink.getCreatedAt(),
                 savedLink.getExpiresAt(),
-                savedLink.getDeleteTokenHash());
+                savedLink.getDeleteTokenHash(),
+                isVip);
     }
 }

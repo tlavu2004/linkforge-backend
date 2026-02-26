@@ -8,12 +8,15 @@ import com.tlavu.linkforge.domain.exception.ShortLinkNotFoundException;
 import com.tlavu.linkforge.domain.repository.ShortLinkRepository;
 import com.tlavu.linkforge.domain.valueobject.ShortCode;
 import com.tlavu.linkforge.infrastructure.cache.ShortLinkCacheService;
+import com.tlavu.linkforge.domain.entity.User;
+import com.tlavu.linkforge.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +26,7 @@ public class ResolveShortLinkUseCaseImpl implements ResolveShortLinkUseCase {
     private final ShortLinkCacheService shortLinkCacheService;
     private final ApplicationEventPublisher eventPublisher;
     private final com.tlavu.linkforge.infrastructure.metrics.MetricsService metricsService;
+    private final UserRepository userRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -54,14 +58,23 @@ public class ResolveShortLinkUseCaseImpl implements ResolveShortLinkUseCase {
             throw new ShortLinkExpiredException("Short link has expired: " + shortCode);
         }
 
-        // 3. Create response
+        // 3. Determine skipAds
+        boolean skipAds = false;
+        if (shortLink.getUserId() != null) {
+            Optional<User> userOpt = userRepository.findById(shortLink.getUserId());
+            if (userOpt.isPresent()) {
+                skipAds = userOpt.get().isVipActive(Instant.now());
+            }
+        }
+
+        // 4. Create response
         ShortLinkResponse response = new ShortLinkResponse(
                 shortLink.getShortCode().code(),
                 shortLink.getOriginalUrl().url(),
                 shortLink.getCreatedAt(),
                 shortLink.getExpiresAt(),
-                null // deleteToken not returned when resolving
-        );
+                null, // deleteToken not returned when resolving
+                skipAds);
 
         // 4. Save to cache
         shortLinkCacheService.saveShortLink(shortCode, response);

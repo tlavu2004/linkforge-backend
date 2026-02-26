@@ -21,23 +21,25 @@ public class ShortLink {
 
     private Instant expiresAt;
     private long clickCount;
+    private Long userId;
     private String deleteTokenHash;
 
     // Reconstruction constructor (for persistence/mapping)
     public ShortLink(Long id, ShortCode shortCode, OriginalUrl originalUrl, Instant createdAt, Instant expiresAt,
-            long clickCount, String deleteTokenHash) {
+            long clickCount, Long userId, String deleteTokenHash) {
         this.id = id;
         this.shortCode = shortCode;
         this.originalUrl = originalUrl;
         this.createdAt = createdAt;
         this.expiresAt = expiresAt;
         this.clickCount = clickCount;
+        this.userId = userId;
         this.deleteTokenHash = deleteTokenHash;
     }
 
     // Static factory for creation
     public static ShortLink create(Long id, ShortCode shortCode, OriginalUrl originalUrl, Instant expiresAt,
-            String deleteTokenHash) {
+            Long userId, String deleteTokenHash) {
         if (id == null) {
             throw new InvalidShortLinkException("ID cannot be null");
         }
@@ -60,6 +62,7 @@ public class ShortLink {
                 Instant.now(),
                 expiresAt,
                 0L, // Zero clicks
+                userId,
                 deleteTokenHash);
     }
 
