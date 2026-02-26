@@ -59,6 +59,7 @@ class ShortLinkRepositoryAdapterTest {
                 ShortCode.of("testCode"),
                 OriginalUrl.of("http://example.com"),
                 Instant.now().plus(1, ChronoUnit.DAYS),
+                null,
                 "deleteHash");
 
         ShortLink saved = adapter.save(link);
@@ -77,6 +78,7 @@ class ShortLinkRepositoryAdapterTest {
                 ShortCode.of("findMe"),
                 OriginalUrl.of("http://find.com"),
                 Instant.now().plus(1, ChronoUnit.DAYS),
+                null,
                 "hash");
         adapter.save(link);
 
@@ -94,6 +96,7 @@ class ShortLinkRepositoryAdapterTest {
                 ShortCode.of("deleteMe"),
                 OriginalUrl.of("http://del.com"),
                 Instant.now().plus(1, ChronoUnit.DAYS),
+                null,
                 "hash");
         ShortLink saved = adapter.save(link);
 

@@ -40,6 +40,7 @@ class GetShortLinkUseCaseTest {
                 shortCode,
                 OriginalUrl.of("http://example.com"),
                 Instant.now().plusSeconds(3600),
+                null,
                 "delete-token");
 
         when(shortLinkRepository.findByShortCode(shortCode)).thenReturn(Optional.of(shortLink));
