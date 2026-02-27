@@ -47,6 +47,9 @@ public class SecurityConfig {
                         // Webhook from VNPay (No JWT token attached)
                         .requestMatchers("/api/v1/payments/vnpay-return").permitAll()
 
+                        // Ad verification endpoint
+                        .requestMatchers("/api/v1/ads/**").permitAll()
+
                         // Admin endpoints
                         .requestMatchers("/api/v1/admin/**").hasAuthority("ROLE_ADMIN")
 
