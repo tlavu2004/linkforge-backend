@@ -4,6 +4,7 @@ import com.tlavu.linkforge.domain.exception.InvalidDeleteTokenException;
 import com.tlavu.linkforge.domain.exception.InvalidShortCodeException;
 import com.tlavu.linkforge.domain.exception.InvalidShortLinkException;
 import com.tlavu.linkforge.domain.exception.InvalidUrlException;
+import com.tlavu.linkforge.domain.exception.DomainException;
 import com.tlavu.linkforge.domain.exception.ShortLinkExpiredException;
 import com.tlavu.linkforge.domain.exception.ShortLinkNotFoundException;
 import com.tlavu.linkforge.domain.exception.AdTokenVerificationException;
@@ -41,7 +42,8 @@ public class GlobalExceptionHandler {
             InvalidShortCodeException.class,
             InvalidShortLinkException.class,
             InvalidDeleteTokenException.class,
-            AdTokenVerificationException.class
+            AdTokenVerificationException.class,
+            DomainException.class
     })
     public ResponseEntity<ApiResponse<Void>> handleBadRequest(RuntimeException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
