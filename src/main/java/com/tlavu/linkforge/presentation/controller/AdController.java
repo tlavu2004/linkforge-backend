@@ -1,0 +1,32 @@
+package com.tlavu.linkforge.presentation.controller;
+
+import com.tlavu.linkforge.application.usecase.VerifyAdTokenUseCase;
+import com.tlavu.linkforge.presentation.response.ApiResponse;
+import com.tlavu.linkforge.presentation.dto.VerifyAdTokenRequest;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/api/v1/ads")
+@RequiredArgsConstructor
+@Tag(name = "Advertisements", description = "Endpoints for handling ad token verification")
+public class AdController {
+
+    private final VerifyAdTokenUseCase verifyAdTokenUseCase;
+
+    @Operation(summary = "Verify Ad Token", description = "Verifies the ad token and returns the original URL if 5 seconds have passed.")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Token verified successfully")
+    @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid or expired token, or wait time not met")
+    @PostMapping("/verify")
+    public ResponseEntity<ApiResponse<String>> verifyAdToken(@Valid @RequestBody VerifyAdTokenRequest request) {
+        String originalUrl = verifyAdTokenUseCase.execute(request.token(), request.shortCode());
+        return ResponseEntity.ok(ApiResponse.success("Token verified successfully", originalUrl));
+    }
+}

@@ -26,7 +26,8 @@ public class GetShortLinkUseCaseImpl implements GetShortLinkUseCase {
                 shortLink.getOriginalUrl().url(),
                 shortLink.getCreatedAt(),
                 shortLink.getExpiresAt(),
-                null // Do not return deleteToken
+                null, // Do not return deleteToken
+                false // skipAds is irrelevant for Get API
         );
     }
 }

@@ -42,6 +42,7 @@ class DeleteShortLinkUseCaseTest {
                 shortCode,
                 OriginalUrl.of("http://example.com"),
                 null,
+                null,
                 deleteToken);
 
         when(shortLinkRepository.findByShortCode(shortCode)).thenReturn(Optional.of(shortLink));
@@ -65,6 +66,7 @@ class DeleteShortLinkUseCaseTest {
                 1L,
                 ShortCode.of(shortCodeStr),
                 OriginalUrl.of("http://example.com"),
+                null,
                 null,
                 validToken);
 
