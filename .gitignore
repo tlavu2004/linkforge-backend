@@ -37,3 +37,4 @@ logs/
 
 ### Environment ###
 .env
+.env.prod
