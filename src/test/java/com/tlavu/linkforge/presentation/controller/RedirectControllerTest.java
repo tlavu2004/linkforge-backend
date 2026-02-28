@@ -2,15 +2,17 @@ package com.tlavu.linkforge.presentation.controller;
 
 import com.tlavu.linkforge.application.dto.response.ShortLinkResponse;
 import com.tlavu.linkforge.application.usecase.ResolveShortLinkUseCase;
+import com.tlavu.linkforge.application.usecase.GenerateAdTokenUseCase;
 import com.tlavu.linkforge.domain.exception.ShortLinkNotFoundException;
+import com.tlavu.linkforge.infrastructure.security.JwtService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import java.time.Instant;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-
-import java.time.Instant;
 
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -27,10 +29,13 @@ class RedirectControllerTest {
         private MockMvc mockMvc;
 
         @MockitoBean
-        private com.tlavu.linkforge.infrastructure.security.JwtService jwtService;
+        private JwtService jwtService;
 
         @MockitoBean
         private ResolveShortLinkUseCase resolveShortLinkUseCase;
+
+        @MockitoBean
+        private GenerateAdTokenUseCase generateAdTokenUseCase;
 
         @Test
         @DisplayName("Should redirect to original URL with 301 status")
@@ -39,7 +44,7 @@ class RedirectControllerTest {
                 String shortCode = "abc12345";
                 String originalUrl = "http://example.com";
                 ShortLinkResponse response = new ShortLinkResponse(
-                                shortCode, originalUrl, Instant.now(), null, null, false);
+                                shortCode, originalUrl, Instant.now(), null, null, true);
 
                 when(resolveShortLinkUseCase.execute(shortCode)).thenReturn(response);
 

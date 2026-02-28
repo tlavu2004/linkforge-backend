@@ -3,6 +3,7 @@ package com.tlavu.linkforge.domain.repository;
 import com.tlavu.linkforge.domain.entity.ShortLink;
 import com.tlavu.linkforge.domain.valueobject.ShortCode;
 
+import java.time.Instant;
 import java.util.Optional;
 
 public interface ShortLinkRepository {
@@ -17,5 +18,5 @@ public interface ShortLinkRepository {
 
     void incrementClickCount(ShortCode shortCode);
 
-    int deleteExpiredLinks(java.time.Instant now);
+    int deleteExpiredLinks(Instant now);
 }

@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -48,7 +50,7 @@ public class ShortLinkController {
     @ApiResponse(responseCode = "404", description = "Short link not found")
     @GetMapping("/{shortCode}")
     public ResponseEntity<com.tlavu.linkforge.presentation.response.ApiResponse<ShortLinkResponse>> getShortLink(
-            @Parameter(description = "The short code generated for the URL") @org.springframework.web.bind.annotation.PathVariable String shortCode) {
+            @Parameter(description = "The short code generated for the URL") @PathVariable String shortCode) {
         ShortLinkResponse response = getShortLinkUseCase.execute(shortCode);
         return ResponseEntity.ok(com.tlavu.linkforge.presentation.response.ApiResponse.success(response));
     }
@@ -59,8 +61,8 @@ public class ShortLinkController {
     @ApiResponse(responseCode = "404", description = "Short link not found")
     @DeleteMapping("/{shortCode}")
     public ResponseEntity<Void> deleteShortLink(
-            @Parameter(description = "The short code of the link to delete") @org.springframework.web.bind.annotation.PathVariable String shortCode,
-            @Parameter(description = "The secret token provided upon link creation") @org.springframework.web.bind.annotation.RequestParam String deleteToken) {
+            @Parameter(description = "The short code of the link to delete") @PathVariable String shortCode,
+            @Parameter(description = "The secret token provided upon link creation") @RequestParam String deleteToken) {
         deleteShortLinkUseCase.execute(shortCode, deleteToken);
         return ResponseEntity.noContent().build();
     }

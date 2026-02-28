@@ -9,6 +9,7 @@ import com.tlavu.linkforge.infrastructure.persistence.repository.ShortLinkJpaRep
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.time.Instant;
 import java.util.Optional;
 
 @Component
@@ -49,7 +50,7 @@ public class ShortLinkRepositoryAdapter implements ShortLinkRepository {
     }
 
     @Override
-    public int deleteExpiredLinks(java.time.Instant now) {
+    public int deleteExpiredLinks(Instant now) {
         return jpaRepository.deleteByExpiresAtBefore(now);
     }
 }

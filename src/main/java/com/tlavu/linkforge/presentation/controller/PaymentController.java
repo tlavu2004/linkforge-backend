@@ -3,11 +3,17 @@ package com.tlavu.linkforge.presentation.controller;
 import com.tlavu.linkforge.presentation.response.ApiResponse;
 import com.tlavu.linkforge.application.usecase.CreatePaymentLinkUseCase;
 import com.tlavu.linkforge.application.usecase.HandlePaymentWebhookUseCase;
+import com.tlavu.linkforge.application.dto.request.CreatePaymentLinkRequest;
+import com.tlavu.linkforge.domain.entity.Role;
+import com.tlavu.linkforge.domain.entity.User;
 import com.tlavu.linkforge.domain.repository.UserRepository;
 import com.tlavu.linkforge.infrastructure.util.VNPayUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+import java.time.Instant;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -32,20 +38,20 @@ public class PaymentController {
     @PostMapping("/vip-upgrade")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Create VIP Upgrade Payment Link", description = "Initiates a VNPay transaction and returns the checkout URL")
-    public ResponseEntity<com.tlavu.linkforge.presentation.response.ApiResponse<String>> createVipUpgradeLink(
-            @jakarta.validation.Valid @RequestBody com.tlavu.linkforge.application.dto.request.CreatePaymentLinkRequest requestBody,
+    public ResponseEntity<ApiResponse<String>> createVipUpgradeLink(
+            @Valid @RequestBody CreatePaymentLinkRequest requestBody,
             HttpServletRequest request,
             Authentication authentication) {
 
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        com.tlavu.linkforge.domain.entity.User user = userRepository.findByEmail(userDetails.getUsername())
+        User user = userRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        if (user.getRole() == com.tlavu.linkforge.domain.entity.Role.ADMIN) {
+        if (user.getRole() == Role.ADMIN) {
             throw new IllegalArgumentException("Admins do not need to purchase VIP packages.");
         }
 
-        if (user.isVipActive(java.time.Instant.now()) && user.getVipExpiresAt() == null) {
+        if (user.isVipActive(Instant.now()) && user.getVipExpiresAt() == null) {
             throw new IllegalArgumentException("You already have Lifetime VIP. No need to purchase again.");
         }
 
@@ -71,12 +77,12 @@ public class PaymentController {
         } catch (Exception e) {
             // Logged in use case, redirect to frontend failure page
             return ResponseEntity.status(302)
-                    .location(java.util.Objects.requireNonNull(URI.create("http://localhost:5173/payment-failure")))
+                    .location(Objects.requireNonNull(URI.create("http://localhost:5173/payment-failure")))
                     .build();
         }
 
         return ResponseEntity.status(302)
-                .location(java.util.Objects.requireNonNull(URI.create("http://localhost:5173/payment-success")))
+                .location(Objects.requireNonNull(URI.create("http://localhost:5173/payment-success")))
                 .build();
     }
 }

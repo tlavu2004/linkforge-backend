@@ -42,15 +42,6 @@ class ShortLinkTest {
         OriginalUrl url = OriginalUrl.of("http://example.com");
         Instant past = Instant.now().minus(1, ChronoUnit.DAYS);
 
-        // create static factory check
-        // Note: My implementation had a bug in previous step: "if (expiresAt != null &&
-        // expiresAt.isBefore(Instant.now()))"
-        // Since Instant.now() moves, lets perform a strict check but keep margin.
-        // Actually, let's fix the implementation if I made a mistake?
-        // Ah, I wrote: throw new DomainException("Expiration time must be in the
-        // future");
-        // So this test should pass.
-
         assertThatThrownBy(() -> ShortLink.create(id, code, url, past, null, "hash"))
                 .isInstanceOf(InvalidShortLinkException.class)
                 .hasMessageContaining("future");

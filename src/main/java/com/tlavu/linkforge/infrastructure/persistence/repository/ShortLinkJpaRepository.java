@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.Instant;
 import java.util.Optional;
 
 @Repository
@@ -19,5 +20,5 @@ public interface ShortLinkJpaRepository extends JpaRepository<ShortLinkJpaEntity
 
     @Modifying
     @Query("DELETE FROM ShortLinkJpaEntity s WHERE s.expiresAt < :now")
-    int deleteByExpiresAtBefore(@Param("now") java.time.Instant now);
+    int deleteByExpiresAtBefore(@Param("now") Instant now);
 }
