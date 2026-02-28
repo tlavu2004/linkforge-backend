@@ -1,6 +1,6 @@
 package com.tlavu.linkforge.presentation.controller;
 
-import com.tlavu.linkforge.application.dto.ShortLinkResponse;
+import com.tlavu.linkforge.application.dto.response.ShortLinkResponse;
 import com.tlavu.linkforge.application.usecase.ResolveShortLinkUseCase;
 import com.tlavu.linkforge.domain.exception.ShortLinkNotFoundException;
 import org.junit.jupiter.api.DisplayName;

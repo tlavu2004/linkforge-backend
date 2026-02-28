@@ -33,7 +33,7 @@ public class PaymentController {
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Create VIP Upgrade Payment Link", description = "Initiates a VNPay transaction and returns the checkout URL")
     public ResponseEntity<com.tlavu.linkforge.presentation.response.ApiResponse<String>> createVipUpgradeLink(
-            @jakarta.validation.Valid @RequestBody com.tlavu.linkforge.application.dto.CreatePaymentLinkRequest requestBody,
+            @jakarta.validation.Valid @RequestBody com.tlavu.linkforge.application.dto.request.CreatePaymentLinkRequest requestBody,
             HttpServletRequest request,
             Authentication authentication) {
 

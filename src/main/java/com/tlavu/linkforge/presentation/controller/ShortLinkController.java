@@ -1,7 +1,7 @@
 package com.tlavu.linkforge.presentation.controller;
 
-import com.tlavu.linkforge.application.dto.CreateShortLinkCommand;
-import com.tlavu.linkforge.application.dto.ShortLinkResponse;
+import com.tlavu.linkforge.application.dto.command.CreateShortLinkCommand;
+import com.tlavu.linkforge.application.dto.response.ShortLinkResponse;
 import com.tlavu.linkforge.application.usecase.CreateShortLinkUseCase;
 import com.tlavu.linkforge.application.usecase.DeleteShortLinkUseCase;
 import com.tlavu.linkforge.application.usecase.GetShortLinkUseCase;

@@ -1,6 +1,6 @@
 package com.tlavu.linkforge.presentation.controller;
 
-import com.tlavu.linkforge.application.dto.ShortLinkResponse;
+import com.tlavu.linkforge.application.dto.response.ShortLinkResponse;
 import com.tlavu.linkforge.application.usecase.ResolveShortLinkUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

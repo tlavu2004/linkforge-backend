@@ -1,4 +1,4 @@
-package com.tlavu.linkforge.application.dto;
+package com.tlavu.linkforge.application.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;

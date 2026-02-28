@@ -1,6 +1,6 @@
 package com.tlavu.linkforge.application.usecase;
 
-import com.tlavu.linkforge.application.dto.ShortLinkResponse;
+import com.tlavu.linkforge.application.dto.response.ShortLinkResponse;
 import com.tlavu.linkforge.domain.entity.ShortLink;
 import com.tlavu.linkforge.domain.event.ShortLinkAccessedEvent;
 import com.tlavu.linkforge.domain.exception.ShortLinkExpiredException;

@@ -1,6 +1,6 @@
 package com.tlavu.linkforge.infrastructure.cache;
 
-import com.tlavu.linkforge.application.dto.ShortLinkResponse;
+import com.tlavu.linkforge.application.dto.response.ShortLinkResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;

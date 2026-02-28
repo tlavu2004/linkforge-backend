@@ -1,12 +1,12 @@
 package com.tlavu.linkforge.application.usecase;
 
 import io.hypersistence.tsid.TSID;
-import com.tlavu.linkforge.application.dto.AuthResponse;
-import com.tlavu.linkforge.application.dto.LoginRequest;
-import com.tlavu.linkforge.application.dto.RegisterRequest;
-import com.tlavu.linkforge.application.dto.RegisterResponse;
-import com.tlavu.linkforge.application.dto.TokenRefreshRequest;
-import com.tlavu.linkforge.application.dto.LogoutRequest;
+import com.tlavu.linkforge.application.dto.response.AuthResponse;
+import com.tlavu.linkforge.application.dto.request.LoginRequest;
+import com.tlavu.linkforge.application.dto.request.RegisterRequest;
+import com.tlavu.linkforge.application.dto.response.RegisterResponse;
+import com.tlavu.linkforge.application.dto.request.TokenRefreshRequest;
+import com.tlavu.linkforge.application.dto.request.LogoutRequest;
 import com.tlavu.linkforge.domain.entity.RefreshToken;
 import com.tlavu.linkforge.domain.entity.Role;
 import com.tlavu.linkforge.domain.entity.User;

@@ -1,7 +1,7 @@
-package com.tlavu.linkforge.application.dto;
+package com.tlavu.linkforge.application.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
 
-public record TokenRefreshRequest(
+public record LogoutRequest(
         @NotBlank(message = "Refresh token is required") String refreshToken) {
 }
