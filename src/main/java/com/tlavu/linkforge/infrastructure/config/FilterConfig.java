@@ -1,6 +1,6 @@
 package com.tlavu.linkforge.infrastructure.config;
 
-import com.tlavu.linkforge.api.filter.RateLimitFilter;
+import com.tlavu.linkforge.infrastructure.ratelimit.RateLimitFilter;
 import com.tlavu.linkforge.application.port.in.RateLimiter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
