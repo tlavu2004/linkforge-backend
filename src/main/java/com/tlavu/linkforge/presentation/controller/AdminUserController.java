@@ -1,7 +1,7 @@
 package com.tlavu.linkforge.presentation.controller;
 
 import com.tlavu.linkforge.presentation.response.ApiResponse;
-import com.tlavu.linkforge.application.dto.ToggleVipRequest;
+import com.tlavu.linkforge.application.dto.request.ToggleVipRequest;
 import com.tlavu.linkforge.application.usecase.ToggleVipStatusUseCase;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

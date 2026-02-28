@@ -7,6 +7,7 @@ import com.tlavu.linkforge.infrastructure.persistence.repository.PaymentTransact
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.Objects;
 import java.util.Optional;
 
 @Component
@@ -18,7 +19,7 @@ public class PaymentTransactionRepositoryAdapter implements PaymentTransactionRe
 
     @Override
     public PaymentTransaction save(PaymentTransaction transaction) {
-        var entity = java.util.Objects.requireNonNull(mapper.toJpaEntity(transaction));
+        var entity = Objects.requireNonNull(mapper.toJpaEntity(transaction));
         var savedEntity = jpaRepository.save(entity);
         return mapper.toDomain(savedEntity);
     }

@@ -1,10 +1,10 @@
 package com.tlavu.linkforge.presentation.controller;
 
 import com.tlavu.linkforge.presentation.response.ApiResponse;
-import com.tlavu.linkforge.application.dto.AuthResponse;
-import com.tlavu.linkforge.application.dto.LoginRequest;
-import com.tlavu.linkforge.application.dto.RegisterRequest;
-import com.tlavu.linkforge.application.dto.RegisterResponse;
+import com.tlavu.linkforge.application.dto.response.AuthResponse;
+import com.tlavu.linkforge.application.dto.request.LoginRequest;
+import com.tlavu.linkforge.application.dto.request.RegisterRequest;
+import com.tlavu.linkforge.application.dto.response.RegisterResponse;
 import com.tlavu.linkforge.application.usecase.AuthUseCase;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -16,8 +16,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-import com.tlavu.linkforge.application.dto.TokenRefreshRequest;
-import com.tlavu.linkforge.application.dto.LogoutRequest;
+import com.tlavu.linkforge.application.dto.request.TokenRefreshRequest;
+import com.tlavu.linkforge.application.dto.request.LogoutRequest;
 import io.swagger.v3.oas.annotations.Operation;
 
 @RestController

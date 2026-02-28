@@ -1,6 +1,6 @@
 package com.tlavu.linkforge.application.usecase;
 
-import com.tlavu.linkforge.application.dto.ShortLinkResponse;
+import com.tlavu.linkforge.application.dto.response.ShortLinkResponse;
 import com.tlavu.linkforge.domain.exception.AdTokenVerificationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;

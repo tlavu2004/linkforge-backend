@@ -1,6 +1,6 @@
 package com.tlavu.linkforge.infrastructure.cache;
 
-import com.tlavu.linkforge.application.dto.ShortLinkResponse;
+import com.tlavu.linkforge.application.dto.response.ShortLinkResponse;
 
 import java.util.Optional;
 

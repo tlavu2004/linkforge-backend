@@ -7,14 +7,12 @@ spring:
 application:
   security:
     jwt:
-      secret-key: c2VjcmV0LWtleS1zaG91bGQtYmUtYXQtbGVhc3QtMjU2LWJpdHMtbG9uZy1mb3ItSFMyNTY=
-      expiration: 900000 # 15 minutes
-      refresh-token-expiration: 604800000 # 7 days
-  frontend:
-    url: ${FRONTEND_URL:http://localhost:5173}
+      secret-key: ${JWT_SECRET_KEY}
+      expiration: ${JWT_EXPIRATION:900000}
+      refresh-token-expiration: ${JWT_REFRESH_TOKEN_EXPIRATION:604800000}
 
 server:
-  port: 8080
+  port: ${SERVER_PORT:8080}
 
 management:
   endpoints:
@@ -29,21 +27,22 @@ vnpay:
   tmn-code: ${VNPAY_TMN_CODE:YOUR_TMN_CODE}
   hash-secret: ${VNPAY_HASH_SECRET:YOUR_HASH_SECRET}
   pay-url: ${VNPAY_URL:https://sandbox.vnpayment.vn/paymentv2/vpcpay.html}
-  return-url: http://localhost:8080/api/v1/payments/vnpay-return
+  return-url: ${VNPAY_RETURN_URL:http://localhost:8080/api/v1/payments/vnpay-return}
   api-url: https://sandbox.vnpayment.vn/merchant_webapi/api/transaction
   version: "2.1.0"
   command: "pay"
 
 ---
+
 # Development Profile
 spring:
   config:
     activate:
       on-profile: dev
   datasource:
-    url: jdbc:postgresql://localhost:5432/linkforge
-    username: postgres
-    password: password
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/linkforge}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
   data:
     redis:
@@ -61,23 +60,39 @@ spring:
     enabled: true
     locations: classpath:db/migration
 
+application:
+  frontend:
+    url: ${FRONTEND_URL:http://localhost:5173}
+
 logging:
   level:
     com.tlavu.linkforge: DEBUG
     org.hibernate.SQL: DEBUG
 
 ---
+
 # Production Profile
 spring:
   config:
     activate:
       on-profile: prod
   datasource:
-    url: ${DATABASE_URL}
-    # NeonDB uses pooling, so HikariCP settings might need tuning later
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      timeout: 2000
   jpa:
     hibernate:
       ddl-auto: validate
   flyway:
     enabled: true
     locations: classpath:db/migration
+
+application:
+  frontend:
+    url: ${FRONTEND_URL}

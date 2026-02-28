@@ -1,4 +1,4 @@
-package com.tlavu.linkforge.api.filter;
+package com.tlavu.linkforge.infrastructure.ratelimit;
 
 import com.tlavu.linkforge.application.port.in.RateLimiter;
 import jakarta.servlet.FilterChain;

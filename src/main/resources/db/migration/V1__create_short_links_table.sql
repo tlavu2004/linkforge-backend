@@ -6,9 +6,11 @@ CREATE TABLE short_links (
     expires_at TIMESTAMP WITH TIME ZONE,
     click_count BIGINT NOT NULL DEFAULT 0,
     delete_token_hash VARCHAR(64),
+    user_id BIGINT,
     
     CONSTRAINT uk_short_links_short_code UNIQUE (short_code)
 );
 
 CREATE INDEX idx_short_links_created_at ON short_links (created_at);
 CREATE INDEX idx_short_links_expires_at ON short_links (expires_at);
+CREATE INDEX idx_short_links_user_id ON short_links(user_id);
