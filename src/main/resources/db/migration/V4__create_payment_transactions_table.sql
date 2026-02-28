@@ -2,6 +2,7 @@ CREATE TABLE payment_transactions (
     id BIGINT PRIMARY KEY,
     user_id BIGINT NOT NULL,
     order_code VARCHAR(50) NOT NULL UNIQUE,
+    package_code VARCHAR(50),
     amount INTEGER NOT NULL,
     status VARCHAR(20) NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,

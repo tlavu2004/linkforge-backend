@@ -11,3 +11,9 @@ CREATE TABLE users (
 );
 
 CREATE INDEX idx_users_email ON users (email);
+
+ALTER TABLE short_links
+ADD CONSTRAINT fk_short_links_user 
+    FOREIGN KEY (user_id) 
+    REFERENCES users(id) 
+    ON DELETE SET NULL;
