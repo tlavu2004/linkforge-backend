@@ -1,3 +1,10 @@
+# ==========================================================
+# LinkForge Backend — Local Development (Docker Compose)
+# ==========================================================
+# This file is for LOCAL DEVELOPMENT ONLY.
+# For production (Render), use render.yaml + .env.prod.
+# ==========================================================
+
 services:
   postgres:
     image: postgres:16-alpine
