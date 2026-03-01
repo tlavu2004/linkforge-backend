@@ -7,6 +7,8 @@ import com.tlavu.linkforge.infrastructure.persistence.entity.ShortLinkJpaEntity;
 import com.tlavu.linkforge.infrastructure.persistence.mapper.ShortLinkMapper;
 import com.tlavu.linkforge.infrastructure.persistence.repository.ShortLinkJpaRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -52,5 +54,11 @@ public class ShortLinkRepositoryAdapter implements ShortLinkRepository {
     @Override
     public int deleteExpiredLinks(Instant now) {
         return jpaRepository.deleteByExpiresAtBefore(now);
+    }
+
+    @Override
+    public Page<ShortLink> findByUserId(Long userId, Pageable pageable) {
+        return jpaRepository.findByUserId(userId, pageable)
+                .map(mapper::toDomain);
     }
 }

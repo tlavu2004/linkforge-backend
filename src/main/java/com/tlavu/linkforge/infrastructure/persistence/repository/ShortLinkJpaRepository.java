@@ -1,6 +1,8 @@
 package com.tlavu.linkforge.infrastructure.persistence.repository;
 
 import com.tlavu.linkforge.infrastructure.persistence.entity.ShortLinkJpaEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -13,6 +15,8 @@ import java.util.Optional;
 @Repository
 public interface ShortLinkJpaRepository extends JpaRepository<ShortLinkJpaEntity, Long> {
     Optional<ShortLinkJpaEntity> findByShortCode(String shortCode);
+
+    Page<ShortLinkJpaEntity> findByUserId(Long userId, Pageable pageable);
 
     @Modifying
     @Query("UPDATE ShortLinkJpaEntity s SET s.clickCount = s.clickCount + 1 WHERE s.shortCode = :shortCode")
