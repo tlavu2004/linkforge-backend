@@ -33,6 +33,9 @@ public class UserJpaEntity {
     @Column(length = 20, nullable = false)
     private Role role;
 
+    @Column(name = "email_verified", nullable = false)
+    private Boolean emailVerified;
+
     @Column(name = "is_vip", nullable = false)
     private Boolean vip;
 

@@ -4,6 +4,10 @@ import io.hypersistence.tsid.TSID;
 import com.tlavu.linkforge.application.dto.response.AuthResponse;
 import com.tlavu.linkforge.application.dto.request.LoginRequest;
 import com.tlavu.linkforge.application.dto.request.RegisterRequest;
+import com.tlavu.linkforge.application.dto.request.ForgotPasswordRequest;
+import com.tlavu.linkforge.application.dto.request.ResetPasswordRequest;
+import com.tlavu.linkforge.application.dto.request.VerifyEmailRequest;
+import com.tlavu.linkforge.application.dto.request.ResendOtpRequest;
 import com.tlavu.linkforge.application.dto.response.RegisterResponse;
 import com.tlavu.linkforge.application.dto.request.TokenRefreshRequest;
 import com.tlavu.linkforge.application.dto.request.LogoutRequest;
@@ -15,6 +19,8 @@ import com.tlavu.linkforge.domain.repository.RefreshTokenRepository;
 import com.tlavu.linkforge.domain.repository.UserRepository;
 import com.tlavu.linkforge.infrastructure.security.JwtService;
 import com.tlavu.linkforge.infrastructure.config.JwtProperties;
+import com.tlavu.linkforge.infrastructure.service.OtpService;
+import com.tlavu.linkforge.infrastructure.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -34,6 +40,8 @@ public class AuthUseCase {
         private final JwtService jwtService;
         private final JwtProperties jwtProperties;
         private final AuthenticationManager authenticationManager;
+        private final OtpService otpService;
+        private final EmailService emailService;
 
         public RegisterResponse register(RegisterRequest request) {
                 if (userRepository.existsByEmail(request.email())) {
@@ -45,10 +53,14 @@ public class AuthUseCase {
                                 request.name(),
                                 request.email(),
                                 passwordEncoder.encode(request.password()),
-                                Role.USER // Default role is USER
-                );
+                                Role.USER);
 
                 User savedUser = userRepository.save(user);
+
+                // Generate and send verification OTP
+                String otp = otpService.generateAndStore(savedUser.getEmail(), "verify-email");
+                emailService.sendVerificationEmail(savedUser.getEmail(), otp);
+
                 return new RegisterResponse(
                                 savedUser.getId(),
                                 savedUser.getName(),
@@ -64,7 +76,60 @@ public class AuthUseCase {
                 User user = userRepository.findByEmail(request.email())
                                 .orElseThrow(() -> new DomainException("User not found"));
 
+                if (!user.isEmailVerified()) {
+                        throw new DomainException(
+                                        "Email not verified. Please check your email for the verification code.");
+                }
+
                 return generateAuthResponse(user);
+        }
+
+        public void verifyEmail(VerifyEmailRequest request) {
+                User user = userRepository.findByEmail(request.email())
+                                .orElseThrow(() -> new DomainException("User not found"));
+
+                if (user.isEmailVerified()) {
+                        throw new DomainException("Email is already verified");
+                }
+
+                if (!otpService.verify(request.email(), "verify-email", request.otp())) {
+                        throw new DomainException("Invalid or expired OTP");
+                }
+
+                user.verifyEmail();
+                userRepository.save(user);
+        }
+
+        public void resendVerificationOtp(ResendOtpRequest request) {
+                User user = userRepository.findByEmail(request.email())
+                                .orElseThrow(() -> new DomainException("User not found"));
+
+                if (user.isEmailVerified()) {
+                        throw new DomainException("Email is already verified");
+                }
+
+                String otp = otpService.generateAndStore(user.getEmail(), "verify-email");
+                emailService.sendVerificationEmail(user.getEmail(), otp);
+        }
+
+        public void forgotPassword(ForgotPasswordRequest request) {
+                User user = userRepository.findByEmail(request.email())
+                                .orElseThrow(() -> new DomainException("User not found"));
+
+                String otp = otpService.generateAndStore(user.getEmail(), "reset-password");
+                emailService.sendPasswordResetEmail(user.getEmail(), otp);
+        }
+
+        public void resetPassword(ResetPasswordRequest request) {
+                User user = userRepository.findByEmail(request.email())
+                                .orElseThrow(() -> new DomainException("User not found"));
+
+                if (!otpService.verify(request.email(), "reset-password", request.otp())) {
+                        throw new DomainException("Invalid or expired OTP");
+                }
+
+                user.updatePassword(passwordEncoder.encode(request.newPassword()));
+                userRepository.save(user);
         }
 
         public AuthResponse refreshToken(TokenRefreshRequest request) {
@@ -79,7 +144,6 @@ public class AuthUseCase {
                 User user = userRepository.findById(refreshTokenEntity.getUserId())
                                 .orElseThrow(() -> new DomainException("User not found"));
 
-                // Issue new access token
                 String token = jwtService.generateToken(user.getEmail(), user.getId(), user.getRole().name());
 
                 return new AuthResponse(
