@@ -42,6 +42,7 @@ public class AuthUseCase {
 
                 User user = User.create(
                                 TSID.fast().toLong(),
+                                request.name(),
                                 request.email(),
                                 passwordEncoder.encode(request.password()),
                                 Role.USER // Default role is USER
@@ -50,6 +51,7 @@ public class AuthUseCase {
                 User savedUser = userRepository.save(user);
                 return new RegisterResponse(
                                 savedUser.getId(),
+                                savedUser.getName(),
                                 savedUser.getEmail(),
                                 savedUser.getRole(),
                                 savedUser.isVipActive(Instant.now()));
@@ -84,6 +86,7 @@ public class AuthUseCase {
                                 token,
                                 refreshTokenEntity.getToken(),
                                 user.getId(),
+                                user.getName(),
                                 user.getEmail(),
                                 user.getRole(),
                                 user.isVipActive(Instant.now()));
@@ -101,6 +104,7 @@ public class AuthUseCase {
                                 token,
                                 refreshToken.getToken(),
                                 user.getId(),
+                                user.getName(),
                                 user.getEmail(),
                                 user.getRole(),
                                 user.isVipActive(Instant.now()));

@@ -63,7 +63,7 @@ class AuthUseCaseTest {
 
     @BeforeEach
     void setUp() {
-        mockUser = User.create(1L, "test@example.com", "hashed_password", Role.USER);
+        mockUser = User.create(1L, "Test User", "test@example.com", "hashed_password", Role.USER);
         mockRefreshToken = new RefreshToken(1L, 1L, "mock_refresh_token", Instant.now().plusMillis(604800000L));
     }
 
@@ -71,7 +71,7 @@ class AuthUseCaseTest {
     @DisplayName("Should successfully register a new user")
     void shouldRegisterUser() {
         // Arrange
-        RegisterRequest request = new RegisterRequest("test@example.com", "password123");
+        RegisterRequest request = new RegisterRequest("Test User", "test@example.com", "password123");
         when(userRepository.existsByEmail(request.email())).thenReturn(false);
         when(passwordEncoder.encode(request.password())).thenReturn("hashed_password");
         when(userRepository.save(any(User.class))).thenReturn(mockUser);
@@ -92,7 +92,7 @@ class AuthUseCaseTest {
     @DisplayName("Should throw exception if email is already taken during registration")
     void shouldThrowExceptionIfEmailTaken() {
         // Arrange
-        RegisterRequest request = new RegisterRequest("taken@example.com", "password123");
+        RegisterRequest request = new RegisterRequest("Test User", "taken@example.com", "password123");
         when(userRepository.existsByEmail(request.email())).thenReturn(true);
 
         // Act & Assert

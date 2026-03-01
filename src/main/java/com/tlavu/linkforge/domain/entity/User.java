@@ -14,6 +14,7 @@ import java.time.Instant;
 public class User {
 
     private final Long id;
+    private final String name;
     private final String email;
     private final String passwordHash;
     private final Role role;
@@ -23,9 +24,10 @@ public class User {
     private Instant vipExpiresAt;
     private Instant updatedAt;
 
-    public User(Long id, String email, String passwordHash, Role role, Instant createdAt, boolean vip,
+    public User(Long id, String name, String email, String passwordHash, Role role, Instant createdAt, boolean vip,
             Instant vipExpiresAt, Instant updatedAt) {
         this.id = id;
+        this.name = name;
         this.email = email;
         this.passwordHash = passwordHash;
         this.role = role;
@@ -35,9 +37,12 @@ public class User {
         this.updatedAt = updatedAt;
     }
 
-    public static User create(Long id, String email, String passwordHash, Role role) {
+    public static User create(Long id, String name, String email, String passwordHash, Role role) {
         if (id == null) {
             throw new DomainException("User ID must not be null");
+        }
+        if (name == null || name.isBlank()) {
+            throw new DomainException("User name must not be null or blank");
         }
         if (email == null || email.isBlank()) {
             throw new DomainException("User email must not be null or blank");
@@ -50,7 +55,7 @@ public class User {
         }
 
         Instant now = Instant.now();
-        return new User(id, email, passwordHash, role, now, false, null, now);
+        return new User(id, name, email, passwordHash, role, now, false, null, now);
     }
 
     public boolean isVipActive(Instant now) {

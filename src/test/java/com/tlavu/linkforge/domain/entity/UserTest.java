@@ -15,7 +15,7 @@ class UserTest {
     @Test
     @DisplayName("Should create valid User")
     void shouldCreateValidUser() {
-        User user = User.create(1L, "test@example.com", "hash", Role.USER);
+        User user = User.create(1L, "Test User", "test@example.com", "hash", Role.USER);
 
         assertThat(user.getId()).isEqualTo(1L);
         assertThat(user.getEmail()).isEqualTo("test@example.com");
@@ -29,7 +29,7 @@ class UserTest {
     @Test
     @DisplayName("Should throw exception if email is empty")
     void shouldThrowExceptionIfEmailIsEmpty() {
-        assertThatThrownBy(() -> User.create(1L, "", "hash", Role.USER))
+        assertThatThrownBy(() -> User.create(1L, "Test User", "", "hash", Role.USER))
                 .isInstanceOf(DomainException.class)
                 .hasMessageContaining("email");
     }
@@ -37,7 +37,7 @@ class UserTest {
     @Test
     @DisplayName("Should grant and revoke lifetime VIP")
     void shouldGrantAndRevokeLifetimeVip() {
-        User user = User.create(1L, "test@example.com", "hash", Role.USER);
+        User user = User.create(1L, "Test User", "test@example.com", "hash", Role.USER);
 
         user.grantLifetimeVip();
         assertThat(user.isVip()).isTrue();
@@ -53,7 +53,7 @@ class UserTest {
     @Test
     @DisplayName("Should grant temporary VIP and check expiration")
     void shouldGrantTemporaryVipAndCheckExpiration() {
-        User user = User.create(1L, "test@example.com", "hash", Role.USER);
+        User user = User.create(1L, "Test User", "test@example.com", "hash", Role.USER);
         Instant future = Instant.now().plus(1, ChronoUnit.DAYS);
         Instant past = Instant.now().minus(1, ChronoUnit.DAYS);
 

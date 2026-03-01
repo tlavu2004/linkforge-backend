@@ -26,6 +26,7 @@ public class AdminAccountSeeder implements CommandLineRunner {
         if (!userRepository.existsByEmail(adminEmail)) {
             User admin = User.create(
                     TSID.fast().toLong(),
+                    "Admin",
                     adminEmail,
                     passwordEncoder.encode(adminPassword),
                     Role.ADMIN);
