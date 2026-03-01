@@ -37,6 +37,7 @@ import com.tlavu.linkforge.domain.repository.RefreshTokenRepository;
 import java.time.Instant;
 
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("null")
 class AuthUseCaseTest {
 
     @Mock

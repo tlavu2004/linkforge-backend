@@ -2,6 +2,7 @@ package com.tlavu.linkforge.infrastructure.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
@@ -9,6 +10,7 @@ import java.time.Duration;
 
 @Service
 @RequiredArgsConstructor
+@SuppressWarnings("null")
 public class OtpService {
 
     private final StringRedisTemplate redisTemplate;
@@ -18,7 +20,7 @@ public class OtpService {
     /**
      * Generate a 6-digit OTP, store in Redis with key otp:{purpose}:{email}
      */
-    public String generateAndStore(String email, String purpose) {
+    public String generateAndStore(@NonNull String email, @NonNull String purpose) {
         String otp = generateOtp();
         String key = buildKey(email, purpose);
         redisTemplate.opsForValue().set(key, otp, OTP_TTL);
@@ -28,7 +30,7 @@ public class OtpService {
     /**
      * Verify OTP and delete from Redis if valid
      */
-    public boolean verify(String email, String purpose, String otp) {
+    public boolean verify(@NonNull String email, @NonNull String purpose, @NonNull String otp) {
         String key = buildKey(email, purpose);
         String storedOtp = redisTemplate.opsForValue().get(key);
         if (storedOtp != null && storedOtp.equals(otp)) {

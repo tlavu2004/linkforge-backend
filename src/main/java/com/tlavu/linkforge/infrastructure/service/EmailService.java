@@ -5,6 +5,7 @@ import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.lang.NonNull;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@SuppressWarnings("null")
 public class EmailService {
 
     private final JavaMailSender mailSender;
@@ -38,7 +40,7 @@ public class EmailService {
         sendHtmlEmail(to, subject, body);
     }
 
-    private void sendHtmlEmail(String to, String subject, String htmlBody) {
+    private void sendHtmlEmail(@NonNull String to, @NonNull String subject, @NonNull String htmlBody) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
