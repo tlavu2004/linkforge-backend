@@ -32,7 +32,7 @@ class ToggleVipStatusUseCaseTest {
 
     @BeforeEach
     void setUp() {
-        mockUser = User.create(1L, "admin@example.com", "hash", Role.ADMIN);
+        mockUser = User.create(1L, "Admin User", "admin@example.com", "hash", Role.ADMIN);
     }
 
     @Test
