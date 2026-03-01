@@ -15,6 +15,8 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - linkforge-net
 
   redis:
     image: redis:alpine
@@ -28,6 +30,8 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
+    networks:
+      - linkforge-net
 
   app:
     build: .
@@ -46,7 +50,14 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    networks:
+      - linkforge-net
 
 volumes:
   postgres_data:
   redis_data:
+
+
+networks:
+  linkforge-net:
+    name: linkforge-net
