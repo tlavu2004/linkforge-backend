@@ -61,4 +61,10 @@ public class ShortLinkRepositoryAdapter implements ShortLinkRepository {
         return jpaRepository.findByUserId(userId, pageable)
                 .map(mapper::toDomain);
     }
+
+    @Override
+    public Page<ShortLink> findByUserIdAndKeyword(Long userId, String keyword, Pageable pageable) {
+        return jpaRepository.findByUserIdAndKeyword(userId, keyword, pageable)
+                .map(mapper::toDomain);
+    }
 }

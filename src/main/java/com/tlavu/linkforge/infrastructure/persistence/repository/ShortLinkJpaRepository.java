@@ -18,6 +18,12 @@ public interface ShortLinkJpaRepository extends JpaRepository<ShortLinkJpaEntity
 
     Page<ShortLinkJpaEntity> findByUserId(Long userId, Pageable pageable);
 
+    @Query("SELECT s FROM ShortLinkJpaEntity s WHERE s.userId = :userId AND " +
+            "(LOWER(s.originalUrl) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
+            "LOWER(s.shortCode) LIKE LOWER(CONCAT('%', :keyword, '%')))")
+    Page<ShortLinkJpaEntity> findByUserIdAndKeyword(@Param("userId") Long userId, @Param("keyword") String keyword,
+            Pageable pageable);
+
     @Modifying
     @Query("UPDATE ShortLinkJpaEntity s SET s.clickCount = s.clickCount + 1 WHERE s.shortCode = :shortCode")
     void incrementClickCountByShortCode(@Param("shortCode") String shortCode);

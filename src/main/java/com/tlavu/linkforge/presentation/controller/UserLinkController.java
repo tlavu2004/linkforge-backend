@@ -31,6 +31,7 @@ public class UserLinkController {
     @Operation(summary = "List my links", description = "Returns paginated list of the authenticated user's links with sorting")
     public ResponseEntity<ApiResponse<Page<UserLinkResponse>>> getMyLinks(
             @RequestHeader("Authorization") String authHeader,
+            @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "createdAt") String sortBy,
@@ -43,7 +44,7 @@ public class UserLinkController {
         Sort.Direction sortDirection = "asc".equalsIgnoreCase(direction) ? Sort.Direction.ASC : Sort.Direction.DESC;
         PageRequest pageable = PageRequest.of(page, Math.min(size, 50), Sort.by(sortDirection, sortField));
 
-        Page<UserLinkResponse> links = listUserLinksUseCase.execute(userId, pageable);
+        Page<UserLinkResponse> links = listUserLinksUseCase.execute(userId, keyword, pageable);
         return ResponseEntity.ok(ApiResponse.success(links));
     }
 
