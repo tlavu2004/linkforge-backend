@@ -23,4 +23,6 @@ public interface ShortLinkRepository {
     int deleteExpiredLinks(Instant now);
 
     Page<ShortLink> findByUserId(Long userId, Pageable pageable);
+
+    Page<ShortLink> findByUserIdAndKeyword(Long userId, String keyword, Pageable pageable);
 }

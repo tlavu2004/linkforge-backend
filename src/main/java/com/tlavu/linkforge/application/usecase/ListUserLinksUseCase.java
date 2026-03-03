@@ -16,7 +16,11 @@ public class ListUserLinksUseCase {
 
     private final ShortLinkRepository shortLinkRepository;
 
-    public Page<UserLinkResponse> execute(Long userId, Pageable pageable) {
+    public Page<UserLinkResponse> execute(Long userId, String keyword, Pageable pageable) {
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            return shortLinkRepository.findByUserIdAndKeyword(userId, keyword.trim(), pageable)
+                    .map(this::toResponse);
+        }
         return shortLinkRepository.findByUserId(userId, pageable)
                 .map(this::toResponse);
     }
