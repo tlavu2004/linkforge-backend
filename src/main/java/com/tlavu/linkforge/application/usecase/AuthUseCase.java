@@ -162,6 +162,11 @@ public class AuthUseCase {
                 refreshTokenRepository.deleteByToken(request.refreshToken());
         }
 
+        public User findUserByEmail(String email) {
+                return userRepository.findByEmail(email)
+                                .orElseThrow(() -> new DomainException("User not found"));
+        }
+
         private AuthResponse generateAuthResponse(User user) {
                 String token = jwtService.generateToken(user.getEmail(), user.getId(), user.getRole().name());
                 RefreshToken refreshToken = createRefreshToken(user.getId());

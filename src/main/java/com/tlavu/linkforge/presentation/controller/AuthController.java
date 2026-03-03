@@ -12,8 +12,17 @@ import com.tlavu.linkforge.application.dto.response.RegisterResponse;
 import com.tlavu.linkforge.application.usecase.AuthUseCase;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import java.time.Instant;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -87,5 +96,23 @@ public class AuthController {
     public ResponseEntity<ApiResponse<Void>> logout(@RequestBody @Valid LogoutRequest request) {
         authUseCase.logout(request);
         return ResponseEntity.ok(ApiResponse.success("Logged out successfully", null));
+    }
+
+    @GetMapping("/me")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Get current user profile", description = "Returns the authenticated user's latest profile data")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> getCurrentUser(
+            Authentication authentication) {
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        com.tlavu.linkforge.domain.entity.User user = authUseCase.findUserByEmail(userDetails.getUsername());
+
+        Map<String, Object> profile = new LinkedHashMap<>();
+        profile.put("userId", user.getId());
+        profile.put("name", user.getName());
+        profile.put("email", user.getEmail());
+        profile.put("role", user.getRole());
+        profile.put("vip", user.isVipActive(Instant.now()));
+        profile.put("vipExpiresAt", user.getVipExpiresAt());
+        return ResponseEntity.ok(ApiResponse.success(profile));
     }
 }
