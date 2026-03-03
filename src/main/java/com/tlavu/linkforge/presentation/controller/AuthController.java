@@ -4,6 +4,10 @@ import com.tlavu.linkforge.presentation.response.ApiResponse;
 import com.tlavu.linkforge.application.dto.response.AuthResponse;
 import com.tlavu.linkforge.application.dto.request.LoginRequest;
 import com.tlavu.linkforge.application.dto.request.RegisterRequest;
+import com.tlavu.linkforge.application.dto.request.VerifyEmailRequest;
+import com.tlavu.linkforge.application.dto.request.ResendOtpRequest;
+import com.tlavu.linkforge.application.dto.request.ForgotPasswordRequest;
+import com.tlavu.linkforge.application.dto.request.ResetPasswordRequest;
 import com.tlavu.linkforge.application.dto.response.RegisterResponse;
 import com.tlavu.linkforge.application.usecase.AuthUseCase;
 import jakarta.validation.Valid;
@@ -23,20 +27,49 @@ import io.swagger.v3.oas.annotations.Operation;
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
-@Tag(name = "Authentication", description = "Endpoints for user registration, login, refresh tokens, and logout")
+@Tag(name = "Authentication", description = "Endpoints for user registration, login, email verification, password reset, and logout")
 public class AuthController {
 
     private final AuthUseCase authUseCase;
 
     @PostMapping("/register")
-    @Operation(summary = "Register a new user", description = "Creates a new user account without tokens")
+    @Operation(summary = "Register a new user", description = "Creates a new user account and sends verification OTP to email")
     public ResponseEntity<ApiResponse<RegisterResponse>> register(@RequestBody @Valid RegisterRequest request) {
         RegisterResponse response = authUseCase.register(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(response));
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse
+                .success("Registration successful. Please check your email for verification code.", response));
+    }
+
+    @PostMapping("/verify-email")
+    @Operation(summary = "Verify email", description = "Verifies email address using OTP sent during registration")
+    public ResponseEntity<ApiResponse<Void>> verifyEmail(@RequestBody @Valid VerifyEmailRequest request) {
+        authUseCase.verifyEmail(request);
+        return ResponseEntity.ok(ApiResponse.success("Email verified successfully", null));
+    }
+
+    @PostMapping("/resend-otp")
+    @Operation(summary = "Resend verification OTP", description = "Resends verification OTP to the user's email")
+    public ResponseEntity<ApiResponse<Void>> resendOtp(@RequestBody @Valid ResendOtpRequest request) {
+        authUseCase.resendVerificationOtp(request);
+        return ResponseEntity.ok(ApiResponse.success("Verification code sent", null));
+    }
+
+    @PostMapping("/forgot-password")
+    @Operation(summary = "Forgot password", description = "Sends password reset OTP to the user's email")
+    public ResponseEntity<ApiResponse<Void>> forgotPassword(@RequestBody @Valid ForgotPasswordRequest request) {
+        authUseCase.forgotPassword(request);
+        return ResponseEntity.ok(ApiResponse.success("Password reset code sent to your email", null));
+    }
+
+    @PostMapping("/reset-password")
+    @Operation(summary = "Reset password", description = "Resets password using OTP and new password")
+    public ResponseEntity<ApiResponse<Void>> resetPassword(@RequestBody @Valid ResetPasswordRequest request) {
+        authUseCase.resetPassword(request);
+        return ResponseEntity.ok(ApiResponse.success("Password reset successfully", null));
     }
 
     @PostMapping("/login")
-    @Operation(summary = "Login an existing user", description = "Authenticates user and returns JWT + Refresh Token")
+    @Operation(summary = "Login an existing user", description = "Authenticates user and returns JWT + Refresh Token. Email must be verified first.")
     public ResponseEntity<ApiResponse<AuthResponse>> login(@RequestBody @Valid LoginRequest request) {
         AuthResponse response = authUseCase.login(request);
         return ResponseEntity.ok(ApiResponse.success(response));

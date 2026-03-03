@@ -55,7 +55,7 @@ class ResolveShortLinkUseCaseTest {
         when(shortLinkRepository.findByShortCode(any(ShortCode.class))).thenReturn(Optional.of(shortLink));
 
         // When
-        ShortLinkResponse response = useCase.execute(codeStr);
+        ShortLinkResponse response = useCase.execute(codeStr, true);
 
         // Then
         assertThat(response).isNotNull();
@@ -79,7 +79,7 @@ class ResolveShortLinkUseCaseTest {
         when(shortLinkCacheService.getShortLink(codeStr)).thenReturn(Optional.of(cachedResponse));
 
         // When
-        ShortLinkResponse response = useCase.execute(codeStr);
+        ShortLinkResponse response = useCase.execute(codeStr, true);
 
         // Then
         assertThat(response).isEqualTo(cachedResponse);
@@ -96,7 +96,7 @@ class ResolveShortLinkUseCaseTest {
         when(shortLinkRepository.findByShortCode(any(ShortCode.class))).thenReturn(Optional.empty());
 
         // When/Then
-        assertThatThrownBy(() -> useCase.execute(codeStr))
+        assertThatThrownBy(() -> useCase.execute(codeStr, true))
                 .isInstanceOf(ShortLinkNotFoundException.class)
                 .hasMessageContaining(codeStr);
     }
@@ -118,7 +118,7 @@ class ResolveShortLinkUseCaseTest {
         when(shortLinkRepository.findByShortCode(any(ShortCode.class))).thenReturn(Optional.of(expiredLink));
 
         // When/Then
-        assertThatThrownBy(() -> useCase.execute(codeStr))
+        assertThatThrownBy(() -> useCase.execute(codeStr, true))
                 .isInstanceOf(ShortLinkExpiredException.class)
                 .hasMessageContaining(codeStr);
     }

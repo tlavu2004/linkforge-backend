@@ -30,7 +30,7 @@ public class ResolveShortLinkUseCaseImpl implements ResolveShortLinkUseCase {
 
     @Override
     @Transactional(readOnly = true)
-    public ShortLinkResponse execute(String shortCode) {
+    public ShortLinkResponse execute(String shortCode, boolean isAdVerification) {
         metricsService.incrementLinksResolved();
 
         // 1. Check cache
@@ -42,8 +42,10 @@ public class ResolveShortLinkUseCaseImpl implements ResolveShortLinkUseCase {
                 throw new ShortLinkExpiredException("Short link has expired: " + shortCode);
             }
             metricsService.incrementCacheHits();
-            // Still track click even on cache hit
-            eventPublisher.publishEvent(new ShortLinkAccessedEvent(shortCode, Instant.now()));
+            if (isAdVerification || response.skipAds()) {
+                // Track click for VIPs or verified ads
+                eventPublisher.publishEvent(new ShortLinkAccessedEvent(shortCode, Instant.now()));
+            }
             return response;
         }
 
@@ -79,8 +81,10 @@ public class ResolveShortLinkUseCaseImpl implements ResolveShortLinkUseCase {
         // 4. Save to cache
         shortLinkCacheService.saveShortLink(shortCode, response);
 
-        // 5. Publish access event for async click tracking
-        eventPublisher.publishEvent(new ShortLinkAccessedEvent(shortCode, Instant.now()));
+        if (isAdVerification || skipAds) {
+            // 5. Publish access event for async click tracking
+            eventPublisher.publishEvent(new ShortLinkAccessedEvent(shortCode, Instant.now()));
+        }
 
         return response;
     }

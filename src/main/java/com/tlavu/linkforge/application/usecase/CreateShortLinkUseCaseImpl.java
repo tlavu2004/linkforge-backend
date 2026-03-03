@@ -10,6 +10,8 @@ import com.tlavu.linkforge.domain.repository.UserRepository;
 import com.tlavu.linkforge.domain.service.ShortCodeGenerator;
 import com.tlavu.linkforge.domain.valueobject.OriginalUrl;
 import com.tlavu.linkforge.domain.valueobject.ShortCode;
+import com.tlavu.linkforge.infrastructure.security.JwtService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -28,6 +30,8 @@ public class CreateShortLinkUseCaseImpl implements CreateShortLinkUseCase {
     private final ShortCodeGenerator shortCodeGenerator;
     private final com.tlavu.linkforge.infrastructure.metrics.MetricsService metricsService;
     private final UserRepository userRepository;
+    private final HttpServletRequest request;
+    private final JwtService jwtService;
 
     @Override
     @Transactional
@@ -38,6 +42,8 @@ public class CreateShortLinkUseCaseImpl implements CreateShortLinkUseCase {
 
         Long userId = null;
         boolean isVip = false;
+
+        // 1. Try to get user from SecurityContext
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null && auth.isAuthenticated() && !auth.getPrincipal().equals("anonymousUser")) {
             String email = null;
@@ -51,6 +57,26 @@ public class CreateShortLinkUseCaseImpl implements CreateShortLinkUseCase {
                 if (userOpt.isPresent()) {
                     isVip = userOpt.get().isVipActive(Instant.now());
                     userId = userOpt.get().getId();
+                }
+            }
+        }
+
+        // 2. Fallback: Try to get user from Authorization header directly (for
+        // permitAll endpoints)
+        if (userId == null) {
+            String authHeader = request.getHeader("Authorization");
+            if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                String jwt = authHeader.substring(7);
+                try {
+                    userId = jwtService.extractUserId(jwt);
+                    if (userId != null) {
+                        Optional<User> userOpt = userRepository.findById(userId);
+                        if (userOpt.isPresent()) {
+                            isVip = userOpt.get().isVipActive(Instant.now());
+                        }
+                    }
+                } catch (Exception e) {
+                    // Invalid or expired token is ignored for optional authentication
                 }
             }
         }

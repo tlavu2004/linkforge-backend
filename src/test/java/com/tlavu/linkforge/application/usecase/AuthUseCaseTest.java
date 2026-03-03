@@ -9,6 +9,8 @@ import com.tlavu.linkforge.domain.entity.User;
 import com.tlavu.linkforge.domain.exception.DomainException;
 import com.tlavu.linkforge.domain.repository.UserRepository;
 import com.tlavu.linkforge.infrastructure.security.JwtService;
+import com.tlavu.linkforge.infrastructure.service.OtpService;
+import com.tlavu.linkforge.infrastructure.service.EmailService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,6 +37,7 @@ import com.tlavu.linkforge.domain.repository.RefreshTokenRepository;
 import java.time.Instant;
 
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("null")
 class AuthUseCaseTest {
 
     @Mock
@@ -55,6 +58,12 @@ class AuthUseCaseTest {
     @Mock
     private AuthenticationManager authenticationManager;
 
+    @Mock
+    private OtpService otpService;
+
+    @Mock
+    private EmailService emailService;
+
     @InjectMocks
     private AuthUseCase authUseCase;
 
@@ -64,17 +73,19 @@ class AuthUseCaseTest {
     @BeforeEach
     void setUp() {
         mockUser = User.create(1L, "Test User", "test@example.com", "hashed_password", Role.USER);
+        mockUser.verifyEmail(); // Pre-verify for login tests
         mockRefreshToken = new RefreshToken(1L, 1L, "mock_refresh_token", Instant.now().plusMillis(604800000L));
     }
 
     @Test
-    @DisplayName("Should successfully register a new user")
+    @DisplayName("Should successfully register a new user and send OTP")
     void shouldRegisterUser() {
         // Arrange
         RegisterRequest request = new RegisterRequest("Test User", "test@example.com", "password123");
         when(userRepository.existsByEmail(request.email())).thenReturn(false);
         when(passwordEncoder.encode(request.password())).thenReturn("hashed_password");
         when(userRepository.save(any(User.class))).thenReturn(mockUser);
+        when(otpService.generateAndStore(anyString(), anyString())).thenReturn("123456");
 
         // Act
         RegisterResponse response = authUseCase.register(request);
@@ -83,9 +94,10 @@ class AuthUseCaseTest {
         assertThat(response.email()).isEqualTo("test@example.com");
         assertThat(response.role()).isEqualTo(Role.USER);
         assertThat(response.userId()).isEqualTo(1L);
-        assertThat(response.vip()).isFalse();
 
         verify(userRepository).save(any(User.class));
+        verify(otpService).generateAndStore("test@example.com", "verify-email");
+        verify(emailService).sendVerificationEmail("test@example.com", "123456");
     }
 
     @Test
@@ -104,7 +116,7 @@ class AuthUseCaseTest {
     }
 
     @Test
-    @DisplayName("Should successfully login a user")
+    @DisplayName("Should successfully login a verified user")
     void shouldLoginUser() {
         // Arrange
         LoginRequest request = new LoginRequest("test@example.com", "password123");
@@ -122,6 +134,20 @@ class AuthUseCaseTest {
         assertThat(response.role()).isEqualTo(mockUser.getRole());
 
         verify(authenticationManager).authenticate(any(UsernamePasswordAuthenticationToken.class));
+    }
+
+    @Test
+    @DisplayName("Should throw exception if email not verified during login")
+    void shouldThrowExceptionIfEmailNotVerified() {
+        // Arrange
+        User unverifiedUser = User.create(2L, "Unverified", "unverified@example.com", "hashed", Role.USER);
+        LoginRequest request = new LoginRequest("unverified@example.com", "password123");
+        when(userRepository.findByEmail(request.email())).thenReturn(Optional.of(unverifiedUser));
+
+        // Act & Assert
+        assertThatThrownBy(() -> authUseCase.login(request))
+                .isInstanceOf(DomainException.class)
+                .hasMessageContaining("not verified");
     }
 
     @Test

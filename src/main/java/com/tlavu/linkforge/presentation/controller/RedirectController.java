@@ -40,7 +40,7 @@ public class RedirectController {
     @GetMapping("/r/{shortCode}")
     public ResponseEntity<Void> redirect(
             @Parameter(description = "The short code generated for the URL") @PathVariable String shortCode) {
-        ShortLinkResponse response = resolveShortLinkUseCase.execute(shortCode);
+        ShortLinkResponse response = resolveShortLinkUseCase.execute(shortCode, false);
 
         if (response.skipAds()) {
             return ResponseEntity.status(HttpStatus.MOVED_PERMANENTLY)

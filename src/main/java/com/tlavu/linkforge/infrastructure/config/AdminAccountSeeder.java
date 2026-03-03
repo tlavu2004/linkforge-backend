@@ -30,6 +30,7 @@ public class AdminAccountSeeder implements CommandLineRunner {
                     adminEmail,
                     passwordEncoder.encode(adminPassword),
                     Role.ADMIN);
+            admin.verifyEmail(); // Admin is pre-verified
             userRepository.save(admin);
             log.info("Default admin account created with email: {}", adminEmail);
         } else {

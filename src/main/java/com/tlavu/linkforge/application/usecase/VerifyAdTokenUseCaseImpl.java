@@ -45,8 +45,9 @@ public class VerifyAdTokenUseCaseImpl implements VerifyAdTokenUseCase {
         // Token is valid and time has passed
         redisTemplate.delete(key);
 
-        // Fetch and return the original URL
-        ShortLinkResponse shortLinkResponse = resolveShortLinkUseCase.execute(shortCode);
+        // Fetch and return the original URL, and track the click since the user waited
+        // 5s
+        ShortLinkResponse shortLinkResponse = resolveShortLinkUseCase.execute(shortCode, true);
         return shortLinkResponse.originalUrl();
     }
 }

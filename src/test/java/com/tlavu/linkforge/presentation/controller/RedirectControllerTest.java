@@ -46,7 +46,7 @@ class RedirectControllerTest {
                 ShortLinkResponse response = new ShortLinkResponse(
                                 shortCode, originalUrl, Instant.now(), null, null, true);
 
-                when(resolveShortLinkUseCase.execute(shortCode)).thenReturn(response);
+                when(resolveShortLinkUseCase.execute(shortCode, false)).thenReturn(response);
 
                 // When/Then
                 mockMvc.perform(get("/r/{shortCode}", shortCode))
@@ -59,7 +59,7 @@ class RedirectControllerTest {
         void shouldReturn404WhenLinkNotFound() throws Exception {
                 // Given
                 String shortCode = "notfound";
-                when(resolveShortLinkUseCase.execute(shortCode))
+                when(resolveShortLinkUseCase.execute(shortCode, false))
                                 .thenThrow(new ShortLinkNotFoundException("Link not found"));
 
                 // When/Then

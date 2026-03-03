@@ -40,6 +40,12 @@ class CreateShortLinkUseCaseTest {
     @Mock
     private UserRepository userRepository;
 
+    @Mock
+    private jakarta.servlet.http.HttpServletRequest request;
+
+    @Mock
+    private com.tlavu.linkforge.infrastructure.security.JwtService jwtService;
+
     @InjectMocks
     private CreateShortLinkUseCaseImpl useCase;
 

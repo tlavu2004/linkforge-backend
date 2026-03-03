@@ -16,16 +16,17 @@ public class User {
     private final Long id;
     private final String name;
     private final String email;
-    private final String passwordHash;
+    private String passwordHash;
     private final Role role;
     private final Instant createdAt;
 
     private boolean vip;
+    private boolean emailVerified;
     private Instant vipExpiresAt;
     private Instant updatedAt;
 
     public User(Long id, String name, String email, String passwordHash, Role role, Instant createdAt, boolean vip,
-            Instant vipExpiresAt, Instant updatedAt) {
+            boolean emailVerified, Instant vipExpiresAt, Instant updatedAt) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -33,6 +34,7 @@ public class User {
         this.role = role;
         this.createdAt = createdAt;
         this.vip = vip;
+        this.emailVerified = emailVerified;
         this.vipExpiresAt = vipExpiresAt;
         this.updatedAt = updatedAt;
     }
@@ -55,7 +57,20 @@ public class User {
         }
 
         Instant now = Instant.now();
-        return new User(id, name, email, passwordHash, role, now, false, null, now);
+        return new User(id, name, email, passwordHash, role, now, false, false, null, now);
+    }
+
+    public void verifyEmail() {
+        this.emailVerified = true;
+        this.updatedAt = Instant.now();
+    }
+
+    public void updatePassword(String newPasswordHash) {
+        if (newPasswordHash == null || newPasswordHash.isBlank()) {
+            throw new DomainException("Password hash must not be null or blank");
+        }
+        this.passwordHash = newPasswordHash;
+        this.updatedAt = Instant.now();
     }
 
     public boolean isVipActive(Instant now) {

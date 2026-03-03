@@ -4,6 +4,7 @@ CREATE TABLE users (
     email VARCHAR(255) NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     role VARCHAR(20) NOT NULL,
+    email_verified BOOLEAN NOT NULL DEFAULT false,
     is_vip BOOLEAN NOT NULL DEFAULT false,
     vip_expires_at TIMESTAMP WITH TIME ZONE,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
