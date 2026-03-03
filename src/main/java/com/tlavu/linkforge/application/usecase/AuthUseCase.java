@@ -154,11 +154,17 @@ public class AuthUseCase {
                                 user.getName(),
                                 user.getEmail(),
                                 user.getRole(),
-                                user.isVipActive(Instant.now()));
+                                user.isVipActive(Instant.now()),
+                                user.getVipExpiresAt());
         }
 
         public void logout(LogoutRequest request) {
                 refreshTokenRepository.deleteByToken(request.refreshToken());
+        }
+
+        public User findUserByEmail(String email) {
+                return userRepository.findByEmail(email)
+                                .orElseThrow(() -> new DomainException("User not found"));
         }
 
         private AuthResponse generateAuthResponse(User user) {
@@ -172,7 +178,8 @@ public class AuthUseCase {
                                 user.getName(),
                                 user.getEmail(),
                                 user.getRole(),
-                                user.isVipActive(Instant.now()));
+                                user.isVipActive(Instant.now()),
+                                user.getVipExpiresAt());
         }
 
         private RefreshToken createRefreshToken(Long userId) {

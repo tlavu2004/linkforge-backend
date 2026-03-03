@@ -15,6 +15,7 @@ import jakarta.validation.Valid;
 import java.time.Instant;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -34,6 +35,9 @@ public class PaymentController {
     private final CreatePaymentLinkUseCase createPaymentLinkUseCase;
     private final HandlePaymentWebhookUseCase handlePaymentWebhookUseCase;
     private final UserRepository userRepository;
+
+    @Value("${application.frontend.url}")
+    private String frontendUrl;
 
     @PostMapping("/vip-upgrade")
     @PreAuthorize("isAuthenticated()")
@@ -72,17 +76,30 @@ public class PaymentController {
             fields.put(entry.getKey(), entry.getValue()[0]);
         }
 
+        // Check VNPay response code first — "00" means success
+        String responseCode = fields.get("vnp_ResponseCode");
+        if (!"00".equals(responseCode)) {
+            // Payment was cancelled or failed — still process to update transaction status
+            try {
+                handlePaymentWebhookUseCase.execute(fields);
+            } catch (Exception e) {
+                // Log but still redirect to failure
+            }
+            return ResponseEntity.status(302)
+                    .location(Objects.requireNonNull(URI.create(frontendUrl + "/vip-upgrade")))
+                    .build();
+        }
+
         try {
             handlePaymentWebhookUseCase.execute(fields);
         } catch (Exception e) {
-            // Logged in use case, redirect to frontend failure page
             return ResponseEntity.status(302)
-                    .location(Objects.requireNonNull(URI.create("http://localhost:5173/payment-failure")))
+                    .location(Objects.requireNonNull(URI.create(frontendUrl + "/vip-upgrade")))
                     .build();
         }
 
         return ResponseEntity.status(302)
-                .location(Objects.requireNonNull(URI.create("http://localhost:5173/payment-success")))
+                .location(Objects.requireNonNull(URI.create(frontendUrl + "/payment-success")))
                 .build();
     }
 }
