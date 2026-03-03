@@ -85,11 +85,17 @@ public class CreateShortLinkUseCaseImpl implements CreateShortLinkUseCase {
             throw new DomainException("Only VIP users can set custom expiration time for short links");
         }
 
+        // Default 30 days expiration for non-VIP / anonymous users
+        Instant expiresAt = command.expiresAt();
+        if (expiresAt == null && !isVip) {
+            expiresAt = Instant.now().plus(30, java.time.temporal.ChronoUnit.DAYS);
+        }
+
         ShortLink shortLink = ShortLink.create(
                 io.hypersistence.tsid.TSID.fast().toLong(),
                 shortCode,
                 originalUrl,
-                command.expiresAt(),
+                expiresAt,
                 userId,
                 deleteToken);
 

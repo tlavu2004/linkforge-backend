@@ -19,6 +19,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -55,8 +56,8 @@ class CreateShortLinkUseCaseTest {
     }
 
     @Test
-    @DisplayName("Should create short link successfully for anonymous user with no expiration")
-    void shouldCreateShortLinkSuccessfully() {
+    @DisplayName("Should create short link with default 30-day expiration for anonymous user")
+    void shouldCreateShortLinkWithDefault30DayExpiration() {
         // Given
         String originalUrl = "http://example.com";
         CreateShortLinkCommand command = new CreateShortLinkCommand(originalUrl, null); // No custom expiration
@@ -66,13 +67,20 @@ class CreateShortLinkUseCaseTest {
         when(shortLinkRepository.save(any(ShortLink.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         // When
+        Instant beforeExecution = Instant.now();
         ShortLinkResponse response = useCase.execute(command);
+        Instant afterExecution = Instant.now();
 
         // Then
         assertThat(response).isNotNull();
         assertThat(response.shortCode()).isEqualTo(expectedCode.code());
         assertThat(response.originalUrl()).isEqualTo(originalUrl);
         assertThat(response.createdAt()).isNotNull();
+        // Anonymous user should get default 30-day expiration
+        assertThat(response.expiresAt()).isNotNull();
+        assertThat(response.expiresAt()).isBetween(
+                beforeExecution.plus(30, ChronoUnit.DAYS),
+                afterExecution.plus(30, ChronoUnit.DAYS));
 
         verify(shortCodeGenerator).generate();
         verify(shortLinkRepository).save(any(ShortLink.class));
