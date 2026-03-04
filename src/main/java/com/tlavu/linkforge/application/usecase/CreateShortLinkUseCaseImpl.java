@@ -81,13 +81,16 @@ public class CreateShortLinkUseCaseImpl implements CreateShortLinkUseCase {
             }
         }
 
-        if (command.expiresAt() != null && !isVip) {
-            throw new DomainException("Only VIP users can set custom expiration time for short links");
+        boolean canSetCustomExpiration = isVip || (userId != null && userRepository.findById(userId)
+                .map(u -> u.getRole() == com.tlavu.linkforge.domain.entity.Role.ADMIN).orElse(false));
+
+        if (command.expiresAt() != null && !canSetCustomExpiration) {
+            throw new DomainException("Only VIP users and Admins can set custom expiration time for short links");
         }
 
-        // Default 30 days expiration for non-VIP / anonymous users
+        // Default 30 days expiration for non-VIP / non-Admin / anonymous users
         Instant expiresAt = command.expiresAt();
-        if (expiresAt == null && !isVip) {
+        if (expiresAt == null && !canSetCustomExpiration) {
             expiresAt = Instant.now().plus(30, java.time.temporal.ChronoUnit.DAYS);
         }
 
