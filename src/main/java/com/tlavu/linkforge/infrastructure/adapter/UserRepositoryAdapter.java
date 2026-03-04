@@ -9,6 +9,9 @@ import com.tlavu.linkforge.infrastructure.persistence.repository.UserJpaReposito
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import java.util.Optional;
 
 @Component
@@ -39,5 +42,15 @@ public class UserRepositoryAdapter implements UserRepository {
     @Override
     public boolean existsByEmail(String email) {
         return userJpaRepository.existsByEmail(email);
+    }
+
+    @Override
+    public Page<User> searchUsers(String keyword, Pageable pageable) {
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            String term = keyword.trim();
+            return userJpaRepository.findByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(term, term, pageable)
+                    .map(userMapper::toDomain);
+        }
+        return userJpaRepository.findAll(pageable).map(userMapper::toDomain);
     }
 }

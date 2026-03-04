@@ -9,6 +9,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import com.tlavu.linkforge.application.dto.response.UserResponse;
+import com.tlavu.linkforge.application.usecase.ListUsersUseCase;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import io.swagger.v3.oas.annotations.Operation;
+
 @RestController
 @RequestMapping("/api/v1/admin/users")
 @RequiredArgsConstructor
@@ -16,6 +23,34 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public class AdminUserController {
 
     private final ToggleVipStatusUseCase toggleVipStatusUseCase;
+    private final ListUsersUseCase listUsersUseCase;
+
+    @GetMapping
+    @Operation(summary = "List users", description = "Returns an admin paginated list of all users")
+    public ResponseEntity<ApiResponse<Page<UserResponse>>> getUsers(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "createdAt") String sortBy,
+            @RequestParam(defaultValue = "desc") String direction) {
+
+        String sortField = mapSortField(sortBy);
+        Sort.Direction sortDirection = "asc".equalsIgnoreCase(direction) ? Sort.Direction.ASC : Sort.Direction.DESC;
+        PageRequest pageable = PageRequest.of(page, Math.min(size, 50), Sort.by(sortDirection, sortField));
+
+        Page<UserResponse> users = listUsersUseCase.execute(keyword, pageable);
+        return ResponseEntity.ok(ApiResponse.success(users));
+    }
+
+    private String mapSortField(String sortBy) {
+        return switch (sortBy.toLowerCase()) {
+            case "username", "name" -> "username";
+            case "email" -> "email";
+            case "id" -> "id";
+            case "role" -> "role";
+            default -> "createdAt";
+        };
+    }
 
     @PostMapping("/{userId}/vip/toggle")
     public ResponseEntity<ApiResponse<Void>> toggleVip(

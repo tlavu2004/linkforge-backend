@@ -1,6 +1,8 @@
 package com.tlavu.linkforge.infrastructure.persistence.repository;
 
 import com.tlavu.linkforge.infrastructure.persistence.entity.UserJpaEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -11,4 +13,7 @@ public interface UserJpaRepository extends JpaRepository<UserJpaEntity, Long> {
     Optional<UserJpaEntity> findByEmail(String email);
 
     boolean existsByEmail(String email);
+
+    Page<UserJpaEntity> findByNameContainingIgnoreCaseOrEmailContainingIgnoreCase(String name, String email,
+            Pageable pageable);
 }

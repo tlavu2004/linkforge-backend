@@ -1,6 +1,8 @@
 package com.tlavu.linkforge.domain.repository;
 
 import com.tlavu.linkforge.domain.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.Optional;
 
 public interface UserRepository {
@@ -11,4 +13,6 @@ public interface UserRepository {
     Optional<User> findById(Long id);
 
     boolean existsByEmail(String email);
+
+    Page<User> searchUsers(String keyword, Pageable pageable);
 }
