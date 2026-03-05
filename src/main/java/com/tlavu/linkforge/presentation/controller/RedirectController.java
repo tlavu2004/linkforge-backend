@@ -40,17 +40,27 @@ public class RedirectController {
     @GetMapping("/r/{shortCode}")
     public ResponseEntity<Void> redirect(
             @Parameter(description = "The short code generated for the URL") @PathVariable String shortCode) {
-        ShortLinkResponse response = resolveShortLinkUseCase.execute(shortCode, false);
+        try {
+            ShortLinkResponse response = resolveShortLinkUseCase.execute(shortCode, false);
 
-        if (response.skipAds()) {
-            return ResponseEntity.status(HttpStatus.MOVED_PERMANENTLY)
-                    .location(URI.create(response.originalUrl()))
+            if (response.skipAds()) {
+                return ResponseEntity.status(HttpStatus.MOVED_PERMANENTLY)
+                        .location(URI.create(response.originalUrl()))
+                        .build();
+            } else {
+                String adToken = generateAdTokenUseCase.execute(shortCode);
+                String bufferPageUrl = String.format("%s/buffer?code=%s&token=%s", frontendUrl, shortCode, adToken);
+                return ResponseEntity.status(HttpStatus.FOUND) // 302 Redirect
+                        .location(URI.create(bufferPageUrl))
+                        .build();
+            }
+        } catch (com.tlavu.linkforge.domain.exception.ShortLinkExpiredException e) {
+            return ResponseEntity.status(HttpStatus.FOUND)
+                    .location(URI.create(frontendUrl + "/expired"))
                     .build();
-        } else {
-            String adToken = generateAdTokenUseCase.execute(shortCode);
-            String bufferPageUrl = String.format("%s/buffer?code=%s&token=%s", frontendUrl, shortCode, adToken);
-            return ResponseEntity.status(HttpStatus.FOUND) // 302 Redirect
-                    .location(URI.create(bufferPageUrl))
+        } catch (com.tlavu.linkforge.domain.exception.ShortLinkNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.FOUND)
+                    .location(URI.create(frontendUrl + "/404"))
                     .build();
         }
     }
