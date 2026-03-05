@@ -44,7 +44,7 @@ class RedirectControllerTest {
                 String shortCode = "abc12345";
                 String originalUrl = "http://example.com";
                 ShortLinkResponse response = new ShortLinkResponse(
-                                shortCode, originalUrl, Instant.now(), null, null, true);
+                                shortCode, originalUrl, Instant.now(), null, null, true, null);
 
                 when(resolveShortLinkUseCase.execute(shortCode, false)).thenReturn(response);
 

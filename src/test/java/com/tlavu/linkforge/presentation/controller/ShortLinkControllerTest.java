@@ -56,7 +56,8 @@ class ShortLinkControllerTest {
                                 Instant.now(),
                                 null,
                                 "delete-token-123",
-                                false);
+                                false,
+                                null);
 
                 when(createShortLinkUseCase.execute(any(CreateShortLinkCommand.class))).thenReturn(response);
 
@@ -95,7 +96,7 @@ class ShortLinkControllerTest {
                 // Given
                 String shortCode = "abc12345";
                 ShortLinkResponse response = new ShortLinkResponse(
-                                shortCode, "http://example.com", Instant.now(), null, null, false);
+                                shortCode, "http://example.com", Instant.now(), null, null, false, null);
 
                 when(getShortLinkUseCase.execute(shortCode)).thenReturn(response);
 
