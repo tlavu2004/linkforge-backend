@@ -1,7 +1,10 @@
 package com.tlavu.linkforge.presentation.controller;
 
 import com.tlavu.linkforge.application.dto.response.UserLinkResponse;
+import com.tlavu.linkforge.application.usecase.DeleteQrCodeUseCase;
+import com.tlavu.linkforge.application.usecase.GenerateQrCodeUseCase;
 import com.tlavu.linkforge.application.usecase.ListUserLinksUseCase;
+import com.tlavu.linkforge.application.dto.response.ShortLinkResponse;
 import com.tlavu.linkforge.domain.entity.ShortLink;
 import com.tlavu.linkforge.domain.exception.DomainException;
 import com.tlavu.linkforge.domain.repository.ShortLinkRepository;
@@ -24,6 +27,8 @@ import org.springframework.web.bind.annotation.*;
 public class UserLinkController {
 
     private final ListUserLinksUseCase listUserLinksUseCase;
+    private final GenerateQrCodeUseCase generateQrCodeUseCase;
+    private final DeleteQrCodeUseCase deleteQrCodeUseCase;
     private final ShortLinkRepository shortLinkRepository;
     private final JwtService jwtService;
 
@@ -65,6 +70,28 @@ public class UserLinkController {
 
         shortLinkRepository.delete(link.getId());
         return ResponseEntity.ok(ApiResponse.success("Link deleted successfully", null));
+    }
+
+    @PostMapping("/{shortCode}/qr-code")
+    @Operation(summary = "Generate QR code", description = "Generates a QR code for the link. Required VIP or Admin status.")
+    public ResponseEntity<ApiResponse<ShortLinkResponse>> generateQrCode(
+            @RequestHeader("Authorization") String authHeader,
+            @PathVariable String shortCode) {
+
+        Long userId = extractUserId(authHeader);
+        ShortLinkResponse response = generateQrCodeUseCase.execute(shortCode, userId);
+        return ResponseEntity.ok(ApiResponse.success("QR code generated successfully", response));
+    }
+
+    @DeleteMapping("/{shortCode}/qr-code")
+    @Operation(summary = "Delete QR code", description = "Deletes the stored QR code for the link.")
+    public ResponseEntity<ApiResponse<ShortLinkResponse>> deleteQrCode(
+            @RequestHeader("Authorization") String authHeader,
+            @PathVariable String shortCode) {
+
+        Long userId = extractUserId(authHeader);
+        ShortLinkResponse response = deleteQrCodeUseCase.execute(shortCode, userId);
+        return ResponseEntity.ok(ApiResponse.success("QR code deleted successfully", response));
     }
 
     private Long extractUserId(String authHeader) {

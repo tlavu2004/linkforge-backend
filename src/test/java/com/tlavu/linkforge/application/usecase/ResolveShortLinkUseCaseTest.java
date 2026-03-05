@@ -74,7 +74,7 @@ class ResolveShortLinkUseCaseTest {
         // Given
         String codeStr = "abc12345";
         ShortLinkResponse cachedResponse = new ShortLinkResponse(codeStr, "http://example.com", Instant.now(), null,
-                null, false);
+                null, false, null);
 
         when(shortLinkCacheService.getShortLink(codeStr)).thenReturn(Optional.of(cachedResponse));
 
@@ -112,7 +112,7 @@ class ResolveShortLinkUseCaseTest {
         // now.
         // We can use the reconstruction constructor (public constructor).
         ShortLink expiredLink = new ShortLink(1L, code, OriginalUrl.of("http://example.com"),
-                Instant.now().minus(2, ChronoUnit.DAYS), past, 0L, null, "hash");
+                Instant.now().minus(2, ChronoUnit.DAYS), past, 0L, null, "hash", null);
 
         when(shortLinkCacheService.getShortLink(codeStr)).thenReturn(Optional.empty());
         when(shortLinkRepository.findByShortCode(any(ShortCode.class))).thenReturn(Optional.of(expiredLink));

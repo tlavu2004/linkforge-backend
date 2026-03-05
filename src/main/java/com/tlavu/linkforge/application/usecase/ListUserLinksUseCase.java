@@ -32,6 +32,7 @@ public class ListUserLinksUseCase {
                 link.getCreatedAt(),
                 link.getExpiresAt(),
                 link.getClickCount(),
-                link.isExpired(Instant.now()));
+                link.isExpired(Instant.now()),
+                link.getQrCode());
     }
 }

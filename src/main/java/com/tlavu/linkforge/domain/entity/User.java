@@ -20,13 +20,13 @@ public class User {
     private final Role role;
     private final Instant createdAt;
 
-    private boolean vip;
-    private boolean emailVerified;
+    private Boolean vip;
+    private Boolean emailVerified;
     private Instant vipExpiresAt;
     private Instant updatedAt;
 
-    public User(Long id, String name, String email, String passwordHash, Role role, Instant createdAt, boolean vip,
-            boolean emailVerified, Instant vipExpiresAt, Instant updatedAt) {
+    public User(Long id, String name, String email, String passwordHash, Role role, Instant createdAt, Boolean vip,
+            Boolean emailVerified, Instant vipExpiresAt, Instant updatedAt) {
         this.id = id;
         this.name = name;
         this.email = email;
@@ -58,6 +58,14 @@ public class User {
 
         Instant now = Instant.now();
         return new User(id, name, email, passwordHash, role, now, false, false, null, now);
+    }
+
+    public boolean isVip() {
+        return vip != null && vip;
+    }
+
+    public boolean isEmailVerified() {
+        return emailVerified != null && emailVerified;
     }
 
     public void verifyEmail() {

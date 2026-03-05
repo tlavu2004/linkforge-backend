@@ -112,6 +112,7 @@ public class CreateShortLinkUseCaseImpl implements CreateShortLinkUseCase {
                 savedLink.getCreatedAt(),
                 savedLink.getExpiresAt(),
                 savedLink.getDeleteTokenHash(),
-                isVip);
+                isVip,
+                savedLink.getQrCode());
     }
 }
