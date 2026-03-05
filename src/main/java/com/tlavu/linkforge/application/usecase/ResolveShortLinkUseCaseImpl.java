@@ -76,7 +76,8 @@ public class ResolveShortLinkUseCaseImpl implements ResolveShortLinkUseCase {
                 shortLink.getCreatedAt(),
                 shortLink.getExpiresAt(),
                 null, // deleteToken not returned when resolving
-                skipAds);
+                skipAds,
+                shortLink.getQrCode());
 
         // 4. Save to cache
         shortLinkCacheService.saveShortLink(shortCode, response);

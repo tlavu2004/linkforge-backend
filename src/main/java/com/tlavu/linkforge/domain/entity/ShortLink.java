@@ -23,10 +23,11 @@ public class ShortLink {
     private long clickCount;
     private Long userId;
     private String deleteTokenHash;
+    private String qrCode;
 
     // Reconstruction constructor (for persistence/mapping)
     public ShortLink(Long id, ShortCode shortCode, OriginalUrl originalUrl, Instant createdAt, Instant expiresAt,
-            long clickCount, Long userId, String deleteTokenHash) {
+            long clickCount, Long userId, String deleteTokenHash, String qrCode) {
         this.id = id;
         this.shortCode = shortCode;
         this.originalUrl = originalUrl;
@@ -35,6 +36,7 @@ public class ShortLink {
         this.clickCount = clickCount;
         this.userId = userId;
         this.deleteTokenHash = deleteTokenHash;
+        this.qrCode = qrCode;
     }
 
     // Static factory for creation
@@ -63,7 +65,8 @@ public class ShortLink {
                 expiresAt,
                 0L, // Zero clicks
                 userId,
-                deleteTokenHash);
+                deleteTokenHash,
+                null); // Initially no QR code
     }
 
     public void incrementClickCount() {
@@ -72,5 +75,16 @@ public class ShortLink {
 
     public boolean isExpired(Instant now) {
         return expiresAt != null && expiresAt.isBefore(now);
+    }
+
+    public void assignQrCode(String qrCode) {
+        if (qrCode == null || qrCode.isBlank()) {
+            throw new InvalidShortLinkException("QR Code data cannot be empty");
+        }
+        this.qrCode = qrCode;
+    }
+
+    public void deleteQrCode() {
+        this.qrCode = null;
     }
 }

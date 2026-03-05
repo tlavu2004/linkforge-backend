@@ -42,4 +42,7 @@ public class ShortLinkJpaEntity {
 
     @Column(name = "delete_token_hash", length = 64)
     private String deleteTokenHash;
+
+    @Column(name = "qr_code", columnDefinition = "TEXT")
+    private String qrCode;
 }

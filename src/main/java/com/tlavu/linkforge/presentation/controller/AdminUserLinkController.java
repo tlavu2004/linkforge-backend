@@ -1,6 +1,8 @@
 package com.tlavu.linkforge.presentation.controller;
 
 import com.tlavu.linkforge.application.dto.response.UserLinkResponse;
+import com.tlavu.linkforge.application.usecase.DeleteQrCodeUseCase;
+import com.tlavu.linkforge.application.usecase.GenerateQrCodeUseCase;
 import com.tlavu.linkforge.application.usecase.ListUserLinksUseCase;
 import com.tlavu.linkforge.presentation.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,6 +22,8 @@ import org.springframework.web.bind.annotation.*;
 public class AdminUserLinkController {
 
     private final ListUserLinksUseCase listUserLinksUseCase;
+    private final GenerateQrCodeUseCase generateQrCodeUseCase;
+    private final DeleteQrCodeUseCase deleteQrCodeUseCase;
     private final ShortLinkRepository shortLinkRepository;
 
     @GetMapping
@@ -57,6 +61,26 @@ public class AdminUserLinkController {
 
         shortLinkRepository.delete(link.getId());
         return ResponseEntity.ok(ApiResponse.success("Link deleted successfully", null));
+    }
+
+    @PostMapping("/{shortCode}/qr-code")
+    @Operation(summary = "Generate QR code for user link", description = "Generates a QR code for the user's link (as admin).")
+    public ResponseEntity<ApiResponse<com.tlavu.linkforge.application.dto.response.ShortLinkResponse>> generateUserQrCode(
+            @PathVariable Long userId,
+            @PathVariable String shortCode) {
+        com.tlavu.linkforge.application.dto.response.ShortLinkResponse response = generateQrCodeUseCase
+                .execute(shortCode, userId);
+        return ResponseEntity.ok(ApiResponse.success("QR code generated successfully", response));
+    }
+
+    @DeleteMapping("/{shortCode}/qr-code")
+    @Operation(summary = "Delete QR code for user link", description = "Deletes the stored QR code for the user's link (as admin).")
+    public ResponseEntity<ApiResponse<com.tlavu.linkforge.application.dto.response.ShortLinkResponse>> deleteUserQrCode(
+            @PathVariable Long userId,
+            @PathVariable String shortCode) {
+        com.tlavu.linkforge.application.dto.response.ShortLinkResponse response = deleteQrCodeUseCase.execute(shortCode,
+                userId);
+        return ResponseEntity.ok(ApiResponse.success("QR code deleted successfully", response));
     }
 
     private String mapSortField(String sortBy) {
