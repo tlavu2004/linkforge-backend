@@ -2,6 +2,7 @@ package com.tlavu.linkforge.application.usecase;
 
 import com.tlavu.linkforge.application.dto.command.CreateShortLinkCommand;
 import com.tlavu.linkforge.application.dto.response.ShortLinkResponse;
+import com.tlavu.linkforge.domain.entity.Role;
 import com.tlavu.linkforge.domain.entity.ShortLink;
 import com.tlavu.linkforge.domain.entity.User;
 import com.tlavu.linkforge.domain.exception.DomainException;
@@ -10,7 +11,9 @@ import com.tlavu.linkforge.domain.repository.UserRepository;
 import com.tlavu.linkforge.domain.service.ShortCodeGenerator;
 import com.tlavu.linkforge.domain.valueobject.OriginalUrl;
 import com.tlavu.linkforge.domain.valueobject.ShortCode;
+import com.tlavu.linkforge.infrastructure.metrics.MetricsService;
 import com.tlavu.linkforge.infrastructure.security.JwtService;
+import io.hypersistence.tsid.TSID;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -20,7 +23,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -28,7 +33,7 @@ public class CreateShortLinkUseCaseImpl implements CreateShortLinkUseCase {
 
     private final ShortLinkRepository shortLinkRepository;
     private final ShortCodeGenerator shortCodeGenerator;
-    private final com.tlavu.linkforge.infrastructure.metrics.MetricsService metricsService;
+    private final MetricsService metricsService;
     private final UserRepository userRepository;
     private final HttpServletRequest request;
     private final JwtService jwtService;
@@ -38,7 +43,7 @@ public class CreateShortLinkUseCaseImpl implements CreateShortLinkUseCase {
     public ShortLinkResponse execute(CreateShortLinkCommand command) {
         OriginalUrl originalUrl = OriginalUrl.of(command.originalUrl());
         ShortCode shortCode = shortCodeGenerator.generate();
-        String deleteToken = java.util.UUID.randomUUID().toString();
+        String deleteToken = UUID.randomUUID().toString();
 
         Long userId = null;
         boolean isVip = false;
@@ -82,7 +87,7 @@ public class CreateShortLinkUseCaseImpl implements CreateShortLinkUseCase {
         }
 
         boolean canSetCustomExpiration = isVip || (userId != null && userRepository.findById(userId)
-                .map(u -> u.getRole() == com.tlavu.linkforge.domain.entity.Role.ADMIN).orElse(false));
+                .map(u -> u.getRole() == Role.ADMIN).orElse(false));
 
         if (command.expiresAt() != null && !canSetCustomExpiration) {
             throw new DomainException("Only VIP users and Admins can set custom expiration time for short links");
@@ -91,11 +96,11 @@ public class CreateShortLinkUseCaseImpl implements CreateShortLinkUseCase {
         // Default 30 days expiration for non-VIP / non-Admin / anonymous users
         Instant expiresAt = command.expiresAt();
         if (expiresAt == null && !canSetCustomExpiration) {
-            expiresAt = Instant.now().plus(30, java.time.temporal.ChronoUnit.DAYS);
+            expiresAt = Instant.now().plus(30, ChronoUnit.DAYS);
         }
 
         ShortLink shortLink = ShortLink.create(
-                io.hypersistence.tsid.TSID.fast().toLong(),
+                TSID.fast().toLong(),
                 shortCode,
                 originalUrl,
                 expiresAt,

@@ -7,9 +7,10 @@ import com.tlavu.linkforge.domain.exception.ShortLinkExpiredException;
 import com.tlavu.linkforge.domain.exception.ShortLinkNotFoundException;
 import com.tlavu.linkforge.domain.repository.ShortLinkRepository;
 import com.tlavu.linkforge.domain.valueobject.ShortCode;
-import com.tlavu.linkforge.infrastructure.cache.ShortLinkCacheService;
 import com.tlavu.linkforge.domain.entity.User;
 import com.tlavu.linkforge.domain.repository.UserRepository;
+import com.tlavu.linkforge.infrastructure.metrics.MetricsService;
+import com.tlavu.linkforge.infrastructure.cache.ShortLinkCacheService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,7 @@ public class ResolveShortLinkUseCaseImpl implements ResolveShortLinkUseCase {
     private final ShortLinkRepository shortLinkRepository;
     private final ShortLinkCacheService shortLinkCacheService;
     private final ApplicationEventPublisher eventPublisher;
-    private final com.tlavu.linkforge.infrastructure.metrics.MetricsService metricsService;
+    private final MetricsService metricsService;
     private final UserRepository userRepository;
 
     @Override

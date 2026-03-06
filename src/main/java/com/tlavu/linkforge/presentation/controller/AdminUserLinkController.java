@@ -1,14 +1,18 @@
 package com.tlavu.linkforge.presentation.controller;
 
+import com.tlavu.linkforge.application.dto.response.ShortLinkResponse;
 import com.tlavu.linkforge.application.dto.response.UserLinkResponse;
 import com.tlavu.linkforge.application.usecase.DeleteQrCodeUseCase;
 import com.tlavu.linkforge.application.usecase.GenerateQrCodeUseCase;
 import com.tlavu.linkforge.application.usecase.ListUserLinksUseCase;
+import com.tlavu.linkforge.domain.entity.ShortLink;
+import com.tlavu.linkforge.domain.exception.DomainException;
+import com.tlavu.linkforge.domain.repository.ShortLinkRepository;
+import com.tlavu.linkforge.domain.valueobject.ShortCode;
 import com.tlavu.linkforge.presentation.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import com.tlavu.linkforge.domain.repository.ShortLinkRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -22,9 +26,9 @@ import org.springframework.web.bind.annotation.*;
 public class AdminUserLinkController {
 
     private final ListUserLinksUseCase listUserLinksUseCase;
+    private final ShortLinkRepository shortLinkRepository;
     private final GenerateQrCodeUseCase generateQrCodeUseCase;
     private final DeleteQrCodeUseCase deleteQrCodeUseCase;
-    private final ShortLinkRepository shortLinkRepository;
 
     @GetMapping
     @Operation(summary = "List user links", description = "Returns paginated list of a specific user's links")
@@ -50,12 +54,12 @@ public class AdminUserLinkController {
             @PathVariable Long userId,
             @PathVariable String shortCode) {
 
-        com.tlavu.linkforge.domain.entity.ShortLink link = shortLinkRepository
-                .findByShortCode(com.tlavu.linkforge.domain.valueobject.ShortCode.of(shortCode))
-                .orElseThrow(() -> new com.tlavu.linkforge.domain.exception.DomainException("Short link not found"));
+        ShortLink link = shortLinkRepository
+                .findByShortCode(ShortCode.of(shortCode))
+                .orElseThrow(() -> new DomainException("Short link not found"));
 
         if (link.getUserId() == null || !link.getUserId().equals(userId)) {
-            throw new com.tlavu.linkforge.domain.exception.DomainException(
+            throw new DomainException(
                     "This link does not belong to the specified user");
         }
 
@@ -65,20 +69,20 @@ public class AdminUserLinkController {
 
     @PostMapping("/{shortCode}/qr-code")
     @Operation(summary = "Generate QR code for user link", description = "Generates a QR code for the user's link (as admin).")
-    public ResponseEntity<ApiResponse<com.tlavu.linkforge.application.dto.response.ShortLinkResponse>> generateUserQrCode(
+    public ResponseEntity<ApiResponse<ShortLinkResponse>> generateUserQrCode(
             @PathVariable Long userId,
             @PathVariable String shortCode) {
-        com.tlavu.linkforge.application.dto.response.ShortLinkResponse response = generateQrCodeUseCase
+        ShortLinkResponse response = generateQrCodeUseCase
                 .execute(shortCode, userId);
         return ResponseEntity.ok(ApiResponse.success("QR code generated successfully", response));
     }
 
     @DeleteMapping("/{shortCode}/qr-code")
     @Operation(summary = "Delete QR code for user link", description = "Deletes the stored QR code for the user's link (as admin).")
-    public ResponseEntity<ApiResponse<com.tlavu.linkforge.application.dto.response.ShortLinkResponse>> deleteUserQrCode(
+    public ResponseEntity<ApiResponse<ShortLinkResponse>> deleteUserQrCode(
             @PathVariable Long userId,
             @PathVariable String shortCode) {
-        com.tlavu.linkforge.application.dto.response.ShortLinkResponse response = deleteQrCodeUseCase.execute(shortCode,
+        ShortLinkResponse response = deleteQrCodeUseCase.execute(shortCode,
                 userId);
         return ResponseEntity.ok(ApiResponse.success("QR code deleted successfully", response));
     }

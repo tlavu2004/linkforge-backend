@@ -3,6 +3,8 @@ package com.tlavu.linkforge.presentation.controller;
 import com.tlavu.linkforge.application.dto.response.ShortLinkResponse;
 import com.tlavu.linkforge.application.usecase.GenerateAdTokenUseCase;
 import com.tlavu.linkforge.application.usecase.ResolveShortLinkUseCase;
+import com.tlavu.linkforge.domain.exception.ShortLinkExpiredException;
+import com.tlavu.linkforge.domain.exception.ShortLinkNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -54,11 +56,11 @@ public class RedirectController {
                         .location(URI.create(bufferPageUrl))
                         .build();
             }
-        } catch (com.tlavu.linkforge.domain.exception.ShortLinkExpiredException e) {
+        } catch (ShortLinkExpiredException e) {
             return ResponseEntity.status(HttpStatus.FOUND)
                     .location(URI.create(frontendUrl + "/expired"))
                     .build();
-        } catch (com.tlavu.linkforge.domain.exception.ShortLinkNotFoundException e) {
+        } catch (ShortLinkNotFoundException e) {
             return ResponseEntity.status(HttpStatus.FOUND)
                     .location(URI.create(frontendUrl + "/404"))
                     .build();

@@ -1,15 +1,20 @@
 package com.tlavu.linkforge.application.usecase;
 
 import com.tlavu.linkforge.domain.entity.PaymentTransaction;
+import com.tlavu.linkforge.domain.entity.VipPackage;
 import com.tlavu.linkforge.domain.repository.PaymentTransactionRepository;
 import com.tlavu.linkforge.infrastructure.config.VNPayConfig;
 import com.tlavu.linkforge.infrastructure.util.VNPayUtil;
+import io.hypersistence.tsid.TSID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Service
@@ -22,12 +27,11 @@ public class CreatePaymentLinkUseCaseImpl implements CreatePaymentLinkUseCase {
     @Override
     @Transactional
     public String execute(Long userId, String packageCode, String ipAddress) {
-        com.tlavu.linkforge.domain.entity.VipPackage vipPackage = com.tlavu.linkforge.domain.entity.VipPackage
-                .fromCode(packageCode);
+        VipPackage vipPackage = VipPackage.fromCode(packageCode);
         long amountVal = vipPackage.getPriceVnd(); // Dynamic amount
-        String orderCode = "VIP" + io.hypersistence.tsid.TSID.fast().toLong();
+        String orderCode = "VIP" + TSID.fast().toLong();
 
-        long id = io.hypersistence.tsid.TSID.fast().toLong();
+        long id = TSID.fast().toLong();
         PaymentTransaction transaction = PaymentTransaction.create(id, userId, orderCode, (int) amountVal,
                 vipPackage.getCode());
         paymentTransactionRepository.save(transaction);
@@ -45,13 +49,13 @@ public class CreatePaymentLinkUseCaseImpl implements CreatePaymentLinkUseCase {
         vnp_Params.put("vnp_ReturnUrl", vnPayConfig.getReturnUrl());
         vnp_Params.put("vnp_IpAddr", ipAddress != null ? ipAddress : "127.0.0.1");
 
-        java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
-        java.time.ZonedDateTime now = java.time.ZonedDateTime.now(java.time.ZoneId.of("Asia/Ho_Chi_Minh"));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+        ZonedDateTime now = ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"));
 
         String vnp_CreateDate = formatter.format(now);
         vnp_Params.put("vnp_CreateDate", vnp_CreateDate);
 
-        java.time.ZonedDateTime expireDate = now.plusMinutes(15);
+        ZonedDateTime expireDate = now.plusMinutes(15);
         String vnp_ExpireDate = formatter.format(expireDate);
         vnp_Params.put("vnp_ExpireDate", vnp_ExpireDate);
 
