@@ -1,3 +1,6 @@
+-- Migration: V3__create_refresh_tokens_table
+-- Description: Create refresh_tokens table
+
 CREATE TABLE refresh_tokens (
     id BIGINT PRIMARY KEY,
     user_id BIGINT NOT NULL,

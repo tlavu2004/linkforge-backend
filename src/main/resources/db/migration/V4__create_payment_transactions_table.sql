@@ -1,3 +1,6 @@
+-- Migration: V4__create_payment_transactions_table
+-- Description: Create payment_transactions table
+
 CREATE TABLE payment_transactions (
     id BIGINT PRIMARY KEY,
     user_id BIGINT NOT NULL,

@@ -10,6 +10,7 @@ import com.tlavu.linkforge.application.dto.request.ForgotPasswordRequest;
 import com.tlavu.linkforge.application.dto.request.ResetPasswordRequest;
 import com.tlavu.linkforge.application.dto.response.RegisterResponse;
 import com.tlavu.linkforge.application.usecase.AuthUseCase;
+import com.tlavu.linkforge.domain.entity.User;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -104,7 +105,7 @@ public class AuthController {
     public ResponseEntity<ApiResponse<Map<String, Object>>> getCurrentUser(
             Authentication authentication) {
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        com.tlavu.linkforge.domain.entity.User user = authUseCase.findUserByEmail(userDetails.getUsername());
+        User user = authUseCase.findUserByEmail(userDetails.getUsername());
 
         Map<String, Object> profile = new LinkedHashMap<>();
         profile.put("userId", user.getId());

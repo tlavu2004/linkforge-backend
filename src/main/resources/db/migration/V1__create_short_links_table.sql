@@ -1,3 +1,6 @@
+-- Migration: V1__create_short_links_table
+-- Description: Create short_links table
+
 CREATE TABLE short_links (
     id BIGINT PRIMARY KEY,
     short_code VARCHAR(10) NOT NULL,
@@ -7,6 +10,7 @@ CREATE TABLE short_links (
     click_count BIGINT NOT NULL DEFAULT 0,
     delete_token_hash VARCHAR(64),
     user_id BIGINT,
+    qr_code TEXT,
     
     CONSTRAINT uk_short_links_short_code UNIQUE (short_code)
 );

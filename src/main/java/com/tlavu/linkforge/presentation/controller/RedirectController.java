@@ -3,6 +3,8 @@ package com.tlavu.linkforge.presentation.controller;
 import com.tlavu.linkforge.application.dto.response.ShortLinkResponse;
 import com.tlavu.linkforge.application.usecase.GenerateAdTokenUseCase;
 import com.tlavu.linkforge.application.usecase.ResolveShortLinkUseCase;
+import com.tlavu.linkforge.domain.exception.ShortLinkExpiredException;
+import com.tlavu.linkforge.domain.exception.ShortLinkNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -40,17 +42,27 @@ public class RedirectController {
     @GetMapping("/r/{shortCode}")
     public ResponseEntity<Void> redirect(
             @Parameter(description = "The short code generated for the URL") @PathVariable String shortCode) {
-        ShortLinkResponse response = resolveShortLinkUseCase.execute(shortCode, false);
+        try {
+            ShortLinkResponse response = resolveShortLinkUseCase.execute(shortCode, false);
 
-        if (response.skipAds()) {
-            return ResponseEntity.status(HttpStatus.MOVED_PERMANENTLY)
-                    .location(URI.create(response.originalUrl()))
+            if (response.skipAds()) {
+                return ResponseEntity.status(HttpStatus.MOVED_PERMANENTLY)
+                        .location(URI.create(response.originalUrl()))
+                        .build();
+            } else {
+                String adToken = generateAdTokenUseCase.execute(shortCode);
+                String bufferPageUrl = String.format("%s/buffer?code=%s&token=%s", frontendUrl, shortCode, adToken);
+                return ResponseEntity.status(HttpStatus.FOUND) // 302 Redirect
+                        .location(URI.create(bufferPageUrl))
+                        .build();
+            }
+        } catch (ShortLinkExpiredException e) {
+            return ResponseEntity.status(HttpStatus.FOUND)
+                    .location(URI.create(frontendUrl + "/expired"))
                     .build();
-        } else {
-            String adToken = generateAdTokenUseCase.execute(shortCode);
-            String bufferPageUrl = String.format("%s/buffer?code=%s&token=%s", frontendUrl, shortCode, adToken);
-            return ResponseEntity.status(HttpStatus.FOUND) // 302 Redirect
-                    .location(URI.create(bufferPageUrl))
+        } catch (ShortLinkNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.FOUND)
+                    .location(URI.create(frontendUrl + "/404"))
                     .build();
         }
     }

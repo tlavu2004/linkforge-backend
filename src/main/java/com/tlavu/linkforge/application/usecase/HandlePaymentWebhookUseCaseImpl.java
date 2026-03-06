@@ -1,6 +1,7 @@
 package com.tlavu.linkforge.application.usecase;
 
 import com.tlavu.linkforge.domain.entity.PaymentStatus;
+import com.tlavu.linkforge.domain.entity.VipPackage;
 import com.tlavu.linkforge.domain.repository.PaymentTransactionRepository;
 import com.tlavu.linkforge.domain.repository.UserRepository;
 import com.tlavu.linkforge.infrastructure.config.VNPayConfig;
@@ -53,7 +54,7 @@ public class HandlePaymentWebhookUseCaseImpl implements HandlePaymentWebhookUseC
                         // Grant VIP based on package
                         userRepository.findById(transaction.getUserId()).ifPresent(user -> {
                             try {
-                                com.tlavu.linkforge.domain.entity.VipPackage vipPackage = com.tlavu.linkforge.domain.entity.VipPackage
+                                VipPackage vipPackage = VipPackage
                                         .fromCode(transaction.getPackageCode());
 
                                 Instant expiration = Instant.now().plus(vipPackage.getDurationDuration(),

@@ -1,3 +1,6 @@
+-- Migration: V2__create_users_table
+-- Description: Create users table and add foreign key to short_links table
+
 CREATE TABLE users (
     id BIGINT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,

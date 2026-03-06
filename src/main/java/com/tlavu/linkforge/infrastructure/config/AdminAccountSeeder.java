@@ -6,6 +6,7 @@ import com.tlavu.linkforge.domain.repository.UserRepository;
 import io.hypersistence.tsid.TSID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -18,11 +19,14 @@ public class AdminAccountSeeder implements CommandLineRunner {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    @Value("${application.admin.email}")
+    private String adminEmail;
+
+    @Value("${application.admin.password}")
+    private String adminPassword;
+
     @Override
     public void run(String... args) throws Exception {
-        String adminEmail = "admin@linkforge.com";
-        String adminPassword = "adminpassword";
-
         if (!userRepository.existsByEmail(adminEmail)) {
             User admin = User.create(
                     TSID.fast().toLong(),

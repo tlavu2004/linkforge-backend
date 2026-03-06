@@ -1,12 +1,4 @@
-# =============================================
 # LinkForge Backend — Render Blueprint (IaC)
-# =============================================
-# Deploy: Connect this repo to Render, or use
-#   render blueprint sync in the Render dashboard.
-#
-# Required: Set env vars in Render Dashboard
-#   or use .env.prod as reference.
-# =============================================
 
 services:
   - type: web
@@ -18,46 +10,70 @@ services:
     branch: main
     dockerfilePath: ./Dockerfile
     envVars:
-      # --- Spring Profile ---
+      # Spring Profile
       - key: SPRING_PROFILES_ACTIVE
         value: prod
 
-      # --- Database (NeonDB / Render PostgreSQL) ---
+      # Database (NeonDB / Render PostgreSQL)
       - key: DB_URL
-        sync: false  # Set manually in Render Dashboard
+        sync: false
       - key: DB_USERNAME
         sync: false
       - key: DB_PASSWORD
         sync: false
 
-      # --- Redis (Render Redis / Upstash) ---
+      # Redis (Upstash / Render Redis)
       - key: REDIS_HOST
         sync: false
       - key: REDIS_PORT
         value: "6379"
+      - key: REDIS_PASSWORD
+        sync: false
+      - key: REDIS_SSL_ENABLED
+        value: "true"
 
-      # --- JWT ---
+      # JWT
       - key: JWT_SECRET_KEY
-        generateValue: true  # Render auto-generates a secure value
+        generateValue: true
       - key: JWT_EXPIRATION
         value: "900000"
       - key: JWT_REFRESH_TOKEN_EXPIRATION
         value: "604800000"
 
-      # --- Server ---
-      - key: SERVER_PORT
+      # Server
+      - key: PORT
         value: "8080"
 
-      # --- Frontend URL (CORS & redirect) ---
+      # Frontend URL
       - key: FRONTEND_URL
-        sync: false  # Set to your Vercel frontend URL
+        sync: false
 
-      # --- VNPay ---
+      # VNPay
       - key: VNPAY_TMN_CODE
         sync: false
       - key: VNPAY_HASH_SECRET
         sync: false
       - key: VNPAY_URL
-        value: "https://pay.vnpay.vn/vpcpay.html"
+        value: "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"
       - key: VNPAY_RETURN_URL
-        sync: false  # Set to https://your-backend.onrender.com/api/v1/payments/vnpay-return
+        sync: false
+      - key: VNPAY_API_URL
+        value: "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction"
+
+      # Mail (Gmail SMTP)
+      - key: MAIL_HOST
+        value: "smtp.gmail.com"
+      - key: MAIL_PORT
+        value: "587"
+      - key: MAIL_USERNAME
+        sync: false
+      - key: MAIL_PASSWORD
+        sync: false
+      - key: MAIL_FROM
+        sync: false
+
+      # Admin Credentials
+      - key: ADMIN_EMAIL
+        sync: false
+      - key: ADMIN_PASSWORD
+        sync: false
