@@ -1,3 +1,6 @@
+-- Migration: V1__create_short_links_table
+-- Description: Create short_links table
+
 CREATE TABLE short_links (
     id BIGINT PRIMARY KEY,
     short_code VARCHAR(10) NOT NULL,
