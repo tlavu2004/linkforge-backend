@@ -29,9 +29,9 @@ services:
       - key: VNPAY_API_URL
         value: "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction"
       - key: MAIL_HOST
-        value: "smtp.gmail.com"
+        value: "smtp-relay.brevo.com"
       - key: MAIL_PORT
-        value: "587"
+        value: "2525"
 
       # JWT (Render can auto-generate this if not in Env Group)
       - key: JWT_EXPIRATION
