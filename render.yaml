@@ -23,7 +23,7 @@ services:
       - key: REDIS_SSL_ENABLED
         value: "true"
       - key: PORT
-        value: "8080"
+        value: "10000"
       - key: VNPAY_URL
         value: "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"
       - key: VNPAY_API_URL
