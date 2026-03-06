@@ -7,6 +7,7 @@ CREATE TABLE short_links (
     click_count BIGINT NOT NULL DEFAULT 0,
     delete_token_hash VARCHAR(64),
     user_id BIGINT,
+    qr_code TEXT,
     
     CONSTRAINT uk_short_links_short_code UNIQUE (short_code)
 );
