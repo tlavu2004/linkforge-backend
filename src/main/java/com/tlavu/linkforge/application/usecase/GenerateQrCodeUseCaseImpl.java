@@ -24,8 +24,8 @@ public class GenerateQrCodeUseCaseImpl implements GenerateQrCodeUseCase {
     private final UserRepository userRepository;
     private final QrCodeGenerator qrCodeGenerator;
 
-    @Value("${application.frontend.url:http://localhost:5173}")
-    private String frontendUrl;
+    @Value("${app.backend.url:http://localhost:8080}")
+    private String backendUrl;
 
     @Override
     @Transactional
@@ -53,7 +53,7 @@ public class GenerateQrCodeUseCaseImpl implements GenerateQrCodeUseCase {
             return toResponse(shortLink, isVipActive || isAdmin);
         }
 
-        String targetUrl = frontendUrl + "/r/" + shortLink.getShortCode().code();
+        String targetUrl = backendUrl + "/r/" + shortLink.getShortCode().code();
         String qrCodeBase64 = qrCodeGenerator.generateQrCodeBase64(targetUrl, 300, 300);
 
         shortLink.assignQrCode(qrCodeBase64);
