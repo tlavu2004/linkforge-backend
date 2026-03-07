@@ -26,8 +26,12 @@ services:
         value: "10000"
       - key: FRONTEND_URL
         value: "https://tlavu-linkforge.vercel.app"
+      - key: BACKEND_URL
+        value: "https://linkforge-backend-r0tk.onrender.com"
       - key: VNPAY_URL
         value: "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html"
+      - key: VNPAY_RETURN_URL
+        value: "https://linkforge-backend-r0tk.onrender.com/api/v1/payments/vnpay-return"
       - key: VNPAY_API_URL
         value: "https://sandbox.vnpayment.vn/merchant_webapi/api/transaction"
       - key: MAIL_HOST
