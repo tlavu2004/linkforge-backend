@@ -3,27 +3,15 @@
     "info": {
         "title": "LinkForge API",
         "description": "REST API Documentation for the LinkForge URL Shortener Project",
-        "contact": {
-            "name": "Support",
-            "email": "support@linkforge.app"
-        },
-        "license": {
-            "name": "MIT License",
-            "url": "https://opensource.org/licenses/MIT"
-        },
         "version": "1.0"
     },
     "servers": [
         {
             "url": "http://localhost:8080",
-            "description": "Local DEV Environment"
+            "description": "Current Environment Server"
         }
     ],
     "tags": [
-        {
-            "name": "Authentication",
-            "description": "Endpoints for user registration, login, refresh tokens, and logout"
-        },
         {
             "name": "Short Links Management",
             "description": "Endpoints for creating, retrieving, and deleting short links"
@@ -37,8 +25,20 @@
             "description": "Endpoint for redirecting short links to their original URLs"
         },
         {
+            "name": "My Links",
+            "description": "Manage authenticated user's links"
+        },
+        {
             "name": "Admin User Management",
             "description": "Endpoints for managing user accounts and roles"
+        },
+        {
+            "name": "Admin User Links Management",
+            "description": "Endpoints for managing specific user links as admin"
+        },
+        {
+            "name": "Authentication",
+            "description": "Endpoints for user registration, login, email verification, password reset, and logout"
         },
         {
             "name": "Advertisements",
@@ -71,6 +71,84 @@
                             "*/*": {
                                 "schema": {
                                     "$ref": "#/components/schemas/ApiResponseString"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/me/links/{shortCode}/qr-code": {
+            "post": {
+                "tags": [
+                    "My Links"
+                ],
+                "summary": "Generate QR code",
+                "description": "Generates a QR code for the link. Required VIP or Admin status.",
+                "operationId": "generateQrCode",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "shortCode",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseShortLinkResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "My Links"
+                ],
+                "summary": "Delete QR code",
+                "description": "Deletes the stored QR code for the link.",
+                "operationId": "deleteQrCode",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "shortCode",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseShortLinkResponse"
                                 }
                             }
                         }
@@ -120,13 +198,109 @@
                 }
             }
         },
+        "/api/v1/auth/verify-email": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Verify email",
+                "description": "Verifies email address using OTP sent during registration",
+                "operationId": "verifyEmail",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/VerifyEmailRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/reset-password": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Reset password",
+                "description": "Resets password using OTP and new password",
+                "operationId": "resetPassword",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ResetPasswordRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/resend-otp": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Resend verification OTP",
+                "description": "Resends verification OTP to the user's email",
+                "operationId": "resendOtp",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ResendOtpRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/api/v1/auth/register": {
             "post": {
                 "tags": [
                     "Authentication"
                 ],
                 "summary": "Register a new user",
-                "description": "Creates a new user account without tokens",
+                "description": "Creates a new user account and sends verification OTP to email",
                 "operationId": "register",
                 "requestBody": {
                     "content": {
@@ -222,7 +396,7 @@
                     "Authentication"
                 ],
                 "summary": "Login an existing user",
-                "description": "Authenticates user and returns JWT + Refresh Token",
+                "description": "Authenticates user and returns JWT + Refresh Token. Email must be verified first.",
                 "operationId": "login",
                 "requestBody": {
                     "content": {
@@ -241,6 +415,38 @@
                             "*/*": {
                                 "schema": {
                                     "$ref": "#/components/schemas/ApiResponseAuthResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/auth/forgot-password": {
+            "post": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Forgot password",
+                "description": "Sends password reset OTP to the user's email",
+                "operationId": "forgotPassword",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ForgotPasswordRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
                                 }
                             }
                         }
@@ -331,6 +537,86 @@
                 }
             }
         },
+        "/api/v1/admin/users/{userId}/links/{shortCode}/qr-code": {
+            "post": {
+                "tags": [
+                    "Admin User Links Management"
+                ],
+                "summary": "Generate QR code for user link",
+                "description": "Generates a QR code for the user's link (as admin).",
+                "operationId": "generateUserQrCode",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "shortCode",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseShortLinkResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Admin User Links Management"
+                ],
+                "summary": "Delete QR code for user link",
+                "description": "Deletes the stored QR code for the user's link (as admin).",
+                "operationId": "deleteUserQrCode",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "shortCode",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseShortLinkResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/r/{shortCode}": {
             "get": {
                 "tags": [
@@ -374,6 +660,84 @@
                 "responses": {
                     "200": {
                         "description": "OK"
+                    }
+                }
+            }
+        },
+        "/api/v1/me/links": {
+            "get": {
+                "tags": [
+                    "My Links"
+                ],
+                "summary": "List my links",
+                "description": "Returns paginated list of the authenticated user's links with sorting",
+                "operationId": "getMyLinks",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "keyword",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "default": 0
+                        }
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "default": 10
+                        }
+                    },
+                    {
+                        "name": "sortBy",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "createdAt"
+                        }
+                    },
+                    {
+                        "name": "direction",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "desc"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponsePageUserLinkResponse"
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -459,6 +823,258 @@
                     }
                 }
             }
+        },
+        "/api/v1/auth/me": {
+            "get": {
+                "tags": [
+                    "Authentication"
+                ],
+                "summary": "Get current user profile",
+                "description": "Returns the authenticated user's latest profile data",
+                "operationId": "getCurrentUser",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseMapStringObject"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/admin/users": {
+            "get": {
+                "tags": [
+                    "Admin User Management"
+                ],
+                "summary": "List users",
+                "description": "Returns an admin paginated list of all users",
+                "operationId": "getUsers",
+                "parameters": [
+                    {
+                        "name": "keyword",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "default": 0
+                        }
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "default": 10
+                        }
+                    },
+                    {
+                        "name": "sortBy",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "createdAt"
+                        }
+                    },
+                    {
+                        "name": "direction",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "desc"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponsePageUserResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/admin/users/{userId}/links": {
+            "get": {
+                "tags": [
+                    "Admin User Links Management"
+                ],
+                "summary": "List user links",
+                "description": "Returns paginated list of a specific user's links",
+                "operationId": "getUserLinks",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "keyword",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "default": 0
+                        }
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32",
+                            "default": 10
+                        }
+                    },
+                    {
+                        "name": "sortBy",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "createdAt"
+                        }
+                    },
+                    {
+                        "name": "direction",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "desc"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponsePageUserLinkResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/me/links/{shortCode}": {
+            "delete": {
+                "tags": [
+                    "My Links"
+                ],
+                "summary": "Delete my link",
+                "description": "Deletes a link owned by the authenticated user (no delete token needed)",
+                "operationId": "deleteMyLink",
+                "parameters": [
+                    {
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "shortCode",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/v1/admin/users/{userId}/links/{shortCode}": {
+            "delete": {
+                "tags": [
+                    "Admin User Links Management"
+                ],
+                "summary": "Delete user link",
+                "description": "Deletes a specific link owned by the user (as admin)",
+                "operationId": "deleteUserLink",
+                "parameters": [
+                    {
+                        "name": "userId",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "shortCode",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ApiResponseVoid"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     },
     "components": {
@@ -488,18 +1104,6 @@
                         "type": "string"
                     },
                     "timestamp": {
-                        "type": "string",
-                        "format": "date-time"
-                    }
-                }
-            },
-            "CreateShortLinkCommand": {
-                "type": "object",
-                "properties": {
-                    "originalUrl": {
-                        "type": "string"
-                    },
-                    "expiresAt": {
                         "type": "string",
                         "format": "date-time"
                     }
@@ -549,6 +1153,9 @@
                     "skipAds": {
                         "type": "boolean"
                     },
+                    "qrCode": {
+                        "type": "string"
+                    },
                     "@class": {
                         "type": "string"
                     }
@@ -557,9 +1164,97 @@
                     "@class"
                 ]
             },
+            "CreateShortLinkCommand": {
+                "type": "object",
+                "properties": {
+                    "originalUrl": {
+                        "type": "string"
+                    },
+                    "expiresAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "VerifyEmailRequest": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "minLength": 1
+                    },
+                    "otp": {
+                        "type": "string",
+                        "minLength": 1
+                    }
+                },
+                "required": [
+                    "email",
+                    "otp"
+                ]
+            },
+            "ApiResponseVoid": {
+                "type": "object",
+                "properties": {
+                    "success": {
+                        "type": "boolean"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {},
+                    "timestamp": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "ResetPasswordRequest": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "minLength": 1
+                    },
+                    "otp": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "newPassword": {
+                        "type": "string",
+                        "maxLength": 2147483647,
+                        "minLength": 6
+                    }
+                },
+                "required": [
+                    "email",
+                    "newPassword",
+                    "otp"
+                ]
+            },
+            "ResendOtpRequest": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "minLength": 1
+                    }
+                },
+                "required": [
+                    "email"
+                ]
+            },
             "RegisterRequest": {
                 "type": "object",
                 "properties": {
+                    "name": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "minLength": 0
+                    },
                     "email": {
                         "type": "string",
                         "format": "email",
@@ -573,6 +1268,7 @@
                 },
                 "required": [
                     "email",
+                    "name",
                     "password"
                 ]
             },
@@ -600,6 +1296,9 @@
                     "userId": {
                         "type": "integer",
                         "format": "int64"
+                    },
+                    "name": {
+                        "type": "string"
                     },
                     "email": {
                         "type": "string"
@@ -659,6 +1358,9 @@
                         "type": "integer",
                         "format": "int64"
                     },
+                    "name": {
+                        "type": "string"
+                    },
                     "email": {
                         "type": "string"
                     },
@@ -671,6 +1373,10 @@
                     },
                     "vip": {
                         "type": "boolean"
+                    },
+                    "vipExpiresAt": {
+                        "type": "string",
+                        "format": "date-time"
                     }
                 }
             },
@@ -685,22 +1391,6 @@
                 "required": [
                     "refreshToken"
                 ]
-            },
-            "ApiResponseVoid": {
-                "type": "object",
-                "properties": {
-                    "success": {
-                        "type": "boolean"
-                    },
-                    "message": {
-                        "type": "string"
-                    },
-                    "data": {},
-                    "timestamp": {
-                        "type": "string",
-                        "format": "date-time"
-                    }
-                }
             },
             "LoginRequest": {
                 "type": "object",
@@ -718,6 +1408,19 @@
                 "required": [
                     "email",
                     "password"
+                ]
+            },
+            "ForgotPasswordRequest": {
+                "type": "object",
+                "properties": {
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "minLength": 1
+                    }
+                },
+                "required": [
+                    "email"
                 ]
             },
             "VerifyAdTokenRequest": {
@@ -747,6 +1450,176 @@
                 "required": [
                     "vip"
                 ]
+            },
+            "ApiResponsePageUserLinkResponse": {
+                "type": "object",
+                "properties": {
+                    "success": {
+                        "type": "boolean"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/PageObject"
+                    },
+                    "timestamp": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "PageObject": {
+                "type": "object",
+                "properties": {
+                    "totalElements": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "totalPages": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "pageable": {
+                        "$ref": "#/components/schemas/PageableObject"
+                    },
+                    "numberOfElements": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "content": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/UserLinkResponse"
+                        }
+                    },
+                    "number": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "sort": {
+                        "$ref": "#/components/schemas/SortObject"
+                    },
+                    "first": {
+                        "type": "boolean"
+                    },
+                    "last": {
+                        "type": "boolean"
+                    },
+                    "empty": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "PageableObject": {
+                "type": "object",
+                "properties": {
+                    "unpaged": {
+                        "type": "boolean"
+                    },
+                    "pageNumber": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "paged": {
+                        "type": "boolean"
+                    },
+                    "pageSize": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "offset": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "sort": {
+                        "$ref": "#/components/schemas/SortObject"
+                    }
+                }
+            },
+            "SortObject": {
+                "type": "object",
+                "properties": {
+                    "unsorted": {
+                        "type": "boolean"
+                    },
+                    "sorted": {
+                        "type": "boolean"
+                    },
+                    "empty": {
+                        "type": "boolean"
+                    }
+                }
+            },
+            "UserLinkResponse": {
+                "type": "object",
+                "properties": {
+                    "shortCode": {
+                        "type": "string"
+                    },
+                    "originalUrl": {
+                        "type": "string"
+                    },
+                    "createdAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "expiresAt": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "clickCount": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "expired": {
+                        "type": "boolean"
+                    },
+                    "qrCode": {
+                        "type": "string"
+                    }
+                }
+            },
+            "ApiResponseMapStringObject": {
+                "type": "object",
+                "properties": {
+                    "success": {
+                        "type": "boolean"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "type": "object",
+                        "additionalProperties": {}
+                    },
+                    "timestamp": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
+            },
+            "ApiResponsePageUserResponse": {
+                "type": "object",
+                "properties": {
+                    "success": {
+                        "type": "boolean"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "data": {
+                        "$ref": "#/components/schemas/PageObject"
+                    },
+                    "timestamp": {
+                        "type": "string",
+                        "format": "date-time"
+                    }
+                }
             }
         }
     }

@@ -553,3 +553,85 @@ Phase 3 (Scale writes): Event-driven
 - [ ] Admin Endpoints:
   - Toggle thủ công VIP status của 1 user (bật/tắt)
 - [ ] Auth endpoints (Register, Login) và JWT tích hợp.
+
+---
+
+## 13. Cải thiện hệ thống (System Improvements)
+
+> Các mục dưới đây dựa trên phân tích GAP giữa yêu cầu thiết kế hệ thống (ANALYTIC.md) và implementation hiện tại.
+
+### 13.1 Database Sharding Strategy
+
+Khi data vượt hàng triệu records, cần chiến lược sharding:
+
+- [ ] **Horizontal Partitioning** theo `short_code`:
+  - Range-based: chia theo prefix ký tự đầu (a-j, k-t, u-z, 0-9)
+  - Hash-based: consistent hashing trên `short_code` → distribute đều
+- [ ] **Read Replicas**: Cấu hình PostgreSQL read replicas cho redirect queries
+- [ ] **Connection Pooling**: Tối ưu `HikariCP` pool size cho read-heavy workload
+- [ ] **Table Partitioning** (PostgreSQL native):
+  - Partition `short_links` theo `created_at` (monthly/quarterly)
+  - Giúp cleanup expired links nhanh hơn (drop partition thay vì DELETE)
+
+> **Tại sao không chuyển NoSQL?** ANALYTIC.md đề xuất DynamoDB/Cassandra, nhưng PostgreSQL
+> hiện tại đủ tốt cho quy mô MVP. Khi cần NoSQL, chỉ cần implement mới cho `ShortLinkRepository` port
+> nhờ kiến trúc Hexagonal — không cần refactor business logic.
+
+### 13.2 CDN Integration
+
+Giảm latency cho user toàn cầu:
+
+- [ ] **Cloudflare / AWS CloudFront** trước API server:
+  - Cache redirect responses (301) tại edge
+  - Giảm traffic về origin server
+- [ ] **Cache-Control Headers**: Thêm `Cache-Control: public, max-age=86400` cho redirect response
+- [ ] **Geographic routing**: Route user đến server gần nhất
+- [ ] **DDoS Protection**: CDN layer chặn attack trước khi đến app server
+
+```
+Flow với CDN:
+User → CDN Edge → Cache HIT → Redirect (không về origin)
+                → Cache MISS → Origin (App + Redis + DB) → Cache tại Edge → Redirect
+```
+
+### 13.3 Analytics chi tiết (Detailed Tracking)
+
+ANALYTIC.md ghi optional, nhưng cải thiện giá trị sản phẩm:
+
+- [ ] **Click Analytics Entity** mới:
+  - `click_id`, `short_code`, `timestamp`, `ip_address`, `user_agent`
+  - `country`, `city` (từ IP geolocation)
+  - `device_type` (mobile/desktop/tablet, parse từ User-Agent)
+  - `referrer` (nguồn click)
+- [ ] **Geolocation Service**: Tích hợp MaxMind GeoIP2 hoặc ip-api.com
+- [ ] **Time-series aggregation**: Tổng hợp click theo giờ/ngày/tuần/tháng
+- [ ] **API Analytics endpoints**:
+  - `GET /api/v1/links/{code}/analytics` — tổng quan
+  - `GET /api/v1/links/{code}/analytics/clicks` — chi tiết theo thời gian
+  - `GET /api/v1/links/{code}/analytics/geo` — phân bổ theo địa lý
+  - `GET /api/v1/links/{code}/analytics/devices` — phân bổ theo thiết bị
+
+> **Lưu ý**: Analytics data write-heavy → nên dùng **batch insert** + **async processing**
+> (đã có pattern `@Async` + Spring Events). Có thể mở rộng bằng message queue sau.
+
+### 13.4 Cải thiện Cache cho Hot Key
+
+Xử lý link viral (hot key) hiệu quả hơn:
+
+- [ ] **Local Cache Layer** (Caffeine): L1 cache in-memory trước Redis
+  - Giảm network roundtrip cho hot keys
+  - TTL ngắn (30s–60s) để tránh stale data
+- [ ] **Cache Warming**: Pre-populate cache cho newly created links
+- [ ] **Redis Cluster**: Khi single Redis instance không đủ
+  - Data partitioning tự động
+  - High availability (replica failover)
+
+### 13.5 Công nghệ hiện tại vs Đề xuất ANALYTIC.md
+
+| Thành phần | ANALYTIC.md đề xuất | Hiện tại | So sánh |
+|---|---|---|---|
+| **ID Generator** | Auto-increment ID + Base62 | **TSID + Base62** | ✅ Tốt hơn: distributed, time-sorted, không cần DB sequence |
+| **Database** | NoSQL (DynamoDB/Cassandra) | **PostgreSQL** | ⚖️ Phù hợp quy mô hiện tại. Hexagonal cho phép swap dễ dàng |
+| **Cache** | Redis | **Redis** | ✅ Đúng như đề xuất |
+| **Load Balancer** | Dedicated LB | **Render managed LB** | ⚖️ Đủ cho quy mô hiện tại. Nâng cấp khi cần custom routing |
+| **Rate Limiting** | Đề cập cần có | **Redis + Lua script** | ✅ Tốt hơn: atomic, distributed-safe |
