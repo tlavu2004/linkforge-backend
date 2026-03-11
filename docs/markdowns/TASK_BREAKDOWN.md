@@ -468,6 +468,57 @@
 
 ---
 
+## Phase 15 – System Improvements (Scale & Analytics)
+
+> Dựa trên phân tích GAP với yêu cầu từ ANALYTIC.md
+
+### Task 15.1: `feat(infra): add PostgreSQL table partitioning`
+- Tạo migration mới: partition `short_links` theo `created_at` (monthly)
+- Cấu hình `HikariCP` pool size tối ưu cho read-heavy workload
+- Tạo script tự động tạo partition mới hàng tháng (cron hoặc scheduled job)
+- **Verify**: Query explain plan cho thấy partition pruning hoạt động
+
+### Task 15.2: `feat(infra): add read replica support`
+- Cấu hình Spring Boot dual datasource (write → primary, read → replica)
+- Tạo `@ReadOnlyTransaction` annotation tự chọn replica datasource
+- Apply cho `ResolveShortLinkUseCase` và các read queries
+- **Verify**: Redirect queries đi qua read replica, write vẫn qua primary
+
+### Task 15.3: `feat(infra): add CDN configuration`
+- Thêm `Cache-Control` headers cho redirect response (public, max-age=86400)
+- Cấu hình Cloudflare / CloudFront trước origin server
+- Setup page rules: cache `/r/*` path
+- **Verify**: CDN cache HIT headers xuất hiện trong response
+
+### Task 15.4: `feat(analytics): add detailed click tracking`
+- Tạo `ClickAnalytics` domain entity:
+  - `click_id`, `short_code`, `timestamp`, `ip_address`, `user_agent`
+  - `country`, `city`, `device_type`, `referrer`
+- Tạo migration `V5__create_click_analytics_table.sql`
+- Tích hợp IP geolocation (MaxMind GeoIP2 hoặc ip-api.com)
+- Parse User-Agent → device type (mobile/desktop/tablet)
+- Implement batch insert (gom events → flush mỗi 5s hoặc 100 records)
+- **Unit test**: verify parsing, geolocation fallback
+- **Verify**: Click tạo record analytics với đầy đủ metadata
+
+### Task 15.5: `feat(api): add analytics API endpoints`
+- `GET /api/v1/links/{code}/analytics` — tổng quan (total clicks, unique visitors)
+- `GET /api/v1/links/{code}/analytics/clicks?from=&to=` — time-series
+- `GET /api/v1/links/{code}/analytics/geo` — phân bổ theo quốc gia/thành phố
+- `GET /api/v1/links/{code}/analytics/devices` — phân bổ thiết bị
+- Chỉ cho phép owner hoặc admin xem analytics (authorization check)
+- **Verify**: API trả dữ liệu đúng format, pagination hoạt động
+
+### Task 15.6: `feat(cache): add local cache layer for hot keys`
+- Thêm dependency: `com.github.ben-manes.caffeine:caffeine`
+- Implement L1 cache (Caffeine) trước L2 cache (Redis):
+  - L1: in-memory, TTL 30–60s, max 10,000 entries
+  - L2: Redis, TTL 24h (giữ nguyên)
+- Update `ResolveShortLinkUseCase`: check L1 → L2 → DB
+- **Verify**: Hot key served từ L1 cache, metrics cho thấy giảm Redis calls
+
+---
+
 ## Tổng kết
 
 | Phase | Số tasks | Focus |
@@ -487,7 +538,8 @@
 | 12 – Auth | 2 | Security & User Entity |
 | 13 – Payments | 5 | VNPay, PayOS, PayPal, SEPay |
 | 14 – Docs | 1 | README |
-| **Tổng** | **43** | |
+| 15 – Improvements | 6 | DB Sharding, CDN, Analytics, Hot Key Cache |
+| **Tổng** | **49** | |
 
 > **Nguyên tắc**: Mỗi task phải compile + test pass trước khi commit.
 > Không commit code broken. Mỗi commit là một đơn vị hoàn chỉnh.
