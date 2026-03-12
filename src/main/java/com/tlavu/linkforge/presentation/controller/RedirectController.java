@@ -15,6 +15,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
 
+import org.springframework.http.CacheControl;
+import org.springframework.http.HttpHeaders;
+
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -46,23 +49,31 @@ public class RedirectController {
             ShortLinkResponse response = resolveShortLinkUseCase.execute(shortCode, false);
 
             if (response.skipAds()) {
+                // VIP: 301 Permanent Redirect — CDN can cache this for 24h
                 return ResponseEntity.status(HttpStatus.MOVED_PERMANENTLY)
                         .location(URI.create(response.originalUrl()))
+                        .cacheControl(CacheControl.maxAge(java.time.Duration.ofDays(1)).cachePublic())
+                        .header(HttpHeaders.VARY, "Accept")
                         .build();
             } else {
+                // Non-VIP: 302 via ad buffer — must NOT be cached (unique token per request)
                 String adToken = generateAdTokenUseCase.execute(shortCode);
                 String bufferPageUrl = String.format("%s/buffer?code=%s&token=%s", frontendUrl, shortCode, adToken);
-                return ResponseEntity.status(HttpStatus.FOUND) // 302 Redirect
+                return ResponseEntity.status(HttpStatus.FOUND)
                         .location(URI.create(bufferPageUrl))
+                        .cacheControl(CacheControl.noStore())
+                        .header(HttpHeaders.VARY, "Accept")
                         .build();
             }
         } catch (ShortLinkExpiredException e) {
             return ResponseEntity.status(HttpStatus.FOUND)
                     .location(URI.create(frontendUrl + "/expired"))
+                    .cacheControl(CacheControl.noStore())
                     .build();
         } catch (ShortLinkNotFoundException e) {
             return ResponseEntity.status(HttpStatus.FOUND)
                     .location(URI.create(frontendUrl + "/404"))
+                    .cacheControl(CacheControl.noStore())
                     .build();
         }
     }
