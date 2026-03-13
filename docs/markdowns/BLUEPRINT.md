@@ -242,8 +242,12 @@ String code = Base62.encode(tsid); // "a7Bx3Kp"
 > - Trade-off: code dài hơn 1-2 ký tự nhưng eliminate toàn bộ collision problem
 
 **Custom Alias (Optional):**
-- [ ] User có thể tự chọn alias → validate format + check uniqueness trong DB
-- [ ] Custom alias và auto-generated code dùng cùng bảng, cùng constraint
+- [ ] **Validation Logic**:
+  - Uniqueness: Check DB if `shortCode` exists.
+  - Format: `^[a-zA-Z0-9-_]+$`, length 3-30 chars.
+  - Reserved Words: Block system routes (`admin`, `api`, `login`, `register`, `dashboard`, `static`, etc.) to prevent shadowing.
+- [ ] **Data Consistency**: Custom aliases and auto-generated codes share the same unique constraint in the `code` column.
+- [ ] **Cache Integration**: Works out-of-the-box as the cache key is the `shortCode`.
 
 Deliverable:
 - Code generation deterministic, zero collision, O(1) complexity
