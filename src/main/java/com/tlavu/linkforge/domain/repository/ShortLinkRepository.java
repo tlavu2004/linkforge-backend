@@ -14,6 +14,8 @@ public interface ShortLinkRepository {
 
     Optional<ShortLink> findByShortCode(ShortCode shortCode);
 
+    boolean existsByShortCode(ShortCode shortCode);
+
     Optional<ShortLink> findById(Long id);
 
     void delete(Long id);

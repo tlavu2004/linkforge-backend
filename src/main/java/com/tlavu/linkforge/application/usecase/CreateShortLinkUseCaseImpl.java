@@ -25,7 +25,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
@@ -38,11 +40,28 @@ public class CreateShortLinkUseCaseImpl implements CreateShortLinkUseCase {
     private final HttpServletRequest request;
     private final JwtService jwtService;
 
+    private static final Pattern ALIAS_PATTERN = Pattern.compile("^[a-zA-Z0-9-_]+$");
+    private static final Set<String> RESERVED_WORDS = Set.of(
+            "admin", "api", "dashboard", "login", "logout", "register",
+            "static", "assets", "health", "v1", "swagger-ui", "v3",
+            "analytics", "links", "users", "payments", "ads", "redirect");
+
     @Override
     @Transactional
     public ShortLinkResponse execute(CreateShortLinkCommand command) {
         OriginalUrl originalUrl = OriginalUrl.of(command.originalUrl());
-        ShortCode shortCode = shortCodeGenerator.generate();
+
+        ShortCode shortCode;
+        if (command.customAlias() != null && !command.customAlias().isBlank()) {
+            validateCustomAlias(command.customAlias());
+            shortCode = ShortCode.of(command.customAlias());
+            if (shortLinkRepository.existsByShortCode(shortCode)) {
+                throw new DomainException("Custom alias '" + command.customAlias() + "' is already taken");
+            }
+        } else {
+            shortCode = shortCodeGenerator.generate();
+        }
+
         String deleteToken = UUID.randomUUID().toString();
 
         Long userId = null;
@@ -119,5 +138,17 @@ public class CreateShortLinkUseCaseImpl implements CreateShortLinkUseCase {
                 savedLink.getDeleteTokenHash(),
                 isVip,
                 savedLink.getQrCode());
+    }
+
+    private void validateCustomAlias(String alias) {
+        if (alias.length() < 3 || alias.length() > 30) {
+            throw new DomainException("Custom alias must be between 3 and 30 characters");
+        }
+        if (!ALIAS_PATTERN.matcher(alias).matches()) {
+            throw new DomainException("Custom alias can only contain letters, numbers, hyphens, and underscores");
+        }
+        if (RESERVED_WORDS.contains(alias.toLowerCase())) {
+            throw new DomainException("The alias '" + alias + "' is a reserved word and cannot be used");
+        }
     }
 }
