@@ -25,6 +25,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import org.springframework.beans.factory.annotation.Value;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 @RestController
 @RequestMapping
 @RequiredArgsConstructor
@@ -44,9 +46,21 @@ public class RedirectController {
     @ApiResponse(responseCode = "410", description = "Short link expired")
     @GetMapping("/r/{shortCode}")
     public ResponseEntity<Void> redirect(
-            @Parameter(description = "The short code generated for the URL") @PathVariable String shortCode) {
+            @Parameter(description = "The short code generated for the URL") @PathVariable String shortCode,
+            HttpServletRequest request) {
         try {
-            ShortLinkResponse response = resolveShortLinkUseCase.execute(shortCode, false);
+            String ipAddress = request.getHeader("X-Forwarded-For");
+            if (ipAddress == null || ipAddress.isEmpty()) {
+                ipAddress = request.getRemoteAddr();
+            } else {
+                // X-Forwarded-For can be a comma-separated list
+                ipAddress = ipAddress.split(",")[0].trim();
+            }
+
+            String userAgent = request.getHeader("User-Agent");
+            String referrer = request.getHeader("Referer");
+
+            ShortLinkResponse response = resolveShortLinkUseCase.execute(shortCode, false, ipAddress, userAgent, referrer);
 
             if (response.skipAds()) {
                 // VIP: 301 Permanent Redirect — CDN can cache this for 24h

@@ -39,10 +39,17 @@ class ResolveShortLinkUseCaseTest {
     private com.tlavu.linkforge.infrastructure.metrics.MetricsService metricsService;
 
     @Mock
+    private com.tlavu.linkforge.domain.repository.UserRepository userRepository;
+
+    @Mock
     private org.springframework.context.ApplicationEventPublisher eventPublisher;
 
     @InjectMocks
     private ResolveShortLinkUseCaseImpl useCase;
+
+    private static final String IP = "1.2.3.4";
+    private static final String UA = "Chrome";
+    private static final String REF = "http://google.com";
 
     @Test
     @DisplayName("Should resolve short link successfully (Cache Miss)")
@@ -56,7 +63,7 @@ class ResolveShortLinkUseCaseTest {
         when(shortLinkRepository.findByShortCode(any(ShortCode.class))).thenReturn(Optional.of(shortLink));
 
         // When
-        ShortLinkResponse response = useCase.execute(codeStr, true);
+        ShortLinkResponse response = useCase.execute(codeStr, true, IP, UA, REF);
 
         // Then
         assertThat(response).isNotNull();
@@ -80,7 +87,7 @@ class ResolveShortLinkUseCaseTest {
         when(shortLinkCacheService.getShortLink(codeStr)).thenReturn(Optional.of(cachedResponse));
 
         // When
-        ShortLinkResponse response = useCase.execute(codeStr, true);
+        ShortLinkResponse response = useCase.execute(codeStr, true, IP, UA, REF);
 
         // Then
         assertThat(response).isEqualTo(cachedResponse);
@@ -97,7 +104,7 @@ class ResolveShortLinkUseCaseTest {
         when(shortLinkRepository.findByShortCode(any(ShortCode.class))).thenReturn(Optional.empty());
 
         // When/Then
-        assertThatThrownBy(() -> useCase.execute(codeStr, true))
+        assertThatThrownBy(() -> useCase.execute(codeStr, true, IP, UA, REF))
                 .isInstanceOf(ShortLinkNotFoundException.class)
                 .hasMessageContaining(codeStr);
     }
@@ -109,9 +116,6 @@ class ResolveShortLinkUseCaseTest {
         String codeStr = "expired";
         ShortCode code = ShortCode.of(codeStr);
         Instant past = Instant.now().minus(1, ChronoUnit.DAYS);
-        // We have to bypass validation in ShortLink.create which checks expiration >
-        // now.
-        // We can use the reconstruction constructor (public constructor).
         ShortLink expiredLink = new ShortLink(1L, code, OriginalUrl.of("http://example.com"),
                 Instant.now().minus(2, ChronoUnit.DAYS), past, 0L, null, "hash", null);
 
@@ -119,7 +123,7 @@ class ResolveShortLinkUseCaseTest {
         when(shortLinkRepository.findByShortCode(any(ShortCode.class))).thenReturn(Optional.of(expiredLink));
 
         // When/Then
-        assertThatThrownBy(() -> useCase.execute(codeStr, true))
+        assertThatThrownBy(() -> useCase.execute(codeStr, true, IP, UA, REF))
                 .isInstanceOf(ShortLinkExpiredException.class)
                 .hasMessageContaining(codeStr);
     }
