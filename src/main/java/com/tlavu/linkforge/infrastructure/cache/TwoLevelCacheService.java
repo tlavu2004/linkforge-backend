@@ -4,17 +4,11 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.tlavu.linkforge.application.dto.response.ShortLinkResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
-/**
- * Two-level cache: L1 (Caffeine in-memory) → L2 (Redis).
- * <p>
- * L1: ultra-fast, local, TTL 60s, max 10K entries.
- * L2: shared across instances, TTL 24h.
- * </p>
- */
 @Service
 @Slf4j
 @SuppressWarnings("null")
@@ -31,7 +25,8 @@ public class TwoLevelCacheService implements ShortLinkCacheService {
     }
 
     @Override
-    public Optional<ShortLinkResponse> getShortLink(String shortCode) {
+    @NonNull
+    public Optional<ShortLinkResponse> getShortLink(@NonNull String shortCode) {
         // 1. Check L1 (Caffeine)
         ShortLinkResponse cached = localCache.getIfPresent(shortCode);
         if (cached != null) {
@@ -52,7 +47,7 @@ public class TwoLevelCacheService implements ShortLinkCacheService {
     }
 
     @Override
-    public void saveShortLink(String shortCode, ShortLinkResponse response) {
+    public void saveShortLink(@NonNull String shortCode, @NonNull ShortLinkResponse response) {
         // Save to both layers
         redisCache.saveShortLink(shortCode, response);
         localCache.put(shortCode, response);
@@ -60,7 +55,7 @@ public class TwoLevelCacheService implements ShortLinkCacheService {
     }
 
     @Override
-    public void evictShortLink(String shortCode) {
+    public void evictShortLink(@NonNull String shortCode) {
         // Evict from both layers
         localCache.invalidate(shortCode);
         redisCache.evictShortLink(shortCode);
