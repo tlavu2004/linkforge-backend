@@ -21,6 +21,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@SuppressWarnings("null")
 public class ResolveShortLinkUseCaseImpl implements ResolveShortLinkUseCase {
 
     private final ShortLinkRepository shortLinkRepository;
