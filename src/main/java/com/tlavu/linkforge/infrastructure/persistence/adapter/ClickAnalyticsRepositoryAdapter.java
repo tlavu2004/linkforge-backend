@@ -10,8 +10,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 
+import java.sql.Date;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -61,7 +64,7 @@ public class ClickAnalyticsRepositoryAdapter implements ClickAnalyticsRepository
     @Override
     public Map<String, Long> countByReferrer(String shortCode) {
         List<Object[]> results = jpaRepository.countByReferrer(shortCode);
-        Map<String, Long> map = new java.util.LinkedHashMap<>();
+        Map<String, Long> map = new LinkedHashMap<>();
         for (Object[] result : results) {
             map.put((String) result[0] != null ? (String) result[0] : "Direct", (Long) result[1]);
         }
@@ -69,12 +72,12 @@ public class ClickAnalyticsRepositoryAdapter implements ClickAnalyticsRepository
     }
 
     @Override
-    public Map<java.time.LocalDate, Long> getDailyClickStats(String shortCode, Instant from, Instant to) {
+    public Map<LocalDate, Long> getDailyClickStats(String shortCode, Instant from, Instant to) {
         List<Object[]> results = jpaRepository.getDailyStats(shortCode, from, to);
-        Map<java.time.LocalDate, Long> map = new java.util.LinkedHashMap<>();
+        Map<LocalDate, Long> map = new LinkedHashMap<>();
         for (Object[] result : results) {
             // result[0] is java.sql.Date from native query, convert to LocalDate
-            java.time.LocalDate date = ((java.sql.Date) result[0]).toLocalDate();
+            LocalDate date = ((Date) result[0]).toLocalDate();
             map.put(date, (Long) result[1]);
         }
         return map;

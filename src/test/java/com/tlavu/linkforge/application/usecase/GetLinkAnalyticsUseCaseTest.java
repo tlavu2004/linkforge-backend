@@ -7,6 +7,7 @@ import com.tlavu.linkforge.domain.repository.ClickAnalyticsRepository;
 import com.tlavu.linkforge.domain.repository.ShortLinkRepository;
 import com.tlavu.linkforge.domain.valueobject.OriginalUrl;
 import com.tlavu.linkforge.domain.valueobject.ShortCode;
+import com.tlavu.linkforge.domain.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -41,7 +42,7 @@ class GetLinkAnalyticsUseCaseTest {
     private ClickAnalyticsRepository clickAnalyticsRepository;
 
     @Mock
-    private com.tlavu.linkforge.domain.repository.UserRepository userRepository;
+    private UserRepository userRepository;
 
     @InjectMocks
     private GetLinkAnalyticsUseCaseImpl useCase;

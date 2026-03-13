@@ -6,6 +6,8 @@ import com.tlavu.linkforge.domain.exception.ShortLinkNotFoundException;
 import com.tlavu.linkforge.domain.repository.ClickAnalyticsRepository;
 import com.tlavu.linkforge.domain.repository.ShortLinkRepository;
 import com.tlavu.linkforge.domain.valueobject.ShortCode;
+import com.tlavu.linkforge.domain.entity.User;
+import com.tlavu.linkforge.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -21,7 +23,7 @@ public class GetLinkAnalyticsUseCaseImpl implements GetLinkAnalyticsUseCase {
 
     private final ShortLinkRepository shortLinkRepository;
     private final ClickAnalyticsRepository clickAnalyticsRepository;
-    private final com.tlavu.linkforge.domain.repository.UserRepository userRepository;
+    private final UserRepository userRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -31,7 +33,7 @@ public class GetLinkAnalyticsUseCaseImpl implements GetLinkAnalyticsUseCase {
 
         // Ownership check
         String currentEmail = SecurityContextHolder.getContext().getAuthentication().getName();
-        com.tlavu.linkforge.domain.entity.User currentUser = userRepository.findByEmail(currentEmail)
+        User currentUser = userRepository.findByEmail(currentEmail)
             .orElseThrow(() -> new AccessDeniedException("User not found"));
 
         if (link.getUserId() != null && !link.getUserId().equals(currentUser.getId())) {

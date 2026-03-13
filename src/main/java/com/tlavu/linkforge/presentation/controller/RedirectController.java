@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
+import java.time.Duration;
 
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
@@ -66,7 +67,7 @@ public class RedirectController {
                 // VIP: 301 Permanent Redirect — CDN can cache this for 24h
                 return ResponseEntity.status(HttpStatus.MOVED_PERMANENTLY)
                         .location(URI.create(response.originalUrl()))
-                        .cacheControl(CacheControl.maxAge(java.time.Duration.ofDays(1)).cachePublic())
+                        .cacheControl(CacheControl.maxAge(Duration.ofDays(1)).cachePublic())
                         .header(HttpHeaders.VARY, "Accept")
                         .build();
             } else {
