@@ -59,6 +59,28 @@ public class ClickAnalyticsRepositoryAdapter implements ClickAnalyticsRepository
     }
 
     @Override
+    public Map<String, Long> countByReferrer(String shortCode) {
+        List<Object[]> results = jpaRepository.countByReferrer(shortCode);
+        Map<String, Long> map = new java.util.LinkedHashMap<>();
+        for (Object[] result : results) {
+            map.put((String) result[0] != null ? (String) result[0] : "Direct", (Long) result[1]);
+        }
+        return map;
+    }
+
+    @Override
+    public Map<java.time.LocalDate, Long> getDailyClickStats(String shortCode, Instant from, Instant to) {
+        List<Object[]> results = jpaRepository.getDailyStats(shortCode, from, to);
+        Map<java.time.LocalDate, Long> map = new java.util.LinkedHashMap<>();
+        for (Object[] result : results) {
+            // result[0] is java.sql.Date from native query, convert to LocalDate
+            java.time.LocalDate date = ((java.sql.Date) result[0]).toLocalDate();
+            map.put(date, (Long) result[1]);
+        }
+        return map;
+    }
+
+    @Override
     public long countTotalClicks(String shortCode) {
         return jpaRepository.countByShortCode(shortCode);
     }

@@ -15,9 +15,13 @@ public interface ClickAnalyticsRepository {
 
     Map<String, Long> countByCountry(String shortCode);
 
-    Map<DeviceType, Long> countByDeviceType(String shortCode);
-    
-    long countTotalClicks(String shortCode);
+    Map<DeviceType, Long> countByDeviceType(@NonNull String shortCode);
+
+    Map<String, Long> countByReferrer(@NonNull String shortCode);
+
+    Map<java.time.LocalDate, Long> getDailyClickStats(@NonNull String shortCode, @NonNull Instant from, @NonNull Instant to);
+
+    long countTotalClicks(@NonNull String shortCode);
     
     long countUniqueVisitors(String shortCode);
 }

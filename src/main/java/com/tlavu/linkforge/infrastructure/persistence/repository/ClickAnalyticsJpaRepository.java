@@ -20,6 +20,14 @@ public interface ClickAnalyticsJpaRepository extends JpaRepository<ClickAnalytic
     @Query("SELECT c.deviceType, COUNT(c) FROM ClickAnalyticsJpaEntity c WHERE c.shortCode = :shortCode GROUP BY c.deviceType")
     List<Object[]> countByDeviceType(@Param("shortCode") String shortCode);
 
+    @Query("SELECT c.referrer, COUNT(c) FROM ClickAnalyticsJpaEntity c WHERE c.shortCode = :shortCode GROUP BY c.referrer ORDER BY COUNT(c) DESC")
+    List<Object[]> countByReferrer(@Param("shortCode") String shortCode);
+
+    @Query(value = "SELECT CAST(DATE_TRUNC('day', clicked_at) AS DATE) as day, COUNT(*) " +
+            "FROM click_analytics WHERE short_code = :shortCode AND clicked_at BETWEEN :fromDate AND :toDate " +
+            "GROUP BY day ORDER BY day ASC", nativeQuery = true)
+    List<Object[]> getDailyStats(@Param("shortCode") String shortCode, @Param("fromDate") Instant from, @Param("toDate") Instant to);
+
     long countByShortCode(String shortCode);
 
     @Query("SELECT COUNT(DISTINCT c.ipAddress) FROM ClickAnalyticsJpaEntity c WHERE c.shortCode = :shortCode")
