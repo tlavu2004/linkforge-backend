@@ -60,7 +60,7 @@ class CreateShortLinkUseCaseTest {
     void shouldCreateShortLinkWithDefault30DayExpiration() {
         // Given
         String originalUrl = "http://example.com";
-        CreateShortLinkCommand command = new CreateShortLinkCommand(originalUrl, null); // No custom expiration
+        CreateShortLinkCommand command = new CreateShortLinkCommand(originalUrl, null, null); // No custom expiration, no alias
         ShortCode expectedCode = ShortCode.of("abc12345");
 
         when(shortCodeGenerator.generate()).thenReturn(expectedCode);
@@ -93,7 +93,7 @@ class CreateShortLinkUseCaseTest {
         // Given
         String originalUrl = "http://example.com";
         Instant expiresAt = Instant.now().plusSeconds(3600);
-        CreateShortLinkCommand command = new CreateShortLinkCommand(originalUrl, expiresAt);
+        CreateShortLinkCommand command = new CreateShortLinkCommand(originalUrl, expiresAt, null);
 
         // When/Then
         assertThatThrownBy(() -> useCase.execute(command))
@@ -102,5 +102,78 @@ class CreateShortLinkUseCaseTest {
 
         verify(shortLinkRepository, never()).save(any(ShortLink.class));
         verify(metricsService, never()).incrementLinksCreated();
+    }
+
+    @Test
+    @DisplayName("Should create short link with valid custom alias")
+    void shouldCreateShortLinkWithValidCustomAlias() {
+        // Given
+        String originalUrl = "http://example.com";
+        String customAlias = "my-custom-link";
+        CreateShortLinkCommand command = new CreateShortLinkCommand(originalUrl, null, customAlias);
+        ShortCode expectedCode = ShortCode.of(customAlias);
+
+        when(shortLinkRepository.existsByShortCode(expectedCode)).thenReturn(false);
+        when(shortLinkRepository.save(any(ShortLink.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // When
+        ShortLinkResponse response = useCase.execute(command);
+
+        // Then
+        assertThat(response.shortCode()).isEqualTo(customAlias);
+        verify(shortLinkRepository).existsByShortCode(expectedCode);
+        verify(shortCodeGenerator, never()).generate();
+        verify(shortLinkRepository).save(any(ShortLink.class));
+    }
+
+    @Test
+    @DisplayName("Should throw exception if custom alias is already taken")
+    void shouldThrowExceptionIfAliasTaken() {
+        // Given
+        String originalUrl = "http://example.com";
+        String customAlias = "taken-alias";
+        CreateShortLinkCommand command = new CreateShortLinkCommand(originalUrl, null, customAlias);
+        ShortCode expectedCode = ShortCode.of(customAlias);
+
+        when(shortLinkRepository.existsByShortCode(expectedCode)).thenReturn(true);
+
+        // When/Then
+        assertThatThrownBy(() -> useCase.execute(command))
+                .isInstanceOf(DomainException.class)
+                .hasMessageContaining("already taken");
+
+        verify(shortLinkRepository, never()).save(any(ShortLink.class));
+    }
+
+    @Test
+    @DisplayName("Should throw exception if custom alias is a reserved word")
+    void shouldThrowExceptionIfAliasReserved() {
+        // Given
+        String originalUrl = "http://example.com";
+        String customAlias = "admin";
+        CreateShortLinkCommand command = new CreateShortLinkCommand(originalUrl, null, customAlias);
+
+        // When/Then
+        assertThatThrownBy(() -> useCase.execute(command))
+                .isInstanceOf(DomainException.class)
+                .hasMessageContaining("reserved word");
+
+        verify(shortLinkRepository, never()).save(any(ShortLink.class));
+    }
+
+    @Test
+    @DisplayName("Should throw exception if custom alias has invalid format")
+    void shouldThrowExceptionIfAliasInvalidFormat() {
+        // Given
+        String originalUrl = "http://example.com";
+        String customAlias = "invalid @ alias";
+        CreateShortLinkCommand command = new CreateShortLinkCommand(originalUrl, null, customAlias);
+
+        // When/Then
+        assertThatThrownBy(() -> useCase.execute(command))
+                .isInstanceOf(DomainException.class)
+                .hasMessageContaining("only contain letters, numbers, hyphens, and underscores");
+
+        verify(shortLinkRepository, never()).save(any(ShortLink.class));
     }
 }
