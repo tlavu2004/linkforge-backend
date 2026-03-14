@@ -4,12 +4,10 @@ import com.tlavu.linkforge.application.dto.response.ShortLinkResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.util.Optional;
 
-@Service
 @RequiredArgsConstructor
 @Slf4j
 @SuppressWarnings("null")
