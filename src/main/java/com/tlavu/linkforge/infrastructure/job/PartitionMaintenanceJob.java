@@ -8,6 +8,8 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import org.springframework.boot.context.event.ApplicationReadyEvent;
+import org.springframework.context.event.EventListener;
 
 @Component
 @RequiredArgsConstructor
@@ -17,9 +19,10 @@ public class PartitionMaintenanceJob {
     private final JdbcTemplate jdbcTemplate;
 
     /**
-     * Executes on the 1st of every month at 3:00 AM.
+     * Executes on application startup and on the 1st of every month at 3:00 AM.
      * Ensures partitions for the next 3 months exist.
      */
+    @EventListener(ApplicationReadyEvent.class)
     @Scheduled(cron = "0 0 3 1 * ?")
     public void maintainPartitions() {
         log.info("Starting database partition maintenance...");
