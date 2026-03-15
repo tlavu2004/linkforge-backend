@@ -38,7 +38,7 @@ public class PartitionMaintenanceJob {
 
     @SuppressWarnings("null")
     private void createPartitionForMonth(LocalDate date) {
-        String yearMonth = date.format(DateTimeFormatter.ofPattern("yyyy_MM"));
+        String yearMonth = date.format(DateTimeFormatter.ofPattern("yyyy'_m'MM"));
         String tableName = "short_links_y" + yearMonth;
         
         LocalDate firstDay = date.withDayOfMonth(1);
@@ -61,7 +61,7 @@ public class PartitionMaintenanceJob {
                 jdbcTemplate.execute(sql);
                 log.info("Created partition: {}", tableName);
             } else {
-                log.debug("Partition already exists: {}", tableName);
+                log.info("Partition already exists: {}", tableName);
             }
         } catch (Exception e) {
             log.error("Failed to create partition: {}", tableName, e);
