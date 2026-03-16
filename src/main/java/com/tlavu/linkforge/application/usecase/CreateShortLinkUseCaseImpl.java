@@ -2,7 +2,6 @@ package com.tlavu.linkforge.application.usecase;
 
 import com.tlavu.linkforge.application.dto.command.CreateShortLinkCommand;
 import com.tlavu.linkforge.application.dto.response.ShortLinkResponse;
-import com.tlavu.linkforge.domain.entity.Role;
 import com.tlavu.linkforge.domain.entity.ShortLink;
 import com.tlavu.linkforge.domain.entity.User;
 import com.tlavu.linkforge.domain.exception.DomainException;
@@ -107,8 +106,7 @@ public class CreateShortLinkUseCaseImpl implements CreateShortLinkUseCase {
             }
         }
 
-        boolean canSetCustomExpiration = isVip || (userId != null && userRepository.findById(userId)
-                .map(u -> u.getRole() == Role.ADMIN).orElse(false));
+        boolean canSetCustomExpiration = userId != null;
 
         if (command.expiresAt() != null && !canSetCustomExpiration) {
             throw new DomainException("Only VIP users and Admins can set custom expiration time for short links");
