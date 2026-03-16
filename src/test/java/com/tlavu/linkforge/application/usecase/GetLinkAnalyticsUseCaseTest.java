@@ -22,6 +22,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 import java.time.Instant;
 import java.util.Collections;
 import java.util.Optional;
@@ -46,6 +48,9 @@ class GetLinkAnalyticsUseCaseTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private GetLinkAnalyticsUseCaseImpl useCase;
@@ -138,6 +143,7 @@ class GetLinkAnalyticsUseCaseTest {
         when(shortLinkRepository.findByShortCode(ShortCode.of(shortCode))).thenReturn(Optional.of(link));
         when(securityContext.getAuthentication()).thenReturn(authentication);
         when(authentication.isAuthenticated()).thenReturn(false); // Guest user
+        when(passwordEncoder.matches(token, token)).thenReturn(true);
 
         when(clickAnalyticsRepository.countTotalClicks(shortCode)).thenReturn(100L);
         when(clickAnalyticsRepository.countUniqueVisitors(shortCode)).thenReturn(50L);

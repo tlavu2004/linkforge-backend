@@ -12,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +26,7 @@ public class GetLinkAnalyticsUseCaseImpl implements GetLinkAnalyticsUseCase {
     private final ShortLinkRepository shortLinkRepository;
     private final ClickAnalyticsRepository clickAnalyticsRepository;
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     @Transactional(readOnly = true)
@@ -47,7 +49,7 @@ public class GetLinkAnalyticsUseCaseImpl implements GetLinkAnalyticsUseCase {
 
         // 2. Check Token (if not owner or owner check skipped)
         if (!isAuthorized && token != null && link.getDeleteTokenHash() != null) {
-            if (link.getDeleteTokenHash().equals(token)) {
+            if (passwordEncoder.matches(token, link.getDeleteTokenHash())) {
                 isAuthorized = true;
             }
         }
