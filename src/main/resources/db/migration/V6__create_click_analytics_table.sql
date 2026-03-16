@@ -7,7 +7,7 @@ CREATE TABLE click_analytics (
     clicked_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
     ip_address VARCHAR(45),
     user_agent TEXT,
-    country VARCHAR(3),
+    country VARCHAR(10),
     city VARCHAR(100),
     device_type VARCHAR(10),
     referrer TEXT

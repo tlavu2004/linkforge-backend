@@ -20,7 +20,7 @@ public class GeoLocationService {
     }
 
     public GeoData getLocation(@NonNull String ip) {
-        if (ip == null || ip.equals("127.0.0.1") || ip.startsWith("192.168.") || ip.startsWith("10.")) {
+        if (ip == null || ip.equals("127.0.0.1") || ip.startsWith("192.168.") || ip.startsWith("10.") || ip.startsWith("172.")) {
             return new GeoData("Local", "Local");
         }
 

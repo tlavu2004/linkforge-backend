@@ -32,7 +32,7 @@ public class ClickAnalyticsJpaEntity {
     @Column(name = "user_agent", columnDefinition = "TEXT")
     private String userAgent;
 
-    @Column(name = "country", length = 3)
+    @Column(name = "country", length = 10)
     private String country;
 
     @Column(name = "city", length = 100)
