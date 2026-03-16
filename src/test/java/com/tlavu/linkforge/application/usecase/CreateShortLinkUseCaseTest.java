@@ -9,6 +9,7 @@ import com.tlavu.linkforge.domain.repository.UserRepository;
 import com.tlavu.linkforge.domain.service.ShortCodeGenerator;
 import com.tlavu.linkforge.domain.valueobject.ShortCode;
 import com.tlavu.linkforge.infrastructure.metrics.MetricsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -47,6 +48,9 @@ class CreateShortLinkUseCaseTest {
     @Mock
     private com.tlavu.linkforge.infrastructure.security.JwtService jwtService;
 
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
     @InjectMocks
     private CreateShortLinkUseCaseImpl useCase;
 
@@ -63,6 +67,7 @@ class CreateShortLinkUseCaseTest {
         CreateShortLinkCommand command = new CreateShortLinkCommand(originalUrl, null, null); // No custom expiration, no alias
         ShortCode expectedCode = ShortCode.of("abc12345");
 
+        when(passwordEncoder.encode(anyString())).thenReturn("hashed-token");
         when(shortCodeGenerator.generate()).thenReturn(expectedCode);
         when(shortLinkRepository.save(any(ShortLink.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
@@ -113,6 +118,7 @@ class CreateShortLinkUseCaseTest {
         CreateShortLinkCommand command = new CreateShortLinkCommand(originalUrl, null, customAlias);
         ShortCode expectedCode = ShortCode.of(customAlias);
 
+        when(passwordEncoder.encode(anyString())).thenReturn("hashed-token");
         when(shortLinkRepository.existsByShortCode(expectedCode)).thenReturn(false);
         when(shortLinkRepository.save(any(ShortLink.class))).thenAnswer(invocation -> invocation.getArgument(0));
 

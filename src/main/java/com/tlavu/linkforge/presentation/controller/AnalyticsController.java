@@ -2,6 +2,7 @@ package com.tlavu.linkforge.presentation.controller;
 
 import com.tlavu.linkforge.application.dto.response.LinkStatsResponse;
 import com.tlavu.linkforge.application.usecase.GetLinkAnalyticsUseCase;
+import com.tlavu.linkforge.presentation.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,7 @@ public class AnalyticsController {
 
     @GetMapping("/{shortCode}")
     @Operation(summary = "Get detailed analytics for a short link", description = "Returns click counts, unique visitors, geo distribution, and daily stats. Requires ownership or a valid delete token.")
-    public LinkStatsResponse getAnalytics(
+    public ApiResponse<LinkStatsResponse> getAnalytics(
             @PathVariable String shortCode,
             @RequestParam(required = false) String token,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant from,
@@ -30,6 +31,6 @@ public class AnalyticsController {
         if (to == null) to = Instant.now();
         if (from == null) from = to.minus(30, ChronoUnit.DAYS);
 
-        return getLinkAnalyticsUseCase.execute(shortCode, token, from, to);
+        return ApiResponse.success(getLinkAnalyticsUseCase.execute(shortCode, token, from, to));
     }
 }

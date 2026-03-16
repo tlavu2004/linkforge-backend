@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,6 +40,7 @@ public class CreateShortLinkUseCaseImpl implements CreateShortLinkUseCase {
     private final UserRepository userRepository;
     private final HttpServletRequest request;
     private final JwtService jwtService;
+    private final PasswordEncoder passwordEncoder;
 
     private static final Pattern ALIAS_PATTERN = Pattern.compile("^[a-zA-Z0-9-_]+$");
     private static final Set<String> RESERVED_WORDS = Set.of(
@@ -124,7 +126,7 @@ public class CreateShortLinkUseCaseImpl implements CreateShortLinkUseCase {
                 originalUrl,
                 expiresAt,
                 userId,
-                deleteToken);
+                passwordEncoder.encode(deleteToken));
 
         ShortLink savedLink = shortLinkRepository.save(shortLink);
 
@@ -135,7 +137,7 @@ public class CreateShortLinkUseCaseImpl implements CreateShortLinkUseCase {
                 savedLink.getOriginalUrl().url(),
                 savedLink.getCreatedAt(),
                 savedLink.getExpiresAt(),
-                savedLink.getDeleteTokenHash(),
+                deleteToken, // Return raw token to user
                 isVip,
                 savedLink.getQrCode());
     }
