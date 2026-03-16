@@ -20,15 +20,16 @@ public class AnalyticsController {
     private final GetLinkAnalyticsUseCase getLinkAnalyticsUseCase;
 
     @GetMapping("/{shortCode}")
-    @Operation(summary = "Get detailed analytics for a short link", description = "Returns click counts, unique visitors, geo distribution, and daily stats. Requires ownership.")
+    @Operation(summary = "Get detailed analytics for a short link", description = "Returns click counts, unique visitors, geo distribution, and daily stats. Requires ownership or a valid delete token.")
     public LinkStatsResponse getAnalytics(
             @PathVariable String shortCode,
+            @RequestParam(required = false) String token,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant from,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Instant to) {
-
+        
         if (to == null) to = Instant.now();
         if (from == null) from = to.minus(30, ChronoUnit.DAYS);
 
-        return getLinkAnalyticsUseCase.execute(shortCode, from, to);
+        return getLinkAnalyticsUseCase.execute(shortCode, token, from, to);
     }
 }
