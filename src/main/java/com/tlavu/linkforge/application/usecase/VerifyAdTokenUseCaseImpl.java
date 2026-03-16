@@ -17,7 +17,7 @@ public class VerifyAdTokenUseCaseImpl implements VerifyAdTokenUseCase {
     private static final long WAIT_TIME_MS = 5000;
 
     @Override
-    public String execute(String token, String shortCode) {
+    public String execute(String token, String shortCode, String ipAddress, String userAgent, String referrer) {
         String key = AD_TOKEN_PREFIX + token;
         String tokenData = redisTemplate.opsForValue().get(key);
 
@@ -45,9 +45,8 @@ public class VerifyAdTokenUseCaseImpl implements VerifyAdTokenUseCase {
         // Token is valid and time has passed
         redisTemplate.delete(key);
 
-        // Fetch and return the original URL, and track the click since the user waited
-        // 5s
-        ShortLinkResponse shortLinkResponse = resolveShortLinkUseCase.execute(shortCode, true);
+        // Fetch and return the original URL, and track the click since the user waited 5s
+        ShortLinkResponse shortLinkResponse = resolveShortLinkUseCase.execute(shortCode, true, ipAddress, userAgent, referrer);
         return shortLinkResponse.originalUrl();
     }
 }

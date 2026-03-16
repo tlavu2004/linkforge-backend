@@ -16,14 +16,15 @@ import java.util.stream.Stream;
 public class CorsConfig {
 
     @Value("${application.frontend.url:http://localhost:5173}")
-    private String frontendUrl;
+    private List<String> frontendUrls;
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // Process frontendUrl to handle trailing slashes
-        List<String> allowedOrigins = Stream.of(frontendUrl, frontendUrl.replaceAll("/$", ""))
+        // Process frontendUrls to handle trailing slashes
+        List<String> allowedOrigins = frontendUrls.stream()
+                .flatMap(url -> Stream.of(url, url.replaceAll("/$", "")))
                 .distinct()
                 .collect(Collectors.toList());
 

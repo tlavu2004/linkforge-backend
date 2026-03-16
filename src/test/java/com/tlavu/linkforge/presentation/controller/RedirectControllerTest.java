@@ -14,6 +14,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
@@ -23,6 +25,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 
 @WebMvcTest(RedirectController.class)
 @AutoConfigureMockMvc(addFilters = false)
+@SuppressWarnings("null")
 class RedirectControllerTest {
 
         @Autowired
@@ -46,7 +49,7 @@ class RedirectControllerTest {
                 ShortLinkResponse response = new ShortLinkResponse(
                                 shortCode, originalUrl, Instant.now(), null, null, true, null);
 
-                when(resolveShortLinkUseCase.execute(shortCode, false)).thenReturn(response);
+                when(resolveShortLinkUseCase.execute(eq(shortCode), eq(false), any(), any(), any())).thenReturn(response);
 
                 // When/Then
                 mockMvc.perform(get("/r/{shortCode}", shortCode))
@@ -55,15 +58,16 @@ class RedirectControllerTest {
         }
 
         @Test
-        @DisplayName("Should return 404 Not Found when link does not exist")
+        @DisplayName("Should return 302 Found when link does not exist (redirect to 404 page)")
         void shouldReturn404WhenLinkNotFound() throws Exception {
                 // Given
                 String shortCode = "notfound";
-                when(resolveShortLinkUseCase.execute(shortCode, false))
+                when(resolveShortLinkUseCase.execute(eq(shortCode), eq(false), any(), any(), any()))
                                 .thenThrow(new ShortLinkNotFoundException("Link not found"));
 
                 // When/Then
                 mockMvc.perform(get("/r/{shortCode}", shortCode))
-                                .andExpect(status().isNotFound());
+                                .andExpect(status().isFound())
+                                .andExpect(header().string("Location", org.hamcrest.Matchers.containsString("/404")));
         }
 }

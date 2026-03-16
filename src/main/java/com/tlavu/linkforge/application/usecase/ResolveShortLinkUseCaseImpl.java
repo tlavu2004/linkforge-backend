@@ -21,6 +21,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@SuppressWarnings("null")
 public class ResolveShortLinkUseCaseImpl implements ResolveShortLinkUseCase {
 
     private final ShortLinkRepository shortLinkRepository;
@@ -31,7 +32,7 @@ public class ResolveShortLinkUseCaseImpl implements ResolveShortLinkUseCase {
 
     @Override
     @Transactional(readOnly = true)
-    public ShortLinkResponse execute(String shortCode, boolean isAdVerification) {
+    public ShortLinkResponse execute(String shortCode, boolean isAdVerification, String ipAddress, String userAgent, String referrer) {
         metricsService.incrementLinksResolved();
 
         // 1. Check cache
@@ -45,7 +46,7 @@ public class ResolveShortLinkUseCaseImpl implements ResolveShortLinkUseCase {
             metricsService.incrementCacheHits();
             if (isAdVerification || response.skipAds()) {
                 // Track click for VIPs or verified ads
-                eventPublisher.publishEvent(new ShortLinkAccessedEvent(shortCode, Instant.now()));
+                eventPublisher.publishEvent(new ShortLinkAccessedEvent(shortCode, Instant.now(), ipAddress, userAgent, referrer));
             }
             return response;
         }
@@ -85,7 +86,7 @@ public class ResolveShortLinkUseCaseImpl implements ResolveShortLinkUseCase {
 
         if (isAdVerification || skipAds) {
             // 5. Publish access event for async click tracking
-            eventPublisher.publishEvent(new ShortLinkAccessedEvent(shortCode, Instant.now()));
+            eventPublisher.publishEvent(new ShortLinkAccessedEvent(shortCode, Instant.now(), ipAddress, userAgent, referrer));
         }
 
         return response;
