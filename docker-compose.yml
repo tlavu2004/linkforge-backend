@@ -50,7 +50,7 @@ services:
       - SPRING_PROFILES_ACTIVE=dev
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/linkforge
       - REDIS_HOST=redis
-      - FRONTEND_URL=http://localhost
+      - FRONTEND_URL=http://localhost,http://localhost:5173
     env_file:
       - .env
     depends_on:

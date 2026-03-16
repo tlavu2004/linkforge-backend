@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.net.URI;
 import java.time.Duration;
+import java.util.List;
 
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
@@ -38,8 +39,12 @@ public class RedirectController {
     private final ResolveShortLinkUseCase resolveShortLinkUseCase;
     private final GenerateAdTokenUseCase generateAdTokenUseCase;
 
-    @Value("${application.frontend.url}")
-    private String frontendUrl;
+    @Value("${application.frontend.url:http://localhost:5173}")
+    private List<String> frontendUrls;
+
+    private String getPrimaryFrontendUrl() {
+        return frontendUrls != null && !frontendUrls.isEmpty() ? frontendUrls.get(0) : "http://localhost:5173";
+    }
 
     @Operation(summary = "Redirect to Original URL", description = "Takes a short code and redirects the client with a 301 status code to the target original URL.")
     @ApiResponse(responseCode = "301", description = "Redirecting to original URL")
@@ -73,7 +78,7 @@ public class RedirectController {
             } else {
                 // Non-VIP: 302 via ad buffer — must NOT be cached (unique token per request)
                 String adToken = generateAdTokenUseCase.execute(shortCode);
-                String bufferPageUrl = String.format("%s/buffer?code=%s&token=%s", frontendUrl, shortCode, adToken);
+                String bufferPageUrl = String.format("%s/buffer?code=%s&token=%s", getPrimaryFrontendUrl(), shortCode, adToken);
                 return ResponseEntity.status(HttpStatus.FOUND)
                         .location(URI.create(bufferPageUrl))
                         .cacheControl(CacheControl.noStore())
@@ -82,12 +87,12 @@ public class RedirectController {
             }
         } catch (ShortLinkExpiredException e) {
             return ResponseEntity.status(HttpStatus.FOUND)
-                    .location(URI.create(frontendUrl + "/expired"))
+                    .location(URI.create(getPrimaryFrontendUrl() + "/expired"))
                     .cacheControl(CacheControl.noStore())
                     .build();
         } catch (ShortLinkNotFoundException e) {
             return ResponseEntity.status(HttpStatus.FOUND)
-                    .location(URI.create(frontendUrl + "/404"))
+                    .location(URI.create(getPrimaryFrontendUrl() + "/404"))
                     .cacheControl(CacheControl.noStore())
                     .build();
         }
