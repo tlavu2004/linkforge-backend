@@ -16,6 +16,8 @@ import java.util.Optional;
 public interface ShortLinkJpaRepository extends JpaRepository<ShortLinkJpaEntity, Long> {
     Optional<ShortLinkJpaEntity> findByShortCode(String shortCode);
 
+    boolean existsByShortCode(String shortCode);
+
     Page<ShortLinkJpaEntity> findByUserId(Long userId, Pageable pageable);
 
     @Query("SELECT s FROM ShortLinkJpaEntity s WHERE s.userId = :userId AND " +

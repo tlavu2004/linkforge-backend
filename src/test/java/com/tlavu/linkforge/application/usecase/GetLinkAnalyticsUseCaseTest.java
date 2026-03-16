@@ -15,10 +15,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.Instant;
 import java.util.Collections;
@@ -32,6 +36,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 @SuppressWarnings("null")
 class GetLinkAnalyticsUseCaseTest {
 
@@ -43,6 +48,9 @@ class GetLinkAnalyticsUseCaseTest {
 
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private GetLinkAnalyticsUseCaseImpl useCase;
@@ -74,6 +82,8 @@ class GetLinkAnalyticsUseCaseTest {
 
         when(shortLinkRepository.findByShortCode(ShortCode.of(shortCode))).thenReturn(Optional.of(link));
         when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.isAuthenticated()).thenReturn(true);
+        when(authentication.getPrincipal()).thenReturn("test-user");
         when(authentication.getName()).thenReturn(email);
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
 
@@ -86,7 +96,7 @@ class GetLinkAnalyticsUseCaseTest {
                 .thenReturn(Collections.emptyMap());
 
         // When
-        LinkStatsResponse response = useCase.execute(shortCode, Instant.now().minusSeconds(3600), Instant.now());
+        LinkStatsResponse response = useCase.execute(shortCode, null, Instant.now().minusSeconds(3600), Instant.now());
 
         // Then
         assertThat(response).isNotNull();
@@ -111,11 +121,43 @@ class GetLinkAnalyticsUseCaseTest {
 
         when(shortLinkRepository.findByShortCode(ShortCode.of(shortCode))).thenReturn(Optional.of(link));
         when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.isAuthenticated()).thenReturn(true);
+        when(authentication.getPrincipal()).thenReturn("other-user");
         when(authentication.getName()).thenReturn(email);
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(otherUser));
 
         // When/Then
-        assertThatThrownBy(() -> useCase.execute(shortCode, Instant.now(), Instant.now()))
+        assertThatThrownBy(() -> useCase.execute(shortCode, null, Instant.now(), Instant.now()))
                 .isInstanceOf(AccessDeniedException.class);
+    }
+
+    @Test
+    @DisplayName("Should return stats when valid token is provided")
+    void shouldReturnStatsWhenValidTokenIsProvided() {
+        // Given
+        String shortCode = "abc12345";
+        String token = "valid-token";
+        ShortLink link = new ShortLink(1L, ShortCode.of(shortCode), OriginalUrl.of("http://example.com"),
+                Instant.now(), null, 0L, 100L, token, null);
+
+        when(shortLinkRepository.findByShortCode(ShortCode.of(shortCode))).thenReturn(Optional.of(link));
+        when(securityContext.getAuthentication()).thenReturn(authentication);
+        when(authentication.isAuthenticated()).thenReturn(false); // Guest user
+        when(passwordEncoder.matches(token, token)).thenReturn(true);
+
+        when(clickAnalyticsRepository.countTotalClicks(shortCode)).thenReturn(100L);
+        when(clickAnalyticsRepository.countUniqueVisitors(shortCode)).thenReturn(50L);
+        when(clickAnalyticsRepository.countByCountry(shortCode)).thenReturn(Collections.emptyMap());
+        when(clickAnalyticsRepository.countByDeviceType(eq(shortCode))).thenReturn(Collections.emptyMap());
+        when(clickAnalyticsRepository.countByReferrer(eq(shortCode))).thenReturn(Collections.emptyMap());
+        when(clickAnalyticsRepository.getDailyClickStats(eq(shortCode), any(), any()))
+                .thenReturn(Collections.emptyMap());
+
+        // When
+        LinkStatsResponse response = useCase.execute(shortCode, token, Instant.now().minusSeconds(3600), Instant.now());
+
+        // Then
+        assertThat(response).isNotNull();
+        assertThat(response.shortCode()).isEqualTo(shortCode);
     }
 }

@@ -40,6 +40,7 @@ public class SecurityConfig {
                         // Public endpoints
                         .requestMatchers("/api/v1/auth/**").permitAll()
                         .requestMatchers("/api/v1/links/**").permitAll()
+                        .requestMatchers("/api/v1/analytics/**").permitAll()
                         .requestMatchers("/r/**").permitAll() // Short link resolution
                         .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()

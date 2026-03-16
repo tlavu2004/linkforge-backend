@@ -6,6 +6,7 @@ import com.tlavu.linkforge.domain.exception.ShortLinkNotFoundException;
 import com.tlavu.linkforge.domain.repository.ShortLinkRepository;
 import com.tlavu.linkforge.domain.valueobject.OriginalUrl;
 import com.tlavu.linkforge.domain.valueobject.ShortCode;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -27,6 +28,9 @@ class DeleteShortLinkUseCaseTest {
     @Mock
     private com.tlavu.linkforge.infrastructure.cache.ShortLinkCacheService shortLinkCacheService;
 
+    @Mock
+    private PasswordEncoder passwordEncoder;
+
     @InjectMocks
     private DeleteShortLinkUseCaseImpl deleteShortLinkUseCase;
 
@@ -46,6 +50,7 @@ class DeleteShortLinkUseCaseTest {
                 deleteToken);
 
         when(shortLinkRepository.findByShortCode(shortCode)).thenReturn(Optional.of(shortLink));
+        when(passwordEncoder.matches(deleteToken, deleteToken)).thenReturn(true);
 
         // When
         deleteShortLinkUseCase.execute(shortCodeStr, deleteToken);
@@ -71,6 +76,7 @@ class DeleteShortLinkUseCaseTest {
                 validToken);
 
         when(shortLinkRepository.findByShortCode(ShortCode.of(shortCodeStr))).thenReturn(Optional.of(shortLink));
+        when(passwordEncoder.matches(invalidToken, validToken)).thenReturn(false);
 
         // When/Then
         assertThrows(InvalidDeleteTokenException.class,

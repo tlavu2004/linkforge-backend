@@ -29,6 +29,11 @@ public class ShortLinkRepositoryAdapter implements ShortLinkRepository {
     }
 
     @Override
+    public boolean existsByShortCode(ShortCode shortCode) {
+        return jpaRepository.existsByShortCode(shortCode.code());
+    }
+
+    @Override
     public ShortLink save(ShortLink shortLink) {
         ShortLinkJpaEntity entity = mapper.toJpaEntity(shortLink);
         ShortLinkJpaEntity savedEntity = jpaRepository.save(entity);

@@ -70,7 +70,8 @@ Khi traffic tăng:
 
 ## 4. Các vấn đề cần lưu ý
 
-- **Collision khi generate code**: ✅ Đã giải quyết — TSID đảm bảo unique, xác suất collision gần bằng 0
-- **Hot key (link viral)**: ✅ Redis cache 24h + kế hoạch thêm L1 cache (**Caffeine**) cho hot keys
-- **Spam link**: ✅ Đã triển khai — **Redis Rate Limiter** + **Lua script** (atomic, sliding window, chặn theo IP)
-- **Analytics tracking** (optional): ⚠️ Hiện có `clickCount` + **Prometheus metrics** (cache hit/miss, links created/resolved). Kế hoạch bổ sung: geo tracking, device tracking, time-series analytics
+- **Collision khi generate code**: TSID đảm bảo unique, xác suất collision gần bằng 0
+- **Hot key (link viral)**: Redis cache 24h + L1 cache (**Caffeine**) cho hot keys cực nhanh.
+- **Spam link**: **Rate Limiter** chặn theo IP dùng Lua script.
+- **Analytics tracking**: Hệ thống Full-stack Analytics (Geo, Device, Referrer, Time-series) với biểu đồ trực quan.
+- **Custom Alias**: Cho phép người dùng tự tạo code thân thiện thay vì TSID ngẫu nhiên. (Đang thực hiện)

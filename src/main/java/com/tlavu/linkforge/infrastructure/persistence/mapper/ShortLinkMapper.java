@@ -19,6 +19,7 @@ public interface ShortLinkMapper {
 
     @Mapping(target = "shortCode", source = "shortCode.code")
     @Mapping(target = "originalUrl", source = "originalUrl.url")
+    @Mapping(target = "deleteTokenHash", source = "deleteTokenHash")
     @Mapping(target = "qrCode", source = "qrCode")
     ShortLinkJpaEntity toJpaEntity(ShortLink domain);
 

@@ -539,7 +539,34 @@
 | 13 – Payments | 5 | VNPay, PayOS, PayPal, SEPay |
 | 14 – Docs | 1 | README |
 | 15 – Improvements | 6 | DB Sharding, CDN, Analytics, Hot Key Cache |
-| **Tổng** | **49** | |
+| 16 – Custom Alias | 5 | Uniqueness, Reserved words, Frontend UI |
+| **Tổng** | **54** | |
+
+---
+
+## Phase 16 – Custom Alias
+
+### Task 16.1: `feat(app): add customAlias to CreateShortLinkRequest`
+- Update `CreateShortLinkRequest` DTO: add `String customAlias` field.
+
+### Task 16.2: `feat(domain): implement alias validation logic`
+- Create `AliasValidator` or add logic to `CreateShortLinkUseCase`:
+  - Check length (3-30), regex (`^[a-zA-Z0-9-_]+$`).
+  - Block reserved words: `admin`, `api`, `dashboard`, `login`, `register`, `static`, `assets`, etc.
+
+### Task 16.3: `feat(infra): add shortCode uniqueness check`
+- Ensure `ShortLinkRepository` has `existsByCode(ShortCode)` or equivalent.
+- Update `CreateShortLinkUseCase` to throw `AliasAlreadyTakenException` if custom alias exists.
+
+### Task 16.4: `feat(frontend): add custom alias field to dashboard`
+- Add input field (optional) in the create link form.
+- Pass `customAlias` to API request.
+
+### Task 16.5: `feat(frontend): handle alias API errors`
+- Display user-friendly messages for "Alias taken" or "Reserved word used".
+
+---
 
 > **Nguyên tắc**: Mỗi task phải compile + test pass trước khi commit.
+
 > Không commit code broken. Mỗi commit là một đơn vị hoàn chỉnh.
