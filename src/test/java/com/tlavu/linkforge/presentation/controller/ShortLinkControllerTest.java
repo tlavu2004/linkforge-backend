@@ -49,7 +49,7 @@ class ShortLinkControllerTest {
         @DisplayName("Should create short link and return 201 Created")
         void shouldCreateShortLink() throws Exception {
                 // Given
-                CreateShortLinkCommand command = new CreateShortLinkCommand("http://example.com", null);
+                CreateShortLinkCommand command = new CreateShortLinkCommand("http://example.com", null, null);
                 ShortLinkResponse response = new ShortLinkResponse(
                                 "abc12345",
                                 "http://example.com",
@@ -75,7 +75,7 @@ class ShortLinkControllerTest {
         @DisplayName("Should return 400 Bad Request when URL is invalid")
         void shouldReturn400WhenUrlIsInvalid() throws Exception {
                 // Given
-                CreateShortLinkCommand command = new CreateShortLinkCommand("invalid-url", null);
+                CreateShortLinkCommand command = new CreateShortLinkCommand("invalid-url", null, null);
 
                 // Mock exception
                 when(createShortLinkUseCase.execute(any(CreateShortLinkCommand.class)))
