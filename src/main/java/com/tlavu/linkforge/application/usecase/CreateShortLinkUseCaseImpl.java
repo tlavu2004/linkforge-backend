@@ -41,7 +41,7 @@ public class CreateShortLinkUseCaseImpl implements CreateShortLinkUseCase {
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
 
-    private static final Pattern ALIAS_PATTERN = Pattern.compile("^[a-zA-Z0-9-_]+$");
+    private static final Pattern ALIAS_PATTERN = Pattern.compile("^[a-zA-Z0-9\\-_]+$");
     private static final Set<String> RESERVED_WORDS = Set.of(
             "admin", "api", "dashboard", "login", "logout", "register",
             "static", "assets", "health", "v1", "swagger-ui", "v3",
@@ -112,9 +112,9 @@ public class CreateShortLinkUseCaseImpl implements CreateShortLinkUseCase {
             throw new DomainException("Only VIP users and Admins can set custom expiration time for short links");
         }
 
-        // Default 30 days expiration for non-VIP / non-Admin / anonymous users
+        // Default 30 days expiration if not specified
         Instant expiresAt = command.expiresAt();
-        if (expiresAt == null && !canSetCustomExpiration) {
+        if (expiresAt == null) {
             expiresAt = Instant.now().plus(30, ChronoUnit.DAYS);
         }
 
@@ -141,8 +141,8 @@ public class CreateShortLinkUseCaseImpl implements CreateShortLinkUseCase {
     }
 
     private void validateCustomAlias(String alias) {
-        if (alias.length() < 3 || alias.length() > 30) {
-            throw new DomainException("Custom alias must be between 3 and 30 characters");
+        if (alias.length() < 3 || alias.length() > 50) {
+            throw new DomainException("Custom alias must be between 3 and 50 characters");
         }
         if (!ALIAS_PATTERN.matcher(alias).matches()) {
             throw new DomainException("Custom alias can only contain letters, numbers, hyphens, and underscores");

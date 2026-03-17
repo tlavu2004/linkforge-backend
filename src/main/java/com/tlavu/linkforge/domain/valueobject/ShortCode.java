@@ -7,10 +7,10 @@ import java.util.regex.Pattern;
 
 public record ShortCode(String code) {
 
-    private static final Pattern ALPHANUMERIC_PATTERN = Pattern.compile("^[0-9a-zA-Z]+$");
-    // TSID base62 length is ~13 chars. Let's allow margin up to 20 for future
+    private static final Pattern ALPHANUMERIC_PATTERN = Pattern.compile("^[0-9a-zA-Z\\-_]+$");
+    // TSID base62 length is ~13 chars. Let's allow margin up to 50 for future
     // custom aliases.
-    private static final int MAX_LENGTH = 20;
+    private static final int MAX_LENGTH = 50;
 
     public ShortCode {
         if (!StringUtils.hasText(code)) {
@@ -20,7 +20,7 @@ public record ShortCode(String code) {
             throw new InvalidShortCodeException("Short code exceeds maximum length of " + MAX_LENGTH);
         }
         if (!ALPHANUMERIC_PATTERN.matcher(code).matches()) {
-            throw new InvalidShortCodeException("Short code must be alphanumeric (0-9, a-z, A-Z)");
+            throw new InvalidShortCodeException("Short code must be alphanumeric (0-9, a-z, A-Z, -, _)");
         }
     }
 
