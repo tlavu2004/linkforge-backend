@@ -73,11 +73,11 @@ public class GetLinkAnalyticsUseCaseImpl implements GetLinkAnalyticsUseCase {
 
         return LinkStatsResponse.builder()
                 .shortCode(shortCode)
-                .totalClicks(clickAnalyticsRepository.countTotalClicks(shortCode))
-                .uniqueVisitors(clickAnalyticsRepository.countUniqueVisitors(shortCode))
-                .clicksByCountry(clickAnalyticsRepository.countByCountry(shortCode))
-                .clicksByDeviceType(clickAnalyticsRepository.countByDeviceType(shortCode))
-                .clicksByReferrer(clickAnalyticsRepository.countByReferrer(shortCode))
+                .totalClicks(clickAnalyticsRepository.countTotalClicks(shortCode, from, to))
+                .uniqueVisitors(clickAnalyticsRepository.countUniqueVisitors(shortCode, from, to))
+                .clicksByCountry(clickAnalyticsRepository.countByCountry(shortCode, from, to))
+                .clicksByDeviceType(clickAnalyticsRepository.countByDeviceType(shortCode, from, to))
+                .clicksByReferrer(clickAnalyticsRepository.countByReferrer(shortCode, from, to))
                 .dailyStats(clickAnalyticsRepository.getDailyClickStats(shortCode, from, to))
                 .build();
     }

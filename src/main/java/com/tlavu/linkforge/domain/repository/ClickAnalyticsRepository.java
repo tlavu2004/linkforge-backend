@@ -13,15 +13,11 @@ public interface ClickAnalyticsRepository {
 
     List<ClickAnalytics> findByShortCode(String shortCode, Instant from, Instant to);
 
-    Map<String, Long> countByCountry(String shortCode);
-
-    Map<DeviceType, Long> countByDeviceType(@NonNull String shortCode);
-
-    Map<String, Long> countByReferrer(@NonNull String shortCode);
-
+    Map<String, Long> countByCountry(String shortCode, Instant from, Instant to);
+    Map<DeviceType, Long> countByDeviceType(@NonNull String shortCode, Instant from, Instant to);
+    Map<String, Long> countByReferrer(@NonNull String shortCode, Instant from, Instant to);
     Map<java.time.LocalDate, Long> getDailyClickStats(@NonNull String shortCode, @NonNull Instant from, @NonNull Instant to);
+    long countTotalClicks(@NonNull String shortCode, Instant from, Instant to);
+    long countUniqueVisitors(String shortCode, Instant from, Instant to);
 
-    long countTotalClicks(@NonNull String shortCode);
-    
-    long countUniqueVisitors(String shortCode);
 }

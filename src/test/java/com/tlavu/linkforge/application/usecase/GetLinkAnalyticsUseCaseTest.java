@@ -87,11 +87,12 @@ class GetLinkAnalyticsUseCaseTest {
         when(authentication.getName()).thenReturn(email);
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
 
-        when(clickAnalyticsRepository.countTotalClicks(shortCode)).thenReturn(100L);
-        when(clickAnalyticsRepository.countUniqueVisitors(shortCode)).thenReturn(50L);
-        when(clickAnalyticsRepository.countByCountry(shortCode)).thenReturn(Collections.emptyMap());
-        when(clickAnalyticsRepository.countByDeviceType(eq(shortCode))).thenReturn(Collections.emptyMap());
-        when(clickAnalyticsRepository.countByReferrer(eq(shortCode))).thenReturn(Collections.emptyMap());
+        when(clickAnalyticsRepository.countTotalClicks(eq(shortCode), any(), any())).thenReturn(100L);
+        when(clickAnalyticsRepository.countUniqueVisitors(eq(shortCode), any(), any())).thenReturn(50L);
+        when(clickAnalyticsRepository.countByCountry(eq(shortCode), any(), any())).thenReturn(Collections.emptyMap());
+        when(clickAnalyticsRepository.countByDeviceType(eq(shortCode), any(), any())).thenReturn(Collections.emptyMap());
+        when(clickAnalyticsRepository.countByReferrer(eq(shortCode), any(), any())).thenReturn(Collections.emptyMap());
+
         when(clickAnalyticsRepository.getDailyClickStats(eq(shortCode), any(), any()))
                 .thenReturn(Collections.emptyMap());
 
@@ -145,11 +146,12 @@ class GetLinkAnalyticsUseCaseTest {
         when(authentication.isAuthenticated()).thenReturn(false); // Guest user
         when(passwordEncoder.matches(token, token)).thenReturn(true);
 
-        when(clickAnalyticsRepository.countTotalClicks(shortCode)).thenReturn(100L);
-        when(clickAnalyticsRepository.countUniqueVisitors(shortCode)).thenReturn(50L);
-        when(clickAnalyticsRepository.countByCountry(shortCode)).thenReturn(Collections.emptyMap());
-        when(clickAnalyticsRepository.countByDeviceType(eq(shortCode))).thenReturn(Collections.emptyMap());
-        when(clickAnalyticsRepository.countByReferrer(eq(shortCode))).thenReturn(Collections.emptyMap());
+        when(clickAnalyticsRepository.countTotalClicks(eq(shortCode), any(), any())).thenReturn(100L);
+        when(clickAnalyticsRepository.countUniqueVisitors(eq(shortCode), any(), any())).thenReturn(50L);
+        when(clickAnalyticsRepository.countByCountry(eq(shortCode), any(), any())).thenReturn(Collections.emptyMap());
+        when(clickAnalyticsRepository.countByDeviceType(eq(shortCode), any(), any())).thenReturn(Collections.emptyMap());
+        when(clickAnalyticsRepository.countByReferrer(eq(shortCode), any(), any())).thenReturn(Collections.emptyMap());
+
         when(clickAnalyticsRepository.getDailyClickStats(eq(shortCode), any(), any()))
                 .thenReturn(Collections.emptyMap());
 
