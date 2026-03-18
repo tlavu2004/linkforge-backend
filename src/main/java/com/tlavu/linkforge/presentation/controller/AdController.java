@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,6 +19,7 @@ import jakarta.servlet.http.HttpServletRequest;
 @RestController
 @RequestMapping("/api/v1/ads")
 @RequiredArgsConstructor
+@Slf4j
 @Tag(name = "Advertisements", description = "Endpoints for handling ad token verification")
 public class AdController {
 
@@ -28,6 +30,7 @@ public class AdController {
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid or expired token, or wait time not met")
     @PostMapping("/verify")
     public ResponseEntity<ApiResponse<String>> verifyAdToken(@Valid @RequestBody VerifyAdTokenRequest request, HttpServletRequest httpRequest) {
+        log.info("Received request to verify ad token for shortCode: {}", request.shortCode());
         String ipAddress = httpRequest.getHeader("X-Forwarded-For");
         if (ipAddress == null || ipAddress.isEmpty()) {
             ipAddress = httpRequest.getRemoteAddr();
@@ -39,6 +42,7 @@ public class AdController {
         String referrer = httpRequest.getHeader("Referer");
 
         String originalUrl = verifyAdTokenUseCase.execute(request.token(), request.shortCode(), ipAddress, userAgent, referrer);
+        log.info("Successfully verified ad token for shortCode: {}", request.shortCode());
         return ResponseEntity.ok(ApiResponse.success("Token verified successfully", originalUrl));
     }
 }

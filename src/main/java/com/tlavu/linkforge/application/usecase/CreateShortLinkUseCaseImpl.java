@@ -2,7 +2,6 @@ package com.tlavu.linkforge.application.usecase;
 
 import com.tlavu.linkforge.application.dto.command.CreateShortLinkCommand;
 import com.tlavu.linkforge.application.dto.response.ShortLinkResponse;
-import com.tlavu.linkforge.domain.entity.Role;
 import com.tlavu.linkforge.domain.entity.ShortLink;
 import com.tlavu.linkforge.domain.entity.User;
 import com.tlavu.linkforge.domain.exception.DomainException;
@@ -42,11 +41,18 @@ public class CreateShortLinkUseCaseImpl implements CreateShortLinkUseCase {
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
 
-    private static final Pattern ALIAS_PATTERN = Pattern.compile("^[a-zA-Z0-9-_]+$");
-    private static final Set<String> RESERVED_WORDS = Set.of(
+    private static final Pattern ALIAS_PATTERN = Pattern.compile("^[a-zA-Z0-9\\-_]+$");
+    private static final Set<String> SYSTEM_RESERVED_WORDS = Set.of(
             "admin", "api", "dashboard", "login", "logout", "register",
             "static", "assets", "health", "v1", "swagger-ui", "v3",
-            "analytics", "links", "users", "payments", "ads", "redirect");
+            "analytics", "links", "users", "payments", "ads", "redirect",
+            "support", "help", "auth", "oauth", "callback");
+
+    private static final Set<String> FORBIDDEN_PHISHING_WORDS = Set.of(
+            "google", "facebook", "apple", "microsoft", "paypal", "pay", "bank",
+            "binance", "crypto", "verify", "verification", "account", "secure",
+            "security", "official", "update", "support", "billing", "signin",
+            "signup", "password", "credential", "vnpay", "momo", "zalopay");
 
     @Override
     @Transactional
@@ -107,16 +113,15 @@ public class CreateShortLinkUseCaseImpl implements CreateShortLinkUseCase {
             }
         }
 
-        boolean canSetCustomExpiration = isVip || (userId != null && userRepository.findById(userId)
-                .map(u -> u.getRole() == Role.ADMIN).orElse(false));
+        boolean canSetCustomExpiration = userId != null;
 
         if (command.expiresAt() != null && !canSetCustomExpiration) {
             throw new DomainException("Only VIP users and Admins can set custom expiration time for short links");
         }
 
-        // Default 30 days expiration for non-VIP / non-Admin / anonymous users
+        // Default 30 days expiration if not specified
         Instant expiresAt = command.expiresAt();
-        if (expiresAt == null && !canSetCustomExpiration) {
+        if (expiresAt == null) {
             expiresAt = Instant.now().plus(30, ChronoUnit.DAYS);
         }
 
@@ -143,14 +148,24 @@ public class CreateShortLinkUseCaseImpl implements CreateShortLinkUseCase {
     }
 
     private void validateCustomAlias(String alias) {
-        if (alias.length() < 3 || alias.length() > 30) {
-            throw new DomainException("Custom alias must be between 3 and 30 characters");
+        if (alias.length() < 3 || alias.length() > 50) {
+            throw new DomainException("Custom alias must be between 3 and 50 characters");
         }
         if (!ALIAS_PATTERN.matcher(alias).matches()) {
             throw new DomainException("Custom alias can only contain letters, numbers, hyphens, and underscores");
         }
-        if (RESERVED_WORDS.contains(alias.toLowerCase())) {
-            throw new DomainException("The alias '" + alias + "' is a reserved word and cannot be used");
+        String lowerAlias = alias.toLowerCase();
+
+        // 1. Exact match for system reserved words
+        if (SYSTEM_RESERVED_WORDS.contains(lowerAlias)) {
+            throw new DomainException("The alias '" + alias + "' is a system reserved word and cannot be used");
+        }
+
+        // 2. Contains detection for common phishing/scam keywords
+        for (String forbidden : FORBIDDEN_PHISHING_WORDS) {
+            if (lowerAlias.contains(forbidden)) {
+                throw new DomainException("The alias '" + alias + "' cannot be used because it contains a forbidden word: " + forbidden);
+            }
         }
     }
 }

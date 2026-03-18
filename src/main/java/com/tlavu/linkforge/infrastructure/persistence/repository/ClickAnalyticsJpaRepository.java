@@ -14,22 +14,24 @@ public interface ClickAnalyticsJpaRepository extends JpaRepository<ClickAnalytic
 
     List<ClickAnalyticsJpaEntity> findByShortCodeAndClickedAtBetween(String shortCode, Instant from, Instant to);
 
-    @Query("SELECT c.country, COUNT(c) FROM ClickAnalyticsJpaEntity c WHERE c.shortCode = :shortCode GROUP BY c.country")
-    List<Object[]> countByCountry(@Param("shortCode") String shortCode);
+    @Query("SELECT c.country, COUNT(c) FROM ClickAnalyticsJpaEntity c WHERE c.shortCode = :shortCode AND c.clickedAt BETWEEN :from AND :to GROUP BY c.country")
+    List<Object[]> countByCountry(@Param("shortCode") String shortCode, @Param("from") Instant from, @Param("to") Instant to);
 
-    @Query("SELECT c.deviceType, COUNT(c) FROM ClickAnalyticsJpaEntity c WHERE c.shortCode = :shortCode GROUP BY c.deviceType")
-    List<Object[]> countByDeviceType(@Param("shortCode") String shortCode);
+    @Query("SELECT c.deviceType, COUNT(c) FROM ClickAnalyticsJpaEntity c WHERE c.shortCode = :shortCode AND c.clickedAt BETWEEN :from AND :to GROUP BY c.deviceType")
+    List<Object[]> countByDeviceType(@Param("shortCode") String shortCode, @Param("from") Instant from, @Param("to") Instant to);
 
-    @Query("SELECT c.referrer, COUNT(c) FROM ClickAnalyticsJpaEntity c WHERE c.shortCode = :shortCode GROUP BY c.referrer ORDER BY COUNT(c) DESC")
-    List<Object[]> countByReferrer(@Param("shortCode") String shortCode);
+    @Query("SELECT c.referrer, COUNT(c) FROM ClickAnalyticsJpaEntity c WHERE c.shortCode = :shortCode AND c.clickedAt BETWEEN :from AND :to GROUP BY c.referrer ORDER BY COUNT(c) DESC")
+    List<Object[]> countByReferrer(@Param("shortCode") String shortCode, @Param("from") Instant from, @Param("to") Instant to);
 
     @Query(value = "SELECT CAST(DATE_TRUNC('day', clicked_at) AS DATE) as day, COUNT(*) " +
             "FROM click_analytics WHERE short_code = :shortCode AND clicked_at BETWEEN :fromDate AND :toDate " +
             "GROUP BY day ORDER BY day ASC", nativeQuery = true)
     List<Object[]> getDailyStats(@Param("shortCode") String shortCode, @Param("fromDate") Instant from, @Param("toDate") Instant to);
 
-    long countByShortCode(String shortCode);
+    @Query("SELECT COUNT(c) FROM ClickAnalyticsJpaEntity c WHERE c.shortCode = :shortCode AND c.clickedAt BETWEEN :from AND :to")
+    long countTotalClicks(@Param("shortCode") String shortCode, @Param("from") Instant from, @Param("to") Instant to);
 
-    @Query("SELECT COUNT(DISTINCT c.ipAddress) FROM ClickAnalyticsJpaEntity c WHERE c.shortCode = :shortCode")
-    long countUniqueVisitors(@Param("shortCode") String shortCode);
+    @Query("SELECT COUNT(DISTINCT c.ipAddress) FROM ClickAnalyticsJpaEntity c WHERE c.shortCode = :shortCode AND c.clickedAt BETWEEN :from AND :to")
+    long countUniqueVisitors(@Param("shortCode") String shortCode, @Param("from") Instant from, @Param("to") Instant to);
+
 }

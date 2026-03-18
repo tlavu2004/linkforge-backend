@@ -54,7 +54,7 @@ public class ShortLinkEventListener {
             
             clickAnalyticsRepository.save(analytics);
             
-            log.debug("Enriched and saved analytics for shortCode: {}", event.shortCode());
+            log.info("Successfully recorded click analytics for shortCode: {}, IP: {}", event.shortCode(), event.ipAddress());
         } catch (Exception e) {
             log.error("Failed to process analytics for shortCode: {}", event.shortCode(), e);
         }

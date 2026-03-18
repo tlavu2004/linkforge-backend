@@ -42,8 +42,8 @@ public class ClickAnalyticsRepositoryAdapter implements ClickAnalyticsRepository
     }
 
     @Override
-    public Map<String, Long> countByCountry(String shortCode) {
-        List<Object[]> results = jpaRepository.countByCountry(shortCode);
+    public Map<String, Long> countByCountry(String shortCode, Instant from, Instant to) {
+        List<Object[]> results = jpaRepository.countByCountry(shortCode, from, to);
         Map<String, Long> map = new HashMap<>();
         for (Object[] result : results) {
             map.put((String) result[0], (Long) result[1]);
@@ -51,9 +51,10 @@ public class ClickAnalyticsRepositoryAdapter implements ClickAnalyticsRepository
         return map;
     }
 
+
     @Override
-    public Map<DeviceType, Long> countByDeviceType(String shortCode) {
-        List<Object[]> results = jpaRepository.countByDeviceType(shortCode);
+    public Map<DeviceType, Long> countByDeviceType(String shortCode, Instant from, Instant to) {
+        List<Object[]> results = jpaRepository.countByDeviceType(shortCode, from, to);
         Map<DeviceType, Long> map = new HashMap<>();
         for (Object[] result : results) {
             map.put((DeviceType) result[0], (Long) result[1]);
@@ -61,15 +62,17 @@ public class ClickAnalyticsRepositoryAdapter implements ClickAnalyticsRepository
         return map;
     }
 
+
     @Override
-    public Map<String, Long> countByReferrer(String shortCode) {
-        List<Object[]> results = jpaRepository.countByReferrer(shortCode);
+    public Map<String, Long> countByReferrer(String shortCode, Instant from, Instant to) {
+        List<Object[]> results = jpaRepository.countByReferrer(shortCode, from, to);
         Map<String, Long> map = new LinkedHashMap<>();
         for (Object[] result : results) {
             map.put((String) result[0] != null ? (String) result[0] : "Direct", (Long) result[1]);
         }
         return map;
     }
+
 
     @Override
     public Map<LocalDate, Long> getDailyClickStats(String shortCode, Instant from, Instant to) {
@@ -84,12 +87,13 @@ public class ClickAnalyticsRepositoryAdapter implements ClickAnalyticsRepository
     }
 
     @Override
-    public long countTotalClicks(String shortCode) {
-        return jpaRepository.countByShortCode(shortCode);
+    public long countTotalClicks(String shortCode, Instant from, Instant to) {
+        return jpaRepository.countTotalClicks(shortCode, from, to);
     }
 
     @Override
-    public long countUniqueVisitors(String shortCode) {
-        return jpaRepository.countUniqueVisitors(shortCode);
+    public long countUniqueVisitors(String shortCode, Instant from, Instant to) {
+        return jpaRepository.countUniqueVisitors(shortCode, from, to);
     }
+
 }
