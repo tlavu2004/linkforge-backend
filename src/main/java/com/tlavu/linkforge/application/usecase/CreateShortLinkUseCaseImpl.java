@@ -64,7 +64,7 @@ public class CreateShortLinkUseCaseImpl implements CreateShortLinkUseCase {
             validateCustomAlias(command.customAlias());
             shortCode = ShortCode.of(command.customAlias());
             if (shortLinkRepository.existsByShortCode(shortCode)) {
-                throw new DomainException("Custom alias '" + command.customAlias() + "' is already taken");
+                throw new DomainException("link.alias_taken");
             }
         } else {
             shortCode = shortCodeGenerator.generate();
@@ -116,7 +116,7 @@ public class CreateShortLinkUseCaseImpl implements CreateShortLinkUseCase {
         boolean canSetCustomExpiration = userId != null;
 
         if (command.expiresAt() != null && !canSetCustomExpiration) {
-            throw new DomainException("Only VIP users and Admins can set custom expiration time for short links");
+            throw new DomainException("vip.custom_expiration_only");
         }
 
         // Default 30 days expiration if not specified
@@ -149,22 +149,22 @@ public class CreateShortLinkUseCaseImpl implements CreateShortLinkUseCase {
 
     private void validateCustomAlias(String alias) {
         if (alias.length() < 3 || alias.length() > 50) {
-            throw new DomainException("Custom alias must be between 3 and 50 characters");
+            throw new DomainException("validation.alias_length");
         }
         if (!ALIAS_PATTERN.matcher(alias).matches()) {
-            throw new DomainException("Custom alias can only contain letters, numbers, hyphens, and underscores");
+            throw new DomainException("validation.alias_invalid_chars");
         }
         String lowerAlias = alias.toLowerCase();
 
         // 1. Exact match for system reserved words
         if (SYSTEM_RESERVED_WORDS.contains(lowerAlias)) {
-            throw new DomainException("The alias '" + alias + "' is a system reserved word and cannot be used");
+            throw new DomainException("link.alias_reserved");
         }
 
         // 2. Contains detection for common phishing/scam keywords
         for (String forbidden : FORBIDDEN_PHISHING_WORDS) {
             if (lowerAlias.contains(forbidden)) {
-                throw new DomainException("The alias '" + alias + "' cannot be used because it contains a forbidden word: " + forbidden);
+                throw new DomainException("link.alias_forbidden");
             }
         }
     }

@@ -6,6 +6,7 @@ import com.tlavu.linkforge.application.usecase.CreateShortLinkUseCase;
 import com.tlavu.linkforge.application.usecase.DeleteShortLinkUseCase;
 import com.tlavu.linkforge.application.usecase.GetShortLinkUseCase;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import com.tlavu.linkforge.shared.service.MessageService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -27,21 +28,24 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @RequestMapping("/api/v1/links")
 @RequiredArgsConstructor
 @Tag(name = "Short Links Management", description = "Endpoints for creating, retrieving, and deleting short links")
+@SuppressWarnings("null")
 public class ShortLinkController {
 
     private final CreateShortLinkUseCase createShortLinkUseCase;
     private final GetShortLinkUseCase getShortLinkUseCase;
     private final DeleteShortLinkUseCase deleteShortLinkUseCase;
+    private final MessageService messageService;
 
     @Operation(summary = "Create a new short link", description = "Submit a long URL to generate a unique short code.")
     @ApiResponse(responseCode = "201", description = "Short link created successfully")
     @ApiResponse(responseCode = "400", description = "Invalid request format or URL")
     @PostMapping
     public ResponseEntity<com.tlavu.linkforge.presentation.response.ApiResponse<ShortLinkResponse>> createShortLink(
-            @Valid @RequestBody CreateShortLinkCommand command) {
+            @Valid @RequestBody CreateShortLinkCommand command,
+            java.util.Locale locale) {
         ShortLinkResponse response = createShortLinkUseCase.execute(command);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(com.tlavu.linkforge.presentation.response.ApiResponse.success("Short link created successfully",
+                .body(com.tlavu.linkforge.presentation.response.ApiResponse.success(messageService.getMessage("link.create_success", locale),
                         response));
     }
 

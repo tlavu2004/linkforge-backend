@@ -3,6 +3,7 @@ package com.tlavu.linkforge.application.usecase;
 import com.tlavu.linkforge.application.dto.response.LinkStatsResponse;
 import com.tlavu.linkforge.domain.entity.ShortLink;
 import com.tlavu.linkforge.domain.entity.User;
+import com.tlavu.linkforge.domain.exception.DomainException;
 import com.tlavu.linkforge.domain.exception.ShortLinkNotFoundException;
 import com.tlavu.linkforge.domain.repository.ClickAnalyticsRepository;
 import com.tlavu.linkforge.domain.repository.ShortLinkRepository;
@@ -10,7 +11,6 @@ import com.tlavu.linkforge.domain.repository.UserRepository;
 import com.tlavu.linkforge.domain.valueobject.ShortCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -68,7 +68,7 @@ public class GetLinkAnalyticsUseCaseImpl implements GetLinkAnalyticsUseCase {
         if (!isAuthorized) {
             log.warn("Authorization failed for link {}. isAuthorized={}, tokenProvided={}, hasHash={}",
                     shortCode, isAuthorized, token != null, link.getDeleteTokenHash() != null);
-            throw new AccessDeniedException("You don't have permission to view analytics for this link. Please provide a valid token or log in as the owner.");
+            throw new DomainException("link.view_analytics_permission");
         }
 
         return LinkStatsResponse.builder()

@@ -1,5 +1,6 @@
 package com.tlavu.linkforge.infrastructure.service;
 
+import com.tlavu.linkforge.shared.service.MessageService;
 import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +11,8 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.util.Locale;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -17,25 +20,30 @@ import org.springframework.stereotype.Service;
 public class EmailService {
 
     private final JavaMailSender mailSender;
+    private final MessageService messageService;
 
     @Value("${app.mail.from}")
     private String fromAddress;
 
     @Async
-    public void sendVerificationEmail(String to, String otp) {
-        String subject = "LinkForge - Verify Your Email";
-        String body = buildOtpEmailBody("Verify Your Email", otp,
-                "You registered a new account on LinkForge. Please use the OTP below to verify your email address.",
-                "This code expires in 5 minutes. If you didn't create an account, please ignore this email.");
+    public void sendVerificationEmail(String to, String otp, Locale locale) {
+        String subject = messageService.getMessage("mail.verify.subject", locale);
+        String body = buildOtpEmailBody(
+                messageService.getMessage("mail.verify.title", locale),
+                otp,
+                messageService.getMessage("mail.verify.description", locale),
+                messageService.getMessage("mail.verify.footer", locale));
         sendHtmlEmail(to, subject, body);
     }
 
     @Async
-    public void sendPasswordResetEmail(String to, String otp) {
-        String subject = "LinkForge - Reset Your Password";
-        String body = buildOtpEmailBody("Reset Your Password", otp,
-                "We received a request to reset your password. Use the OTP below to proceed.",
-                "This code expires in 5 minutes. If you didn't request a password reset, please ignore this email.");
+    public void sendPasswordResetEmail(String to, String otp, Locale locale) {
+        String subject = messageService.getMessage("mail.reset.subject", locale);
+        String body = buildOtpEmailBody(
+                messageService.getMessage("mail.reset.title", locale),
+                otp,
+                messageService.getMessage("mail.reset.description", locale),
+                messageService.getMessage("mail.reset.footer", locale));
         sendHtmlEmail(to, subject, body);
     }
 

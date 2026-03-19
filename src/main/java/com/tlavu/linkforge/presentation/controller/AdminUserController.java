@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 
 import com.tlavu.linkforge.application.dto.response.UserResponse;
 import com.tlavu.linkforge.application.usecase.ListUsersUseCase;
+import com.tlavu.linkforge.shared.service.MessageService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -20,10 +21,12 @@ import io.swagger.v3.oas.annotations.Operation;
 @RequestMapping("/api/v1/admin/users")
 @RequiredArgsConstructor
 @Tag(name = "Admin User Management", description = "Endpoints for managing user accounts and roles")
+@SuppressWarnings("null")
 public class AdminUserController {
 
     private final ToggleVipStatusUseCase toggleVipStatusUseCase;
     private final ListUsersUseCase listUsersUseCase;
+    private final MessageService messageService;
 
     @GetMapping
     @Operation(summary = "List users", description = "Returns an admin paginated list of all users")
@@ -55,8 +58,9 @@ public class AdminUserController {
     @PostMapping("/{userId}/vip/toggle")
     public ResponseEntity<ApiResponse<Void>> toggleVip(
             @PathVariable Long userId,
-            @RequestBody @Valid ToggleVipRequest request) {
+            @RequestBody @Valid ToggleVipRequest request,
+            java.util.Locale locale) {
         toggleVipStatusUseCase.execute(userId, request.vip());
-        return ResponseEntity.ok(ApiResponse.success("User VIP status updated successfully", null));
+        return ResponseEntity.ok(ApiResponse.success(messageService.getMessage("user.vip_toggle_success", locale), null));
     }
 }

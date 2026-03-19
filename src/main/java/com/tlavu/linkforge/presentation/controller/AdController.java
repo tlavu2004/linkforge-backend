@@ -2,6 +2,7 @@ package com.tlavu.linkforge.presentation.controller;
 
 import com.tlavu.linkforge.application.usecase.VerifyAdTokenUseCase;
 import com.tlavu.linkforge.presentation.response.ApiResponse;
+import com.tlavu.linkforge.shared.service.MessageService;
 import com.tlavu.linkforge.presentation.dto.VerifyAdTokenRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -21,15 +22,20 @@ import jakarta.servlet.http.HttpServletRequest;
 @RequiredArgsConstructor
 @Slf4j
 @Tag(name = "Advertisements", description = "Endpoints for handling ad token verification")
+@SuppressWarnings("null")
 public class AdController {
 
     private final VerifyAdTokenUseCase verifyAdTokenUseCase;
+    private final MessageService messageService;
 
     @Operation(summary = "Verify Ad Token", description = "Verifies the ad token and returns the original URL if 5 seconds have passed.")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "200", description = "Token verified successfully")
     @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "400", description = "Invalid or expired token, or wait time not met")
     @PostMapping("/verify")
-    public ResponseEntity<ApiResponse<String>> verifyAdToken(@Valid @RequestBody VerifyAdTokenRequest request, HttpServletRequest httpRequest) {
+    public ResponseEntity<ApiResponse<String>> verifyAdToken(
+            @Valid @RequestBody VerifyAdTokenRequest request,
+            HttpServletRequest httpRequest,
+            java.util.Locale locale) {
         log.info("Received request to verify ad token for shortCode: {}", request.shortCode());
         String ipAddress = httpRequest.getHeader("X-Forwarded-For");
         if (ipAddress == null || ipAddress.isEmpty()) {
@@ -43,6 +49,6 @@ public class AdController {
 
         String originalUrl = verifyAdTokenUseCase.execute(request.token(), request.shortCode(), ipAddress, userAgent, referrer);
         log.info("Successfully verified ad token for shortCode: {}", request.shortCode());
-        return ResponseEntity.ok(ApiResponse.success("Token verified successfully", originalUrl));
+        return ResponseEntity.ok(ApiResponse.success(messageService.getMessage("ad.verify_success", locale), originalUrl));
     }
 }

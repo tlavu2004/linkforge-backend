@@ -87,7 +87,7 @@ public class HandlePaymentWebhookUseCaseImpl implements HandlePaymentWebhookUseC
             });
         } else {
             log.error("Invalid Checksum for VNPay webhook. Potential spoofing attempt!");
-            throw new IllegalArgumentException("Invalid Signature Hash");
+            throw new IllegalArgumentException("payment.invalid_signature");
         }
     }
 }
