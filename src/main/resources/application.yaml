@@ -9,6 +9,10 @@ spring:
     redis:
       repositories:
         enabled: false
+  messages:
+    basename: i18n/messages
+    encoding: UTF-8
+    fallback-to-system-locale: false
 
 application:
   security:
