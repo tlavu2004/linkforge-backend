@@ -8,6 +8,7 @@ import com.tlavu.linkforge.domain.entity.Role;
 import com.tlavu.linkforge.domain.entity.User;
 import com.tlavu.linkforge.domain.repository.UserRepository;
 import com.tlavu.linkforge.infrastructure.util.VNPayUtil;
+import com.tlavu.linkforge.shared.service.MessageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
@@ -35,6 +36,7 @@ public class PaymentController {
     private final CreatePaymentLinkUseCase createPaymentLinkUseCase;
     private final HandlePaymentWebhookUseCase handlePaymentWebhookUseCase;
     private final UserRepository userRepository;
+    private final MessageService messageService;
 
     @Value("${application.frontend.url}")
     private String frontendUrl;
@@ -49,14 +51,14 @@ public class PaymentController {
 
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         User user = userRepository.findByEmail(userDetails.getUsername())
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new IllegalArgumentException("auth.user_not_found"));
 
         if (user.getRole() == Role.ADMIN) {
-            throw new IllegalArgumentException("Admins do not need to purchase VIP packages.");
+            throw new IllegalArgumentException("payment.admin_restricted");
         }
 
         if (user.isVipActive(Instant.now()) && user.getVipExpiresAt() == null) {
-            throw new IllegalArgumentException("You already have Lifetime VIP. No need to purchase again.");
+            throw new IllegalArgumentException("payment.lifetime_vip_already");
         }
 
         Long userId = user.getId();
@@ -65,7 +67,7 @@ public class PaymentController {
 
         String paymentUrl = createPaymentLinkUseCase.execute(userId, requestBody.packageCode(), ipAddress);
 
-        return ResponseEntity.ok(ApiResponse.success("Payment link generated", paymentUrl));
+        return ResponseEntity.ok(ApiResponse.success(messageService.getMessage("payment.link_generated"), paymentUrl));
     }
 
     @GetMapping("/vnpay-return")

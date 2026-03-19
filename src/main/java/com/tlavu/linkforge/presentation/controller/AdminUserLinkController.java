@@ -10,6 +10,7 @@ import com.tlavu.linkforge.domain.exception.DomainException;
 import com.tlavu.linkforge.domain.repository.ShortLinkRepository;
 import com.tlavu.linkforge.domain.valueobject.ShortCode;
 import com.tlavu.linkforge.presentation.response.ApiResponse;
+import com.tlavu.linkforge.shared.service.MessageService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -23,12 +24,14 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/admin/users/{userId}/links")
 @RequiredArgsConstructor
 @Tag(name = "Admin User Links Management", description = "Endpoints for managing specific user links as admin")
+@SuppressWarnings("null")
 public class AdminUserLinkController {
 
     private final ListUserLinksUseCase listUserLinksUseCase;
     private final ShortLinkRepository shortLinkRepository;
     private final GenerateQrCodeUseCase generateQrCodeUseCase;
     private final DeleteQrCodeUseCase deleteQrCodeUseCase;
+    private final MessageService messageService;
 
     @GetMapping
     @Operation(summary = "List user links", description = "Returns paginated list of a specific user's links")
@@ -52,39 +55,41 @@ public class AdminUserLinkController {
     @Operation(summary = "Delete user link", description = "Deletes a specific link owned by the user (as admin)")
     public ResponseEntity<ApiResponse<Void>> deleteUserLink(
             @PathVariable Long userId,
-            @PathVariable String shortCode) {
+            @PathVariable String shortCode,
+            java.util.Locale locale) {
 
         ShortLink link = shortLinkRepository
                 .findByShortCode(ShortCode.of(shortCode))
-                .orElseThrow(() -> new DomainException("Short link not found"));
+                .orElseThrow(() -> new DomainException("shortlink.not_found"));
 
         if (link.getUserId() == null || !link.getUserId().equals(userId)) {
-            throw new DomainException(
-                    "This link does not belong to the specified user");
+            throw new DomainException("link.owner_mismatch");
         }
 
         shortLinkRepository.delete(link.getId());
-        return ResponseEntity.ok(ApiResponse.success("Link deleted successfully", null));
+        return ResponseEntity.ok(ApiResponse.success(messageService.getMessage("link.delete_success", locale), null));
     }
 
     @PostMapping("/{shortCode}/qr-code")
     @Operation(summary = "Generate QR code for user link", description = "Generates a QR code for the user's link (as admin).")
     public ResponseEntity<ApiResponse<ShortLinkResponse>> generateUserQrCode(
             @PathVariable Long userId,
-            @PathVariable String shortCode) {
+            @PathVariable String shortCode,
+            java.util.Locale locale) {
         ShortLinkResponse response = generateQrCodeUseCase
                 .execute(shortCode, userId);
-        return ResponseEntity.ok(ApiResponse.success("QR code generated successfully", response));
+        return ResponseEntity.ok(ApiResponse.success(messageService.getMessage("qr.generate_success", locale), response));
     }
 
     @DeleteMapping("/{shortCode}/qr-code")
     @Operation(summary = "Delete QR code for user link", description = "Deletes the stored QR code for the user's link (as admin).")
     public ResponseEntity<ApiResponse<ShortLinkResponse>> deleteUserQrCode(
             @PathVariable Long userId,
-            @PathVariable String shortCode) {
+            @PathVariable String shortCode,
+            java.util.Locale locale) {
         ShortLinkResponse response = deleteQrCodeUseCase.execute(shortCode,
                 userId);
-        return ResponseEntity.ok(ApiResponse.success("QR code deleted successfully", response));
+        return ResponseEntity.ok(ApiResponse.success(messageService.getMessage("qr.delete_success", locale), response));
     }
 
     private String mapSortField(String sortBy) {

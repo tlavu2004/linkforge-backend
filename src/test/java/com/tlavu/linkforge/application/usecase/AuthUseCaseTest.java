@@ -11,6 +11,9 @@ import com.tlavu.linkforge.domain.repository.UserRepository;
 import com.tlavu.linkforge.infrastructure.security.JwtService;
 import com.tlavu.linkforge.infrastructure.service.OtpService;
 import com.tlavu.linkforge.infrastructure.service.EmailService;
+import com.tlavu.linkforge.infrastructure.config.JwtProperties;
+import com.tlavu.linkforge.domain.entity.RefreshToken;
+import com.tlavu.linkforge.domain.repository.RefreshTokenRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,18 +26,16 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
+import java.time.Instant;
+import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
-
-import com.tlavu.linkforge.infrastructure.config.JwtProperties;
-import com.tlavu.linkforge.domain.entity.RefreshToken;
-import com.tlavu.linkforge.domain.repository.RefreshTokenRepository;
-
-import java.time.Instant;
 
 @ExtendWith(MockitoExtension.class)
 @SuppressWarnings("null")
@@ -88,7 +89,7 @@ class AuthUseCaseTest {
         when(otpService.generateAndStore(anyString(), anyString())).thenReturn("123456");
 
         // Act
-        RegisterResponse response = authUseCase.register(request);
+        RegisterResponse response = authUseCase.register(request, Locale.ENGLISH);
 
         // Assert
         assertThat(response.email()).isEqualTo("test@example.com");
@@ -97,7 +98,7 @@ class AuthUseCaseTest {
 
         verify(userRepository).save(any(User.class));
         verify(otpService).generateAndStore("test@example.com", "verify-email");
-        verify(emailService).sendVerificationEmail("test@example.com", "123456");
+        verify(emailService).sendVerificationEmail(eq("test@example.com"), eq("123456"), any(Locale.class));
     }
 
     @Test
@@ -108,9 +109,9 @@ class AuthUseCaseTest {
         when(userRepository.existsByEmail(request.email())).thenReturn(true);
 
         // Act & Assert
-        assertThatThrownBy(() -> authUseCase.register(request))
+        assertThatThrownBy(() -> authUseCase.register(request, Locale.ENGLISH))
                 .isInstanceOf(DomainException.class)
-                .hasMessageContaining("taken");
+                .hasMessageContaining("auth.email_taken");
 
         verify(userRepository, never()).save(any(User.class));
     }
@@ -141,13 +142,14 @@ class AuthUseCaseTest {
     void shouldThrowExceptionIfEmailNotVerified() {
         // Arrange
         User unverifiedUser = User.create(2L, "Unverified", "unverified@example.com", "hashed", Role.USER);
+        // Do not verifyEmail
         LoginRequest request = new LoginRequest("unverified@example.com", "password123");
         when(userRepository.findByEmail(request.email())).thenReturn(Optional.of(unverifiedUser));
 
         // Act & Assert
         assertThatThrownBy(() -> authUseCase.login(request))
                 .isInstanceOf(DomainException.class)
-                .hasMessageContaining("not verified");
+                .hasMessageContaining("auth.email_not_verified");
     }
 
     @Test
@@ -160,6 +162,6 @@ class AuthUseCaseTest {
         // Act & Assert
         assertThatThrownBy(() -> authUseCase.login(request))
                 .isInstanceOf(DomainException.class)
-                .hasMessageContaining("not found");
+                .hasMessageContaining("auth.user_not_found");
     }
 }

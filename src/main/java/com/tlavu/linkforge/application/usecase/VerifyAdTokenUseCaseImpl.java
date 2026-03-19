@@ -26,24 +26,24 @@ public class VerifyAdTokenUseCaseImpl implements VerifyAdTokenUseCase {
 
         if (tokenData == null) {
             log.warn("Ad token validation failed: token not found for key {}", key);
-            throw new AdTokenVerificationException("Invalid or expired ad token");
+            throw new AdTokenVerificationException("ad.token_invalid");
         }
 
         String[] parts = tokenData.split(":");
         if (parts.length != 2) {
-            throw new AdTokenVerificationException("Malformed ad token data");
+            throw new AdTokenVerificationException("ad.token_malformed");
         }
 
         String storedShortCode = parts[0];
         long createdAt = Long.parseLong(parts[1]);
 
         if (!storedShortCode.equals(shortCode)) {
-            throw new AdTokenVerificationException("Ad token does not match short code");
+            throw new AdTokenVerificationException("ad.token_mismatch");
         }
 
         long currentTime = System.currentTimeMillis();
         if (currentTime - createdAt < WAIT_TIME_MS) {
-            throw new AdTokenVerificationException("You must wait 5 seconds before verifying");
+            throw new AdTokenVerificationException("ad.token_wait");
         }
 
         // Token is valid and time has passed

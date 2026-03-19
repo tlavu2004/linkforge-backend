@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.Locale;
 import java.util.UUID;
 
 @Service
@@ -37,128 +38,131 @@ import java.util.UUID;
 @SuppressWarnings("null")
 public class AuthUseCase {
 
-        private final UserRepository userRepository;
-        private final RefreshTokenRepository refreshTokenRepository;
-        private final PasswordEncoder passwordEncoder;
-        private final JwtService jwtService;
-        private final JwtProperties jwtProperties;
-        private final AuthenticationManager authenticationManager;
-        private final OtpService otpService;
-        private final EmailService emailService;
+	private final UserRepository userRepository;
+	private final RefreshTokenRepository refreshTokenRepository;
+	private final PasswordEncoder passwordEncoder;
+	private final JwtService jwtService;
+	private final JwtProperties jwtProperties;
+	private final AuthenticationManager authenticationManager;
+	private final OtpService otpService;
+	private final EmailService emailService;
 
-        public RegisterResponse register(RegisterRequest request) {
-                if (userRepository.existsByEmail(request.email())) {
-                        throw new DomainException("Email is already taken");
-                }
+	public RegisterResponse register(RegisterRequest request, Locale locale) {
+		if (userRepository.existsByEmail(request.email())) {
+			throw new DomainException("auth.email_taken");
+		}
 
-                User user = User.create(
-                                TSID.fast().toLong(),
-                                request.name(),
-                                request.email(),
-                                passwordEncoder.encode(request.password()),
-                                Role.USER);
+		User user = User.create(
+				TSID.fast().toLong(),
+				request.name(),
+				request.email(),
+				passwordEncoder.encode(request.password()),
+				Role.USER);
 
-                User savedUser = userRepository.save(user);
+		User savedUser = userRepository.save(user);
 
-                // Generate and send verification OTP
-                String otp = otpService.generateAndStore(savedUser.getEmail(), "verify-email");
-                emailService.sendVerificationEmail(savedUser.getEmail(), otp);
+		// Generate and send verification OTP
+		String otp = otpService.generateAndStore(savedUser.getEmail(), "verify-email");
+		emailService.sendVerificationEmail(savedUser.getEmail(), otp, locale);
 
-                return new RegisterResponse(
-                                savedUser.getId(),
-                                savedUser.getName(),
-                                savedUser.getEmail(),
-                                savedUser.getRole(),
-                                savedUser.isVipActive(Instant.now()));
-        }
+		return new RegisterResponse(
+				savedUser.getId(),
+				savedUser.getName(),
+				savedUser.getEmail(),
+				savedUser.getRole(),
+				savedUser.isVipActive(Instant.now()));
+	}
 
-        public AuthResponse login(LoginRequest request) {
-                authenticationManager.authenticate(
-                                new UsernamePasswordAuthenticationToken(request.email(), request.password()));
+	public AuthResponse login(LoginRequest request) {
+		try {
+			authenticationManager.authenticate(
+					new UsernamePasswordAuthenticationToken(request.email(), request.password()));
+		} catch (Exception e) {
+			throw new DomainException("auth.invalid_credentials");
+		}
 
-                User user = userRepository.findByEmail(request.email())
-                                .orElseThrow(() -> new DomainException("User not found"));
+		User user = userRepository.findByEmail(request.email())
+				.orElseThrow(() -> new DomainException("auth.user_not_found"));
 
-                if (!user.isEmailVerified()) {
-                        throw new DomainException(
-                                        "Email not verified. Please check your email for the verification code.");
-                }
+		if (!user.isEmailVerified()) {
+			throw new DomainException("auth.email_not_verified");
+		}
 
-                return generateAuthResponse(user);
-        }
+		return generateAuthResponse(user);
+	}
 
-        public void verifyEmail(VerifyEmailRequest request) {
-                User user = userRepository.findByEmail(request.email())
-                                .orElseThrow(() -> new DomainException("User not found"));
+	public void verifyEmail(VerifyEmailRequest request) {
+		User user = userRepository.findByEmail(request.email())
+				.orElseThrow(() -> new DomainException("auth.user_not_found"));
 
-                if (user.isEmailVerified()) {
-                        throw new DomainException("Email is already verified");
-                }
+		if (user.isEmailVerified()) {
+			throw new DomainException("auth.email_verified");
+		}
 
-                if (!otpService.verify(request.email(), "verify-email", request.otp())) {
-                        throw new DomainException("Invalid or expired OTP");
-                }
+		if (!otpService.verify(request.email(), "verify-email", request.otp())) {
+			throw new DomainException("auth.invalid_otp");
+		}
 
-                user.verifyEmail();
-                userRepository.save(user);
-        }
+		user.verifyEmail();
+		userRepository.save(user);
+	}
 
-        public void resendVerificationOtp(ResendOtpRequest request) {
-                User user = userRepository.findByEmail(request.email())
-                                .orElseThrow(() -> new DomainException("User not found"));
+	public void resendVerificationOtp(ResendOtpRequest request, Locale locale) {
+		User user = userRepository.findByEmail(request.email())
+				.orElseThrow(() -> new DomainException("auth.user_not_found"));
 
-                if (user.isEmailVerified()) {
-                        throw new DomainException("Email is already verified");
-                }
+		if (user.isEmailVerified()) {
+			throw new DomainException("auth.email_verified");
+		}
 
-                String otp = otpService.generateAndStore(user.getEmail(), "verify-email");
-                emailService.sendVerificationEmail(user.getEmail(), otp);
-        }
+		String otp = otpService.generateAndStore(user.getEmail(), "verify-email");
+		emailService.sendVerificationEmail(user.getEmail(), otp, locale);
+	}
 
-        public void forgotPassword(ForgotPasswordRequest request) {
-                User user = userRepository.findByEmail(request.email())
-                                .orElseThrow(() -> new DomainException("User not found"));
+	public void forgotPassword(ForgotPasswordRequest request, Locale locale) {
+		User user = userRepository.findByEmail(request.email())
+				.orElseThrow(() -> new DomainException("auth.user_not_found"));
 
-                String otp = otpService.generateAndStore(user.getEmail(), "reset-password");
-                emailService.sendPasswordResetEmail(user.getEmail(), otp);
-        }
+		String otp = otpService.generateAndStore(user.getEmail(), "reset-password");
+		emailService.sendPasswordResetEmail(user.getEmail(), otp, locale);
+	}
 
-        public void resetPassword(ResetPasswordRequest request) {
-                User user = userRepository.findByEmail(request.email())
-                                .orElseThrow(() -> new DomainException("User not found"));
+	public void resetPassword(ResetPasswordRequest request) {
+		User user = userRepository.findByEmail(request.email())
+				.orElseThrow(() -> new DomainException("auth.user_not_found"));
 
-                if (!otpService.verify(request.email(), "reset-password", request.otp())) {
-                        throw new DomainException("Invalid or expired OTP");
-                }
+		if (!otpService.verify(request.email(), "reset-password", request.otp())) {
+			throw new DomainException("auth.invalid_otp");
+		}
 
-                user.updatePassword(passwordEncoder.encode(request.newPassword()));
-                userRepository.save(user);
-        }
+		user.updatePassword(passwordEncoder.encode(request.newPassword()));
+		userRepository.save(user);
+	}
 
-        public AuthResponse refreshToken(TokenRefreshRequest request) {
-                RefreshToken refreshTokenEntity = refreshTokenRepository.findByToken(request.refreshToken())
-                                .orElseThrow(() -> new DomainException("Invalid refresh token"));
+	public AuthResponse refreshToken(TokenRefreshRequest request) {
+		RefreshToken refreshTokenEntity = refreshTokenRepository.findByToken(request.refreshToken())
+				.orElseThrow(() -> new DomainException("auth.invalid_refresh_token"));
 
-                if (refreshTokenEntity.isExpired(Instant.now())) {
-                        refreshTokenRepository.deleteByToken(refreshTokenEntity.getToken());
-                        throw new DomainException("Refresh token was expired. Please make a new signin request");
-                }
+		if (refreshTokenEntity.isExpired(Instant.now())) {
+			refreshTokenRepository.deleteByToken(refreshTokenEntity.getToken());
+			throw new DomainException("auth.refresh_token_expired");
+		}
 
-                User user = userRepository.findById(refreshTokenEntity.getUserId())
-                                .orElseThrow(() -> new DomainException("User not found"));
+		User user = userRepository.findById(refreshTokenEntity.getUserId())
+				.orElseThrow(() -> new DomainException("auth.user_not_found"));
 
-                String token = jwtService.generateToken(user.getEmail(), user.getId(), user.getRole().name());
+		String token = jwtService.generateToken(user.getEmail(), user.getId(), user.getRole().name());
 
-                return new AuthResponse(
-                                token,
-                                refreshTokenEntity.getToken(),
-                                user.getId(),
-                                user.getName(),
-                                user.getEmail(),
-                                user.getRole(),
-                                user.isVipActive(Instant.now()),
-                                user.getVipExpiresAt());
-        }
+		return new AuthResponse(
+				token,
+				refreshTokenEntity.getToken(),
+				user.getId(),
+				user.getName(),
+				user.getEmail(),
+				user.getRole(),
+				user.isVipActive(Instant.now()),
+				user.getVipExpiresAt());
+	}
 
         public void logout(LogoutRequest request) {
                 refreshTokenRepository.deleteByToken(request.refreshToken());

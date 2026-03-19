@@ -32,7 +32,7 @@ public class DeleteQrCodeUseCaseImpl implements DeleteQrCodeUseCase {
 
         // Check ownership - users can delete their own QR codes even if VIP expired
         if (!shortLink.getUserId().equals(userId)) {
-            throw new DomainException("You do not own this link");
+            throw new DomainException("link.owner_only");
         }
 
         shortLink.deleteQrCode();

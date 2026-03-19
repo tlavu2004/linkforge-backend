@@ -3,6 +3,7 @@ package com.tlavu.linkforge.domain.entity;
 import com.tlavu.linkforge.domain.valueobject.OriginalUrl;
 import com.tlavu.linkforge.domain.valueobject.ShortCode;
 import com.tlavu.linkforge.domain.exception.InvalidShortLinkException;
+import com.tlavu.linkforge.domain.exception.DomainException;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
@@ -43,18 +44,18 @@ public class ShortLink {
     public static ShortLink create(Long id, ShortCode shortCode, OriginalUrl originalUrl, Instant expiresAt,
             Long userId, String deleteTokenHash) {
         if (id == null) {
-            throw new InvalidShortLinkException("ID cannot be null");
+            throw new InvalidShortLinkException("error.id_null");
         }
         if (shortCode == null) {
-            throw new InvalidShortLinkException("ShortCode cannot be null");
+            throw new InvalidShortLinkException("validation.short_code_empty");
         }
         if (originalUrl == null) {
-            throw new InvalidShortLinkException("OriginalUrl cannot be null");
+            throw new InvalidShortLinkException("validation.url_empty");
         }
 
         // Validate expiration is in future if present
         if (expiresAt != null && expiresAt.isBefore(Instant.now())) {
-            throw new InvalidShortLinkException("Expiration time must be in the future");
+            throw new InvalidShortLinkException("validation.expiration_future");
         }
 
         return new ShortLink(
@@ -78,8 +79,8 @@ public class ShortLink {
     }
 
     public void assignQrCode(String qrCode) {
-        if (qrCode == null || qrCode.isBlank()) {
-            throw new InvalidShortLinkException("QR Code data cannot be empty");
+        if (qrCode == null || qrCode.trim().isEmpty()) {
+            throw new DomainException("validation.qr_data_empty");
         }
         this.qrCode = qrCode;
     }

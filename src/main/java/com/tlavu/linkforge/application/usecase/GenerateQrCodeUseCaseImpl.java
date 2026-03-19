@@ -30,23 +30,23 @@ public class GenerateQrCodeUseCaseImpl implements GenerateQrCodeUseCase {
     @Override
     @Transactional
     public ShortLinkResponse execute(String shortCode, Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new DomainException("User not found"));
-
         ShortLink shortLink = shortLinkRepository.findByShortCode(ShortCode.of(shortCode))
                 .orElseThrow(() -> new DomainException("Short link not found"));
 
         // Check ownership
-        if (!shortLink.getUserId().equals(userId)) {
-            throw new DomainException("You do not own this link");
+        if (shortLink.getUserId() == null || !shortLink.getUserId().equals(userId)) {
+            throw new DomainException("link.owner_only");
         }
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new DomainException("auth.user_not_found"));
 
         // Check VIP/Admin status for GENERATION
         boolean isVipActive = user.isVipActive(Instant.now());
         boolean isAdmin = user.getRole() == Role.ADMIN;
 
-        if (!isAdmin && !isVipActive) {
-            throw new DomainException("Only VIP or Admin users can generate QR codes");
+        if (!user.isVip() && user.getRole() != Role.ADMIN) {
+            throw new DomainException("vip.qr_only");
         }
 
         if (shortLink.getQrCode() != null) {

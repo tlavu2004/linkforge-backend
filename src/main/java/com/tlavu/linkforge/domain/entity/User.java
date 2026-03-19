@@ -41,19 +41,19 @@ public class User {
 
     public static User create(Long id, String name, String email, String passwordHash, Role role) {
         if (id == null) {
-            throw new DomainException("User ID must not be null");
+            throw new DomainException("error.id_null");
         }
         if (name == null || name.isBlank()) {
-            throw new DomainException("User name must not be null or blank");
+            throw new DomainException("error.user_name_null");
         }
         if (email == null || email.isBlank()) {
-            throw new DomainException("User email must not be null or blank");
+            throw new DomainException("error.user_email_null");
         }
         if (passwordHash == null || passwordHash.isBlank()) {
-            throw new DomainException("User password hash must not be null or blank");
+            throw new DomainException("error.user_password_null");
         }
         if (role == null) {
-            throw new DomainException("User role must not be null");
+            throw new DomainException("error.user_role_null");
         }
 
         Instant now = Instant.now();
@@ -75,7 +75,7 @@ public class User {
 
     public void updatePassword(String newPasswordHash) {
         if (newPasswordHash == null || newPasswordHash.isBlank()) {
-            throw new DomainException("Password hash must not be null or blank");
+            throw new DomainException("error.user_password_null");
         }
         this.passwordHash = newPasswordHash;
         this.updatedAt = Instant.now();
@@ -102,10 +102,10 @@ public class User {
 
     public void grantTemporaryVip(Instant expirationDate) {
         if (expirationDate == null) {
-            throw new DomainException("Expiration date must not be null for temporary VIP");
+            throw new DomainException("error.user_expiration_null");
         }
         if (expirationDate.isBefore(Instant.now())) {
-            throw new DomainException("Expiration date must be in the future");
+            throw new DomainException("error.user_expiration_future");
         }
         this.vip = true;
         this.vipExpiresAt = expirationDate;

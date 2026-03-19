@@ -14,7 +14,7 @@ public record OriginalUrl(String url) {
 
     public OriginalUrl {
         if (!StringUtils.hasText(url)) {
-            throw new InvalidUrlException("URL cannot be empty");
+            throw new InvalidUrlException("validation.url_empty");
         }
         if (url.length() > MAX_LENGTH) {
             throw new InvalidUrlException("URL exceeds maximum length of " + MAX_LENGTH);
@@ -23,7 +23,7 @@ public record OriginalUrl(String url) {
 
     public static OriginalUrl of(String rawUrl) {
         if (!StringUtils.hasText(rawUrl)) {
-            throw new InvalidUrlException("URL cannot be empty");
+            throw new InvalidUrlException("validation.url_empty");
         }
 
         String normalized = rawUrl.trim();
@@ -34,11 +34,11 @@ public record OriginalUrl(String url) {
             String host = uri.getHost();
 
             if (scheme == null || !ALLOWED_SCHEMES.contains(scheme.toLowerCase())) {
-                throw new InvalidUrlException("Invalid URL scheme. Only HTTP and HTTPS are allowed.");
+                throw new InvalidUrlException("validation.url_scheme_invalid");
             }
 
             if (!StringUtils.hasText(host)) {
-                throw new InvalidUrlException("URL must contain a host.");
+                throw new InvalidUrlException("validation.url_no_host");
             }
 
             // Normalize scheme and host to lowercase, keep path/query as is

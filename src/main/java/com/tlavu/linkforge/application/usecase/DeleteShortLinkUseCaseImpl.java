@@ -28,7 +28,7 @@ public class DeleteShortLinkUseCaseImpl implements DeleteShortLinkUseCase {
 
         // Secure token validation using matches()
         if (shortLink.getDeleteTokenHash() == null || !passwordEncoder.matches(deleteToken, shortLink.getDeleteTokenHash())) {
-            throw new InvalidDeleteTokenException("Invalid delete token");
+            throw new InvalidDeleteTokenException("link.invalid_delete_token");
         }
 
         shortLinkRepository.delete(shortLink.getId());
