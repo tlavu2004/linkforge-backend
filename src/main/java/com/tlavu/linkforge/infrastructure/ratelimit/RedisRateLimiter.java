@@ -2,10 +2,8 @@ package com.tlavu.linkforge.infrastructure.ratelimit;
 
 import com.tlavu.linkforge.application.port.in.RateLimiter;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.redis.core.StringRedisTemplate;
-import org.springframework.data.redis.core.script.DefaultRedisScript;
-import org.springframework.scripting.support.ResourceScriptSource;
+import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Service;
 
 import java.util.Collections;
@@ -16,14 +14,11 @@ import java.util.Collections;
 public class RedisRateLimiter implements RateLimiter {
 
     private final StringRedisTemplate redisTemplate;
-    private final DefaultRedisScript<Long> redisScript;
+    private final RedisScript<Long> redisScript;
 
-    public RedisRateLimiter(StringRedisTemplate redisTemplate) {
+    public RedisRateLimiter(StringRedisTemplate redisTemplate, RedisScript<Long> rateLimitScript) {
         this.redisTemplate = redisTemplate;
-
-        this.redisScript = new DefaultRedisScript<>();
-        this.redisScript.setScriptSource(new ResourceScriptSource(new ClassPathResource("scripts/rate_limit.lua")));
-        this.redisScript.setResultType(Long.class);
+        this.redisScript = rateLimitScript;
     }
 
     @Override

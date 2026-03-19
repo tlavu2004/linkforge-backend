@@ -14,6 +14,10 @@ spring:
     encoding: UTF-8
     fallback-to-system-locale: false
 
+rate-limit:
+  max-requests: 60
+  time-window-seconds: 60
+
 application:
   security:
     jwt:
