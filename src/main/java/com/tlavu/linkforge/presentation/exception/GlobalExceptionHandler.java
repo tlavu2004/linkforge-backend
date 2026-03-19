@@ -33,14 +33,16 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ShortLinkNotFoundException.class)
     public ResponseEntity<ApiResponse<Void>> handleNotFound(ShortLinkNotFoundException ex) {
         log.warn("Resource not found: {}", ex.getMessage());
-        String message = messageService.getMessage("shortlink.not_found");
+        String shortCode = ex.getMessage().contains(": ") ? ex.getMessage().split(": ")[1] : "";
+        String message = messageService.getMessage("shortlink.not_found", shortCode);
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(ApiResponse.error(message));
     }
 
     @ExceptionHandler(ShortLinkExpiredException.class)
-    public ResponseEntity<ApiResponse<Void>> handleExpired(ShortLinkExpiredException ex) {
-        String shortCode = ex.getMessage().contains(": ") ? ex.getMessage().split(": ")[1] : "";
+    public ResponseEntity<ApiResponse<Void>> handleExpired(ShortLinkExpiredException shortLinkExpiredException) {
+        String messageDetail = shortLinkExpiredException.getMessage();
+        String shortCode = (messageDetail != null && messageDetail.contains(": ")) ? messageDetail.split(": ")[1] : "";
         String message = messageService.getMessage("shortlink.expired", shortCode);
         return ResponseEntity.status(HttpStatus.GONE)
                 .body(ApiResponse.error(message));
@@ -56,13 +58,8 @@ public class GlobalExceptionHandler {
     })
     public ResponseEntity<ApiResponse<Void>> handleBadRequest(RuntimeException ex) {
         log.warn("Bad request: {}", ex.getMessage());
-        // Try to translate if message is a key, otherwise use the message as is
-        String message;
-        try {
-            message = messageService.getMessage(ex.getMessage());
-        } catch (Exception e) {
-            message = ex.getMessage();
-        }
+        String exMsg = ex.getMessage();
+        String message = (exMsg != null) ? messageService.getMessage(exMsg) : messageService.getMessage("error.bad_request");
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(ApiResponse.error(message));
     }
@@ -81,11 +78,10 @@ public class GlobalExceptionHandler {
         ex.getBindingResult().getAllErrors().forEach((error) -> {
             String fieldName = ((FieldError) error).getField();
             String errorMessage = error.getDefaultMessage();
-            // Try to translate validation message
-            try {
+            if (errorMessage != null) {
                 errorMessage = messageService.getMessage(errorMessage);
-            } catch (Exception e) {
-                // Ignore if not a key
+            } else {
+                errorMessage = "Invalid value";
             }
             errors.put(fieldName, errorMessage);
         });
@@ -96,8 +92,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ApiResponse<Void>> handleIllegalArgumentException(IllegalArgumentException ex) {
+        String exMsg = ex.getMessage();
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .body(ApiResponse.error(ex.getMessage()));
+                .body(ApiResponse.error(exMsg != null ? exMsg : messageService.getMessage("error.bad_request")));
     }
 
     @ExceptionHandler(NoResourceFoundException.class)
