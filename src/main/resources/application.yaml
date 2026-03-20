@@ -14,6 +14,10 @@ spring:
     encoding: UTF-8
     fallback-to-system-locale: false
 
+rate-limit:
+  max-requests: 60
+  time-window-seconds: 60
+
 application:
   security:
     jwt:
@@ -85,8 +89,8 @@ spring:
   mail:
     host: ${MAIL_HOST:smtp.gmail.com}
     port: ${MAIL_PORT:587}
-    username: ${MAIL_USERNAME:}
-    password: ${MAIL_PASSWORD:}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
     properties:
       mail:
         smtp:
@@ -127,8 +131,8 @@ spring:
     redis:
       host: ${REDIS_HOST}
       port: ${REDIS_PORT}
-      password: ${REDIS_PASSWORD:}
-      username: ${REDIS_USERNAME:default}
+      password: ${REDIS_PASSWORD}
+      username: ${REDIS_USERNAME}
       ssl:
         enabled: ${REDIS_SSL_ENABLED:true}
       timeout: 5000
