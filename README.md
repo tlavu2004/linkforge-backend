@@ -1,6 +1,6 @@
 LinkForge is a full-featured URL shortening and link management platform built with **Java 21** and **Spring Boot 3**. It's designed with a **Headless Backend Architecture** — providing the core API and infrastructure (Database + Caching) as a single bundled unit, ready for integration with any frontend.
 
-![Dashboard Overview](images/dashboard_overview.png)
+![Dashboard Overview](docs/images/dashboard_overview.png)
 
 > [!NOTE]
 > This is a **Full Backend Infrastructure Bundle** (REST API + PostgreSQL + Redis).
@@ -154,7 +154,7 @@ Interactive API documentation is available at:
 http://localhost:8080/swagger-ui/index.html
 ```
 
-![Swagger UI](images/swagger_ui.png)
+![Swagger UI](docs/images/swagger_ui.png)
 
 ---
 
@@ -307,30 +307,30 @@ The frontend repository includes a `vercel.json` for deployment to Vercel. See t
 1. **Register** a new account with email verification (OTP sent to your inbox).
 2. **Login** to access your personal dashboard.
 
-![Login Page](images/login.png)
+![Login Page](docs/images/login.png)
 
-![Register Page](images/register.png)
+![Register Page](docs/images/register.png)
 
 ### Shortening URLs
 1. Paste any long URL into the input field — no account required.
 2. Optionally set a **custom alias** and **expiration date**.
 3. Click **Shorten** — your new short link and **delete token** are displayed immediately.
 
-![Shorten URL](images/shorten_url.png)
+![Shorten URL](docs/images/shorten_url.png)
 
 ### Link Management Dashboard
 1. Navigate to **My Links** to view all your created links.
 2. Use **search**, **sort**, and **pagination** to find specific links.
 3. **Delete** links or **generate QR codes** (VIP/Admin) directly from the table.
 
-![Link Management](images/link_management.png)
+![Link Management](docs/images/link_management.png)
 
 ### QR Code Generation (VIP / Admin)
 1. Open any link from your dashboard.
 2. Click the **QR Code** button to generate a scannable QR code.
 3. The QR code can be downloaded or regenerated at any time.
 
-![QR Code](images/qr_code.png)
+![QR Code](docs/images/qr_code.png)
 
 ### VIP Upgrade & Payments
 1. Navigate to the **VIP Upgrade** page.
@@ -338,16 +338,16 @@ The frontend repository includes a `vercel.json` for deployment to Vercel. See t
 3. Complete payment through the **VNPay** gateway.
 4. Enjoy ad-free redirects, QR code generation, and premium features.
 
-![VIP Packages](images/vip_packages.png)
+![VIP Packages](docs/images/vip_packages.png)
 
-![VNPay Payment](images/vnpay_payment.png)
+![VNPay Payment](docs/images/vnpay_payment.png)
 
 ### Admin Portal
 1. Login with an **Admin** account.
 2. Navigate to **Admin Dashboard** to manage users and links.
 3. **Toggle VIP status** for any user, or view/delete any link on the platform.
 
-![Admin Dashboard](images/admin_dashboard.png)
+![Admin Dashboard](docs/images/admin_dashboard.png)
 
 ---
 
