@@ -13,8 +13,8 @@ RUN mvn clean package -DskipTests
 FROM amazoncorretto:21-alpine
 WORKDIR /app
 
-# Copy the generated JAR file from the builder stage
-COPY --from=builder /app/target/*.jar app.jar
+# Copy the generated fat (executable) JAR file, skipping the -plain.jar
+COPY --from=builder /app/target/linkforge-[0-9]*.jar app.jar
 
 # Expose the application port
 EXPOSE 10000
