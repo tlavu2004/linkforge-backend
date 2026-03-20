@@ -1,6 +1,8 @@
+# LinkForge - Powerful URL Shortener & Link Management
+
 LinkForge is a full-featured URL shortening and link management platform built with **Java 21** and **Spring Boot 3**. It's designed with a **Headless Backend Architecture** — providing the core API and infrastructure (Database + Caching) as a single bundled unit, ready for integration with any frontend.
 
-![Dashboard Overview](docs/images/dashboard_overview.png)
+![Overview](docs/images/overview.png)
 
 > [!NOTE]
 > This is a **Full Backend Infrastructure Bundle** (REST API + PostgreSQL + Redis).
@@ -316,14 +318,14 @@ The frontend repository includes a `vercel.json` for deployment to Vercel. See t
 2. Optionally set a **custom alias** and **expiration date**.
 3. Click **Shorten** — your new short link and **delete token** are displayed immediately.
 
-![Shorten URL](docs/images/shorten_url.png)
+![Shorten URL](docs/images/shorten_url_and_link_management.png)
 
 ### Link Management Dashboard
 1. Navigate to **My Links** to view all your created links.
 2. Use **search**, **sort**, and **pagination** to find specific links.
 3. **Delete** links or **generate QR codes** (VIP/Admin) directly from the table.
 
-![Link Management](docs/images/link_management.png)
+![Link Management](docs/images/shorten_url_and_link_management.png)
 
 ### QR Code Generation (VIP / Admin)
 1. Open any link from your dashboard.
