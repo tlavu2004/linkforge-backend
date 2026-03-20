@@ -182,7 +182,7 @@ cp .env.example .env
 # Edit .env and fill in your JWT_SECRET_KEY and other required values.
 
 # Option B: Download pre-configured files
-# Download .env or .env.prod from [Google Drive Link](LINK_DRIVE_HERE)
+# Download .env or .env.prod from "Backend" folder of this [Google Drive Link](https://drive.google.com/drive/folders/13TrE4vfyboF2OTSe6Yj7t_SanFauAyhV?usp=sharing)
 # and save it to the project root.
 
 # 3. Start everything
@@ -201,7 +201,7 @@ docker compose up -d postgres redis
 
 # 2. Get environment file
 # Option A: cp .env.example .env && (Configure .env)
-# Option B: Download from [Google Drive](LINK_DRIVE_HERE) to the project root.
+# Option B: Download from "Backend" folder of this [Google Drive Link](https://drive.google.com/drive/folders/13TrE4vfyboF2OTSe6Yj7t_SanFauAyhV?usp=sharing) to the project root.
 
 # 3. Run the application
 mvn spring-boot:run
@@ -229,7 +229,7 @@ Usage:
 
 You have two ways to configure your environment:
 1.  **Manual**: Copy `.env.example` to `.env` and fill in the required values.
-2.  **Download**: Get pre-configured `.env` (Dev) and `.env.prod` (Production) files from this **[Google Drive Link](LINK_DRIVE_HERE)**.
+2.  **Download**: Get pre-configured `.env` (Dev) and `.env.prod` (Production) files from "Backend" folder of this **[Google Drive Link](https://drive.google.com/drive/folders/13TrE4vfyboF2OTSe6Yj7t_SanFauAyhV?usp=sharing)**.
 
 > [!IMPORTANT]
 > Always ensure your `.env` file is in the root directory before running the application or Docker.
