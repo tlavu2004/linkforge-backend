@@ -418,6 +418,10 @@ Deliverable:
 - [x] Unit Tests: Domain & Value Objects
 - [x] Use cases (mock repository)
 - [x] Short code generation tests
+- [x] Integrate VNPay [x]
+- [ ] Integrate PayOS (Planned) [ ]
+- [ ] Integrate PayPal (Planned) [ ]
+- [ ] Integrate SEPay (Planned) [ ]
 - [x] Integration Tests: Repository layer
 - [x] Cache layer tests
 - [x] Full flow: create → resolve → redirect

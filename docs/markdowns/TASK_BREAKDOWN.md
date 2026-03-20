@@ -321,17 +321,17 @@
 - Checkout & Webhook/IPN
 - **Verify**: VNPay test [x]
 
-### Task 13.3: `feat(payment): integrate PayOS` [x]
+### Task 13.3: `feat(payment): integrate PayOS` [ ]
 - Checkout & Webhook
-- **Verify**: PayOS test [x]
+- **Verify**: PayOS test [ ]
 
-### Task 13.4: `feat(payment): integrate PayPal` [x]
+### Task 13.4: `feat(payment): integrate PayPal` [ ]
 - Checkout & Webhook
-- **Verify**: PayPal test [x]
+- **Verify**: PayPal test [ ]
 
-### Task 13.5: `feat(payment): integrate SEPay` [x]
+### Task 13.5: `feat(payment): integrate SEPay` [ ]
 - Webhook recognition
-- **Verify**: SEPay test [x]
+- **Verify**: SEPay test [ ]
 
 ---
 
