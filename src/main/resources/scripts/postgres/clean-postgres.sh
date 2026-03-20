@@ -14,11 +14,21 @@ if [ ! -f "$ENV_FILE" ]; then
   exit 1
 fi
 
-# Load variables from service .env
+# Load variables from service .env (robustly without requiring quotes)
 echo "Loading environment from $ENV_FILE..."
-set -a
-. "$ENV_FILE"
-set +a
+while IFS='=' read -r key value || [ -n "$key" ]; do
+  # Skip comments and empty lines
+  if [[ $key =~ ^#.* ]] || [[ -z $key ]]; then
+    continue
+  fi
+  # Clean potential carriage returns and spaces
+  key=$(echo "$key" | tr -d '\r' | xargs)
+  value=$(echo "$value" | tr -d '\r' | xargs)
+  
+  if [ -n "$key" ]; then
+    export "$key"="$value"
+  fi
+done < "$ENV_FILE"
 
 # Validate required variables (aligned with LinkForge .env)
 required_vars=(
