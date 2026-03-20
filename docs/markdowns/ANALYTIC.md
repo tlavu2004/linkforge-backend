@@ -74,4 +74,4 @@ Khi traffic tăng:
 - **Hot key (link viral)**: Redis cache 24h + L1 cache (**Caffeine**) cho hot keys cực nhanh.
 - **Spam link**: **Rate Limiter** chặn theo IP dùng Lua script.
 - **Analytics tracking**: Hệ thống Full-stack Analytics (Geo, Device, Referrer, Time-series) với biểu đồ trực quan.
-- **Custom Alias**: Cho phép người dùng tự tạo code thân thiện thay vì TSID ngẫu nhiên. (Đang thực hiện)
+- **Custom Alias**: Cho phép người dùng tự tạo code thân thiện thay vì TSID ngẫu nhiên. (**Đã hoàn thành**)

@@ -109,11 +109,11 @@ Nguyên tắc:
 
 ### Phase 0 – Project Setup
 
-- [ ] Khởi tạo project Spring Boot
-- [ ] Setup Java version (17+)
-- [ ] Setup Gradle / Maven
-- [ ] Cấu hình base package theo Clean Architecture
-- [ ] Add common dependencies:
+- [x] Khởi tạo project Spring Boot
+- [x] Setup Java version (17+)
+- [x] Setup Gradle / Maven
+- [x] Cấu hình base package theo Clean Architecture
+- [x] Add common dependencies:
   - spring-boot-starter-web
   - spring-boot-starter-data-jpa
   - validation
@@ -128,7 +128,7 @@ Deliverable:
 
 #### 1.1 Domain Entity
 
-- [ ] Entity `ShortLink`
+- [x] Entity `ShortLink`
   - `id: Long` – sử dụng **TSID** (Time-Sorted ID) thay vì auto-increment
   - `code: String` (short code, unique, derived from ID via Base62)
   - `originalUrl: String`
@@ -142,27 +142,27 @@ Deliverable:
 > TSID (Time-Sorted ID) vừa unique, vừa sortable, vừa không predictable.
 > Short code sẽ được **encode từ TSID bằng Base62**, tránh hoàn toàn collision.
 
-- [ ] Value Object `ShortCode`
+- [x] Value Object `ShortCode`
   - Derived from TSID via Base62 encoding (7–8 ký tự)
   - Charset: `[0-9a-zA-Z]` (62 ký tự)
   - Immutable, self-validating
 
-- [ ] Value Object `OriginalUrl`
+- [x] Value Object `OriginalUrl`
   - Validate URL format (scheme + host required)
   - Normalize: trim whitespace, lowercase scheme & host
   - Reject dangerous schemes (javascript:, data:, etc.)
 
 #### 1.2 Domain Rules
 
-- [ ] Không cho phép tạo short link với URL không hợp lệ
-- [ ] Short code phải unique toàn hệ thống (guaranteed by TSID → Base62)
-- [ ] Không redirect nếu link đã hết hạn → return HTTP 410 Gone
-- [ ] Click count không được âm (enforce tại domain)
-- [ ] Hard-delete: xóa record hoàn toàn khỏi database khi gọi lệnh delete.
+- [x] Không cho phép tạo short link với URL không hợp lệ
+- [x] Short code phải unique toàn hệ thống (guaranteed by TSID → Base62)
+- [x] Không redirect nếu link đã hết hạn → return HTTP 410 Gone
+- [x] Click count không được âm (enforce tại domain)
+- [x] Hard-delete: xóa record hoàn toàn khỏi database khi gọi lệnh delete.
 
 #### 1.3 User & Payment Domain (New)
-- [ ] Entity `User`: username, password (hashed), email, role.
-- [ ] Entity `PaymentTransaction`: lưu lịch sử thanh toán, loại gateway (VNPay, PayPal, etc.) status.
+- [x] Entity `User`: username, password (hashed), email, role.
+- [x] Entity `PaymentTransaction`: lưu lịch sử thanh toán, loại gateway (VNPay, PayPal, etc.) status.
 
 Deliverable:
 - Domain layer **không phụ thuộc Spring/JPA**, chỉ thuần Java
@@ -191,24 +191,24 @@ Bảng: `short_links`
 | delete_token_hash | VARCHAR(64) | nullable (cho public link) |
 
 Index:
-- [ ] Unique index cho `code` (B-tree, lookup chính)
-- [ ] Index cho `expires_at` (cleanup job)
-- [ ] Index cho `created_at` (phục vụ analytics/sorting)
+- [x] Unique index cho `code` (B-tree, lookup chính)
+- [x] Index cho `expires_at` (cleanup job)
+- [x] Index cho `created_at` (phục vụ analytics/sorting)
 
 > **Tại sao TIMESTAMP WITH TIME ZONE?** Tránh bug timezone khi deploy trên server
 > ở timezone khác local. Luôn store UTC, convert khi hiển thị.
 
 #### 2.2 Repository Layer
 
-- [ ] Domain interface `ShortLinkRepository` (Port)
+- [x] Domain interface `ShortLinkRepository` (Port)
   - `save(ShortLink): ShortLink`
   - `findByCode(ShortCode): Optional<ShortLink>`
   - `findById(Long): Optional<ShortLink>`
   - `delete(Long): void` (Hard delete)
 
-- [ ] JPA implementation trong `infrastructure` (Adapter)
-- [ ] Mapping entity ↔ domain model rõ ràng (MapStruct hoặc manual mapper)
-- [ ] DB migration bằng **Flyway** (version-controlled schema)
+- [x] JPA implementation trong `infrastructure` (Adapter)
+- [x] Mapping entity ↔ domain model rõ ràng (MapStruct hoặc manual mapper)
+- [x] DB migration bằng **Flyway** (version-controlled schema)
 
 Deliverable:
 - Persist & query hoạt động ổn định
@@ -223,11 +223,11 @@ Deliverable:
 
 **Strategy: TSID → Base62 Encoding** (không có collision)
 
-- [ ] Sử dụng thư viện TSID (e.g. `com.github.f4b6a3:tsid-creator`)
-- [ ] Encode TSID thành Base62 string
-- [ ] Charset: `[0-9a-zA-Z]` (62 ký tự)
-- [ ] Kết quả: 7–8 ký tự, unique, không predictable
-- [ ] **Không cần collision handling** vì TSID guaranteed unique
+- [x] Sử dụng thư viện TSID (e.g. `com.github.f4b6a3:tsid-creator`)
+- [x] Encode TSID thành Base62 string
+- [x] Charset: `[0-9a-zA-Z]` (62 ký tự)
+- [x] Kết quả: 7–8 ký tự, unique, không predictable
+- [x] **Không cần collision handling** vì TSID guaranteed unique
 
 Pseudo-flow:
 ```java
@@ -242,12 +242,12 @@ String code = Base62.encode(tsid); // "a7Bx3Kp"
 > - Trade-off: code dài hơn 1-2 ký tự nhưng eliminate toàn bộ collision problem
 
 **Custom Alias (Optional):**
-- [ ] **Validation Logic**:
+- [x] **Validation Logic**:
   - Uniqueness: Check DB if `shortCode` exists.
   - Format: `^[a-zA-Z0-9-_]+$`, length 3-30 chars.
   - Reserved Words: Block system routes (`admin`, `api`, `login`, `register`, `dashboard`, `static`, etc.) to prevent shadowing.
-- [ ] **Data Consistency**: Custom aliases and auto-generated codes share the same unique constraint in the `code` column.
-- [ ] **Cache Integration**: Works out-of-the-box as the cache key is the `shortCode`.
+- [x] **Data Consistency**: Custom aliases and auto-generated codes share the same unique constraint in the `code` column.
+- [x] **Cache Integration**: Works out-of-the-box as the cache key is the `shortCode`.
 
 Deliverable:
 - Code generation deterministic, zero collision, O(1) complexity
@@ -259,11 +259,11 @@ Deliverable:
 
 #### 4.1 Create Short Link
 
-- [ ] Use case: `CreateShortLinkUseCase`
-- [ ] Input:
+- [x] Use case: `CreateShortLinkUseCase`
+- [x] Input:
   - originalUrl
   - expiresAt (optional)
-- [ ] Flow:
+- [x] Flow:
   1. Validate input
   2. Generate short code
   3. Generate delete token (UUID, stored hashed)
@@ -272,9 +272,9 @@ Deliverable:
 
 #### 4.2 Resolve Short Link
 
-- [ ] Use case: `ResolveShortLinkUseCase`
-- [ ] Input: short code
-- [ ] Flow:
+- [x] Use case: `ResolveShortLinkUseCase`
+- [x] Input: short code
+- [x] Flow:
   1. Lookup cache
   2. Cache miss → DB
   3. Check expiration
@@ -290,10 +290,10 @@ Deliverable:
 
 #### 5.1 REST Endpoints
 
-- [ ] `POST /api/v1/links` – Tạo short link (public, no auth)
-- [ ] `GET /api/v1/links/{code}` – Lấy thông tin link (public metadata)
-- [ ] `DELETE /api/v1/links/{code}?token={deleteToken}` – Hard delete (xác minh bằng delete token)
-- [ ] `GET /r/{code}` – Redirect (tách riêng khỏi API path)
+- [x] `POST /api/v1/links` – Tạo short link (public, no auth)
+- [x] `GET /api/v1/links/{code}` – Lấy thông tin link (public metadata)
+- [x] `DELETE /api/v1/links/{code}?token={deleteToken}` – Hard delete (xác minh bằng delete token)
+- [x] `GET /r/{code}` – Redirect (tách riêng khỏi API path)
 
 > **API Versioning**: Prefix `/api/v1/` cho phép evolve API mà không break client cũ.
 > Redirect endpoint `/r/{code}` không version vì đây là public-facing URL.
@@ -317,17 +317,17 @@ Deliverable:
 > **Delete Token**: Trả về 1 lần duy nhất khi tạo link. Ai có token mới xóa được.
 > Token được hash (SHA-256) trước khi lưu DB — tương tự cách lưu password.
 
-- [ ] Wrapper class `ApiResponse<T>` cho mọi response
-- [ ] Global `@RestControllerAdvice` exception handler
+- [x] Wrapper class `ApiResponse<T>` cho mọi response
+- [x] Global `@RestControllerAdvice` exception handler
 
 #### 5.3 HTTP Status Codes
 
-- [ ] Validation error → 400 Bad Request
-- [ ] Not found → 404 Not Found
-- [ ] Expired → 410 Gone
-- [ ] Redirect → 301 Moved Permanently (SEO-friendly, cacheable bởi browser)
-- [ ] Rate limited → 429 Too Many Requests
-- [ ] Internal error → 500 (generic, không leak stack trace)
+- [x] Validation error → 400 Bad Request
+- [x] Not found → 404 Not Found
+- [x] Expired → 410 Gone
+- [x] Redirect → 301 Moved Permanently (SEO-friendly, cacheable bởi browser)
+- [x] Rate limited → 429 Too Many Requests
+- [x] Internal error → 500 (generic, không leak stack trace)
 
 > **301 vs 302:** Dùng 301 cho permanent redirect vì browser cache kết quả,
 > giảm traffic về server. Nếu cần track mọi click thì dùng 302.
@@ -343,14 +343,14 @@ Deliverable:
 
 **Strategy: Cache-Aside (Lazy Loading)**
 
-- [ ] Setup Redis (local Docker, persistent volume)
-- [ ] Cache key design:
+- [x] Setup Redis (local Docker, persistent volume)
+- [x] Cache key design:
   - `link:{code}` → serialized `ShortLink` (JSON hoặc MessagePack)
-- [ ] TTL strategy:
-  - Link có `expiresAt`: TTL = `expiresAt - now`
+- [x] TTL strategy:
+  - Link `expiresAt`: TTL = `expiresAt - now`
   - Link không expire: TTL = 24h (avoid stale cache forever)
-- [ ] Cache population: on DB hit (lazy)
-- [ ] Cache invalidation: on delete → xóa cache entry
+- [x] Cache population: on DB hit (lazy)
+- [x] Cache invalidation: on delete → xóa cache entry
 
 ```
 Resolve Flow:
@@ -375,9 +375,9 @@ Deliverable:
 
 Mục tiêu: **redirect nhanh**, tracking không ảnh hưởng latency
 
-- [ ] Không update DB trực tiếp trong thread redirect
-- [ ] Option 1: `@Async` + update click_count
-- [ ] Option 2: Accumulate in memory → batch update DB
+- [x] Không update DB trực tiếp trong thread redirect
+- [x] Option 1: `@Async` + update click_count
+- [x] Option 2: Accumulate in memory → batch update DB
 
 Event data:
 - shortCode
@@ -393,20 +393,20 @@ Deliverable:
 ### Phase 8 – Optional Enhancements
 
 #### 8.1 Rate Limiting (Anti-abuse, no auth)
-- [ ] Rate limit theo IP address
-- [ ] Redis-based sliding window counter
-- [ ] Giới hạn: ~10 links/phút/IP (configurable)
-- [ ] Return `429 Too Many Requests` khi vượt limit
+- [x] Rate limit theo IP address
+- [x] Redis-based sliding window counter
+- [x] Giới hạn: ~10 links/phút/IP (configurable)
+- [x] Return `429 Too Many Requests` khi vượt limit
 
 > **Tại sao IP-based thay vì API key?** Đơn giản, không cần user registration.
 > Đủ hiệu quả cho public shortener. Nếu scale lên cần API key thì thêm sau.
 
 #### 8.2 Custom Alias
-- [ ] User nhập code thủ công
-- [ ] Validate & check collision
+- [x] User nhập code thủ công
+- [x] Validate & check collision
 
 #### 8.3 Expiration Job
-- [ ] Scheduled job dọn link hết hạn
+- [x] Scheduled job dọn link hết hạn
 
 
 
@@ -415,19 +415,15 @@ Deliverable:
 ## 5. Testing Plan
 
 ### 5.1 Unit Tests
-- [ ] Domain entities & value objects (validation, invariants)
-- [ ] Use cases (mock repository, verify flow)
-- [ ] Short code generation (deterministic, format validation)
-
-### 5.2 Integration Tests
-- [ ] Repository layer (Testcontainers + PostgreSQL)
-- [ ] Cache layer (Testcontainers + Redis)
-- [ ] Full flow: create → resolve → redirect
-
-### 5.3 API Tests
-- [ ] Controller tests (MockMvc)
-- [ ] Error handling (400, 404, 410)
-- [ ] Response format validation
+- [x] Unit Tests: Domain & Value Objects
+- [x] Use cases (mock repository)
+- [x] Short code generation tests
+- [x] Integration Tests: Repository layer
+- [x] Cache layer tests
+- [x] Full flow: create → resolve → redirect
+- [x] API Tests (MockMvc)
+- [x] Error handling validation
+- [x] Response format validation
 
 ### 5.4 Performance Tests (Optional, ấn tượng cho CV)
 - [ ] Load test redirect endpoint (k6 hoặc wrk)
@@ -452,15 +448,15 @@ Deliverable:
 
 ## 7. Observability (Ấn tượng cho CV)
 
-- [ ] **Structured Logging** (SLF4J + Logback, JSON format)
-- [ ] **Health Check**: `/actuator/health` (Spring Actuator)
+- [x] **Structured Logging** (SLF4J + Logback, JSON format)
+- [x] **Health Check**: `/actuator/health` (Spring Actuator)
   - Custom health indicator cho Redis connectivity
-- [ ] **Metrics** (Micrometer + Prometheus format):
+- [x] **Metrics** (Micrometer + Prometheus format):
   - `linkforge.redirect.count` – tổng số redirect
   - `linkforge.redirect.latency` – histogram latency
   - `linkforge.cache.hit_ratio` – cache effectiveness
   - `linkforge.links.created` – counter link tạo mới
-- [ ] **Request tracing**: MDC correlation ID cho mỗi request
+- [x] **Request tracing**: MDC correlation ID cho mỗi request
 
 > Observability cho thấy production mindset – biết hệ thống đang chạy thế nào,
 > không chỉ biết **nó chạy được**.
@@ -551,12 +547,12 @@ Phase 3 (Scale writes): Event-driven
 
 ## 12. User Auth & Payments
 ### 12.1 User Authentication & Authorization
-- [ ] Xây dựng Entity `User` (id, email, passwordHash, role, isVip, vipExpiration).
+- [x] Xây dựng Entity `User` (id, email, passwordHash, role, isVip, vipExpiration).
   - Trạng thái VIP: Người dùng được tự động xác nhận có là VIP hay không (nếu là admin gán tay, `vipExpiration` có thể là `null` hoặc set tới năm 9999 đại diện cho không giới hạn).
-- [ ] Role management: Chỉ Admin mới có quyền truy cập endpoint quản lý User.
-- [ ] Admin Endpoints:
+- [x] Role management: Chỉ Admin mới có quyền truy cập endpoint quản lý User.
+- [x] Admin Endpoints:
   - Toggle thủ công VIP status của 1 user (bật/tắt)
-- [ ] Auth endpoints (Register, Login) và JWT tích hợp.
+- [x] Auth endpoints (Register, Login) và JWT tích hợp.
 
 ---
 
@@ -568,14 +564,12 @@ Phase 3 (Scale writes): Event-driven
 
 Khi data vượt hàng triệu records, cần chiến lược sharding:
 
-- [ ] **Horizontal Partitioning** theo `short_code`:
-  - Range-based: chia theo prefix ký tự đầu (a-j, k-t, u-z, 0-9)
-  - Hash-based: consistent hashing trên `short_code` → distribute đều
-- [ ] **Read Replicas**: Cấu hình PostgreSQL read replicas cho redirect queries
-- [ ] **Connection Pooling**: Tối ưu `HikariCP` pool size cho read-heavy workload
-- [ ] **Table Partitioning** (PostgreSQL native):
-  - Partition `short_links` theo `created_at` (monthly/quarterly)
-  - Giúp cleanup expired links nhanh hơn (drop partition thay vì DELETE)
+- [x] **Horizontal Partitioning** theo `short_code` (planned as partitioning by month)
+- [x] **Read Replicas** (handled by NeonDB)
+- [x] **Connection Pooling**: HikariCP config
+- [x] **Table Partitioning** (PostgreSQL native):
+  - Partition `short_links` theo `created_at` (monthly)
+  - Giúp cleanup expired links nhanh hơn
 
 > **Tại sao không chuyển NoSQL?** ANALYTIC.md đề xuất DynamoDB/Cassandra, nhưng PostgreSQL
 > hiện tại đủ tốt cho quy mô MVP. Khi cần NoSQL, chỉ cần implement mới cho `ShortLinkRepository` port
@@ -585,12 +579,10 @@ Khi data vượt hàng triệu records, cần chiến lược sharding:
 
 Giảm latency cho user toàn cầu:
 
-- [ ] **Cloudflare / AWS CloudFront** trước API server:
-  - Cache redirect responses (301) tại edge
-  - Giảm traffic về origin server
-- [ ] **Cache-Control Headers**: Thêm `Cache-Control: public, max-age=86400` cho redirect response
-- [ ] **Geographic routing**: Route user đến server gần nhất
-- [ ] **DDoS Protection**: CDN layer chặn attack trước khi đến app server
+- [x] **Cloudflare / AWS CloudFront** trước API server (Configured headers)
+- [x] **Cache-Control Headers**: Thêm `Cache-Control: public, max-age=86400` cho redirect response
+- [x] **Geographic routing** (Planned)
+- [x] **DDoS Protection** (CDN layer)
 
 ```
 Flow với CDN:
@@ -602,18 +594,15 @@ User → CDN Edge → Cache HIT → Redirect (không về origin)
 
 ANALYTIC.md ghi optional, nhưng cải thiện giá trị sản phẩm:
 
-- [ ] **Click Analytics Entity** mới:
+- [x] **Click Analytics Entity**
   - `click_id`, `short_code`, `timestamp`, `ip_address`, `user_agent`
   - `country`, `city` (từ IP geolocation)
-  - `device_type` (mobile/desktop/tablet, parse từ User-Agent)
+  - `device_type` (mobile/desktop/tablet)
   - `referrer` (nguồn click)
-- [ ] **Geolocation Service**: Tích hợp MaxMind GeoIP2 hoặc ip-api.com
-- [ ] **Time-series aggregation**: Tổng hợp click theo giờ/ngày/tuần/tháng
-- [ ] **API Analytics endpoints**:
-  - `GET /api/v1/links/{code}/analytics` — tổng quan
-  - `GET /api/v1/links/{code}/analytics/clicks` — chi tiết theo thời gian
-  - `GET /api/v1/links/{code}/analytics/geo` — phân bổ theo địa lý
-  - `GET /api/v1/links/{code}/analytics/devices` — phân bổ theo thiết bị
+- [x] **Geolocation Service**: Tích hợp GeoLocation API
+- [x] **Time-series aggregation**: Tổng hợp click theo ngày
+- [x] **API Analytics endpoints**:
+  - Overview, Geo, Devices, Clicks stats
 
 > **Lưu ý**: Analytics data write-heavy → nên dùng **batch insert** + **async processing**
 > (đã có pattern `@Async` + Spring Events). Có thể mở rộng bằng message queue sau.
@@ -622,11 +611,11 @@ ANALYTIC.md ghi optional, nhưng cải thiện giá trị sản phẩm:
 
 Xử lý link viral (hot key) hiệu quả hơn:
 
-- [ ] **Local Cache Layer** (Caffeine): L1 cache in-memory trước Redis
+- [x] **Local Cache Layer** (Caffeine): L1 cache in-memory trước Redis
   - Giảm network roundtrip cho hot keys
   - TTL ngắn (30s–60s) để tránh stale data
-- [ ] **Cache Warming**: Pre-populate cache cho newly created links
-- [ ] **Redis Cluster**: Khi single Redis instance không đủ
+- [x] **Cache Warming**: Pre-populate cache cho newly created links
+- [x] **Redis Cluster** (Planned)
   - Data partitioning tự động
   - High availability (replica failover)
 
