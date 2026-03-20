@@ -1,12 +1,10 @@
-# LinkForge - Powerful URL Shortener & Link Management
-
-LinkForge is a full-featured URL shortening and link management platform built with **Java 21** and **Spring Boot 3**. It goes beyond simple link shortening — offering authenticated user dashboards, QR code generation, an ad-based monetization layer, VIP subscriptions with VNPay integration, and a full admin panel.
+LinkForge is a full-featured URL shortening and link management platform built with **Java 21** and **Spring Boot 3**. It's designed with a **Headless Backend Architecture** — providing the core API and infrastructure (Database + Caching) as a single bundled unit, ready for integration with any frontend.
 
 ![Dashboard Overview](images/dashboard_overview.png)
 
 > [!NOTE]
-> This is the **Backend** repository (REST API).
-> The **Frontend** (React + TypeScript) is available at: [linkforge-frontend](https://github.com/tlavu2004/linkforge-frontend)
+> This is a **Full Backend Infrastructure Bundle** (REST API + PostgreSQL + Redis).
+> The **Frontend** (React + TypeScript) is managed in a separate repository: [linkforge-frontend](https://github.com/tlavu2004/linkforge-frontend)
 
 ---
 
@@ -167,18 +165,23 @@ http://localhost:8080/swagger-ui/index.html
 - **Maven 3.9+**
 - **Docker & Docker Compose** (for infrastructure services)
 
-### Option 1: Full Docker Setup
+### Option 1: Full Infrastructure Bundle (Recommended)
 
-This will spin up PostgreSQL, Redis, and the application together:
+This is the fastest way to run the complete backend infrastructure. It will spin up PostgreSQL, Redis, and the Spring Boot application together as a single unit:
 
 ```bash
 # 1. Clone the repository
 git clone https://github.com/tlavu2004/linkforge-backend.git
 cd linkforge-backend
 
-# 2. Create your environment file
+# 2. Get environment files
+# Option A: Create from example
 cp .env.example .env
-# Edit .env and fill in your JWT_SECRET_KEY and other required values
+# Edit .env and fill in your JWT_SECRET_KEY and other required values.
+
+# Option B: Download pre-configured files
+# Download .env or .env.prod from [Google Drive Link](LINK_DRIVE_HERE)
+# and save it to the project root.
 
 # 3. Start everything
 docker compose up -d
@@ -194,8 +197,9 @@ Run only PostgreSQL and Redis in Docker, and the application natively:
 # 1. Start database and cache
 docker compose up -d postgres redis
 
-# 2. Create your environment file
-cp .env.example .env
+# 2. Get environment file
+# Option A: cp .env.example .env && (Configure .env)
+# Option B: Download from [Google Drive](LINK_DRIVE_HERE) to the project root.
 
 # 3. Run the application
 mvn spring-boot:run
@@ -221,7 +225,12 @@ Usage:
 
 ## Environment Variables
 
-Copy `.env.example` to `.env` and configure the following:
+You have two ways to configure your environment:
+1.  **Manual**: Copy `.env.example` to `.env` and fill in the required values.
+2.  **Download**: Get pre-configured `.env` (Dev) and `.env.prod` (Production) files from this **[Google Drive Link](LINK_DRIVE_HERE)**.
+
+> [!IMPORTANT]
+> Always ensure your `.env` file is in the root directory before running the application or Docker.
 
 ### Required
 
