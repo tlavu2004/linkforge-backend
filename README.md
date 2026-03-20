@@ -1,6 +1,8 @@
+# LinkForge - Powerful URL Shortener & Link Management
+
 LinkForge is a full-featured URL shortening and link management platform built with **Java 21** and **Spring Boot 3**. It's designed with a **Headless Backend Architecture** — providing the core API and infrastructure (Database + Caching) as a single bundled unit, ready for integration with any frontend.
 
-![Dashboard Overview](docs/images/dashboard_overview.png)
+![Overview](docs/images/overview.png)
 
 > [!NOTE]
 > This is a **Full Backend Infrastructure Bundle** (REST API + PostgreSQL + Redis).
@@ -180,7 +182,7 @@ cp .env.example .env
 # Edit .env and fill in your JWT_SECRET_KEY and other required values.
 
 # Option B: Download pre-configured files
-# Download .env or .env.prod from [Google Drive Link](LINK_DRIVE_HERE)
+# Download .env or .env.prod from "Backend" folder of this [Google Drive Link](https://drive.google.com/drive/folders/13TrE4vfyboF2OTSe6Yj7t_SanFauAyhV?usp=sharing)
 # and save it to the project root.
 
 # 3. Start everything
@@ -199,7 +201,7 @@ docker compose up -d postgres redis
 
 # 2. Get environment file
 # Option A: cp .env.example .env && (Configure .env)
-# Option B: Download from [Google Drive](LINK_DRIVE_HERE) to the project root.
+# Option B: Download from "Backend" folder of this [Google Drive Link](https://drive.google.com/drive/folders/13TrE4vfyboF2OTSe6Yj7t_SanFauAyhV?usp=sharing) to the project root.
 
 # 3. Run the application
 mvn spring-boot:run
@@ -227,7 +229,7 @@ Usage:
 
 You have two ways to configure your environment:
 1.  **Manual**: Copy `.env.example` to `.env` and fill in the required values.
-2.  **Download**: Get pre-configured `.env` (Dev) and `.env.prod` (Production) files from this **[Google Drive Link](LINK_DRIVE_HERE)**.
+2.  **Download**: Get pre-configured `.env` (Dev) and `.env.prod` (Production) files from "Backend" folder of this **[Google Drive Link](https://drive.google.com/drive/folders/13TrE4vfyboF2OTSe6Yj7t_SanFauAyhV?usp=sharing)**.
 
 > [!IMPORTANT]
 > Always ensure your `.env` file is in the root directory before running the application or Docker.
@@ -316,14 +318,14 @@ The frontend repository includes a `vercel.json` for deployment to Vercel. See t
 2. Optionally set a **custom alias** and **expiration date**.
 3. Click **Shorten** — your new short link and **delete token** are displayed immediately.
 
-![Shorten URL](docs/images/shorten_url.png)
+![Shorten URL](docs/images/shorten_url_and_link_management.png)
 
 ### Link Management Dashboard
 1. Navigate to **My Links** to view all your created links.
 2. Use **search**, **sort**, and **pagination** to find specific links.
 3. **Delete** links or **generate QR codes** (VIP/Admin) directly from the table.
 
-![Link Management](docs/images/link_management.png)
+![Link Management](docs/images/shorten_url_and_link_management.png)
 
 ### QR Code Generation (VIP / Admin)
 1. Open any link from your dashboard.
