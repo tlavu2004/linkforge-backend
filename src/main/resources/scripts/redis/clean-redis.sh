@@ -14,43 +14,27 @@ if [ ! -f "$ENV_FILE" ]; then
   exit 1
 fi
 
-# Load variables from service .env
+# Load variables from service .env (robustly without requiring quotes)
 echo "Loading environment from $ENV_FILE..."
-set -a
-. "$ENV_FILE"
-set +a
-
-# Validate required variables
-required_vars=(
-  REDIS_HOST
-  REDIS_PORT
-)
-
-for var in "${required_vars[@]}"; do
-  if [ -z "${!var}" ]; then
-    echo "ERROR: Required variable '$var' is missing in $ENV_FILENAME" >&2
-    exit 1
+while IFS='=' read -r key value || [ -n "$key" ]; do
+  if [[ $key =~ ^#.* ]] || [[ -z $key ]]; then
+    continue
   fi
-done
+  key=$(echo "$key" | tr -d '\r' | xargs)
+  value=$(echo "$value" | tr -d '\r' | xargs)
+  if [ -n "$key" ]; then
+    export "$key"="$value"
+  fi
+done < "$ENV_FILE"
 
-# Construct connection URL
-PROTOCOL="redis"
-if [ "$REDIS_SSL_ENABLED" == "true" ]; then
-  PROTOCOL="rediss"
-fi
-
-# Build redis-cli command
-if [ -n "$REDIS_PASSWORD" ]; then
-  REDIS_CMD="redis-cli -u $PROTOCOL://:$REDIS_PASSWORD@$REDIS_HOST:$REDIS_PORT"
-else
-  REDIS_CMD="redis-cli -h $REDIS_HOST -p $REDIS_PORT"
-fi
+# Determine Spring Profile from environment
+PROFILE="${SPRING_PROFILES_ACTIVE:-dev}"
 
 # Confirm destructive action
 echo "--------------------------------------------------------"
 echo "WARNING: This will FLUSH ALL keys in Redis!"
-echo "Target:  $REDIS_HOST:$REDIS_PORT ($PROTOCOL)"
-echo "Env File: $ENV_FILENAME"
+echo "Target Profile: $PROFILE"
+echo "Env File:       $ENV_FILENAME"
 echo "--------------------------------------------------------"
 read -r -p "Are you sure? Type 'yes' to continue: " confirm
 if [ "$confirm" != "yes" ]; then
@@ -58,13 +42,16 @@ if [ "$confirm" != "yes" ]; then
   exit 0
 fi
 
-# Run Redis flush
-echo "Flushing Redis..."
-$REDIS_CMD FLUSHALL
+# Change to service directory
+cd "$SERVICE_DIR" || exit 1
+
+# Run Redis flush using Standalone Java Utility via Maven
+echo "Executing Redis Flush Utility (Standalone Mode)..."
+mvn test -Dtest=RedisCleaningUtility -DfailIfNoTests=false -q
 
 if [ $? -eq 0 ]; then
   echo "Redis cleaned successfully!"
 else
-  echo "ERROR: Failed to clean Redis. Make sure redis-cli is installed and server is reachable." >&2
+  echo "ERROR: Failed to clean Redis via Maven." >&2
   exit 1
 fi
