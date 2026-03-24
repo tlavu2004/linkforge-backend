@@ -14,6 +14,7 @@ LinkForge is a full-featured URL shortening and link management platform built w
 
 - [Key Features](#key-features)
 - [Architecture](#architecture)
+- [Database Schema](#database-schema)
 - [Tech Stack](#tech-stack)
 - [API Overview](#api-overview)
 - [Getting Started](#getting-started)
@@ -93,6 +94,29 @@ Admins have access to additional endpoints for managing the entire platform:
 
 The project follows **Clean Architecture** (Hexagonal Architecture) with four clearly separated layers:
 
+```mermaid
+graph TD
+    Client[Client Browser / API Consumer] --> Presentation[Presentation Layer <br/><i>Controllers, Response Wrappers</i>]
+    Presentation --> Application[Application Layer <br/><i>Use Cases, DTOs, Handlers</i>]
+    Application --> Domain[Domain Layer <br/><i>Entities, Value Objects, Business Rules</i>]
+    
+    subgraph Infrastructure[Infrastructure Layer]
+        Persistence[PostgreSQL <br/><i>Flyway, Partitioning</i>]
+        Caching[Redis + Caffeine <br/><i>L1/L2 Strategy</i>]
+        Security[Spring Security <br/><i>JWT, Auth</i>]
+        External[External Services]
+    end
+    
+    Domain -.-> Persistence
+    Application -.-> Caching
+    Application -.-> Security
+    Application -.-> External
+    
+    External --> VNPay[VNPay Payment Gateway]
+    External --> Email[SMTP Email Service]
+    External --> GeoIP[IP Geolocation API]
+```
+
 ```
 src/main/java/com/tlavu/linkforge/
 ├── domain/            # Core business logic — entities, value objects, repository interfaces, exceptions
@@ -110,6 +134,73 @@ src/main/java/com/tlavu/linkforge/
   - **Rate Limiting**: IP-based protection powered by Redis Lua scripts.
   - **Observability**: Prometheus metrics and structured JSON logging.
 - **Presentation Layer** exposes the REST API with standardized `ApiResponse<T>` wrappers and a `GlobalExceptionHandler`.
+
+---
+
+## Database Schema
+
+LinkForge uses **PostgreSQL 16** with a highly optimized schema for read-heavy workloads.
+
+```mermaid
+erDiagram
+    USER ||--o{ SHORT_LINK : owns
+    USER ||--o{ PAYMENT_TRANSACTION : makes
+    USER ||--o{ REFRESH_TOKEN : has
+    SHORT_LINK ||--o{ CLICK_ANALYTICS : generates
+    
+    USER {
+        bigint id PK
+        string username
+        string email
+        string password_hash
+        string role
+        boolean is_vip
+        timestamp vip_expiration
+    }
+    
+    SHORT_LINK {
+        bigint id PK
+        string code UK
+        string original_url
+        timestamp created_at
+        timestamp expires_at
+        bigint click_count
+        string qr_code_base64
+    }
+    
+    CLICK_ANALYTICS {
+        bigint id PK
+        string short_code FK
+        timestamp clicked_at
+        string ip_address
+        string country
+        string city
+        string device_type
+        string referrer
+    }
+    
+    PAYMENT_TRANSACTION {
+        bigint id PK
+        bigint user_id FK
+        string order_code UK
+        integer amount
+        string package_code
+        string status
+        timestamp created_at
+        timestamp paid_at
+    }
+
+    REFRESH_TOKEN {
+        bigint id PK
+        string token UK
+        bigint user_id FK
+        timestamp expires_at
+        boolean revoked
+    }
+```
+
+- **Table Partitioning**: The `short_links` table is natively partitioned by month (`created_at`) for massive scalability.
+- **Indexes**: Strategic B-Tree indexes on `code`, `user_id`, and `created_at` for sub-millisecond lookups.
 
 ---
 
