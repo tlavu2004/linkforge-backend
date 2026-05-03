@@ -139,7 +139,7 @@ src/main/java/com/tlavu/linkforge/
 
 ## Database Schema
 
-LinkForge uses **PostgreSQL 16** with a highly optimized schema for read-heavy workloads.
+LinkForge uses **PostgreSQL 17** with a highly optimized schema for read-heavy workloads.
 
 ```mermaid
 erDiagram
@@ -211,7 +211,7 @@ erDiagram
 | Language | Java 21 |
 | Framework | Spring Boot 3.5.10 |
 | Security | Spring Security + JWT (jjwt 0.12.7) |
-| Database | PostgreSQL 16 |
+| Database | PostgreSQL 17 |
 | Caching | Redis + Caffeine (L1/L2 Strategy) |
 | DB Migration | Flyway |
 | ORM | Spring Data JPA / Hibernate |
