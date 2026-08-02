@@ -10,10 +10,10 @@
 
 **Suggested branch:** `chore/engineering-baseline`
 
-- [] Record the baseline: Java, Maven, PostgreSQL, Redis, Docker versions, and required environment variables. See [ENGINEERING_BASELINE.md](ENGINEERING_BASELINE.md).
-- [] Run `mvn test` and record the current result in PR/CI. Current issues include stale i18n assertions, missing web-slice mocks, and integration tests that require Docker/Testcontainers. See [ENGINEERING_BASELINE.md](ENGINEERING_BASELINE.md).
-- [] Define a single error contract: domain/use cases throw **message keys** (for example, `validation.alias_invalid_chars`); the controller/exception handler resolves them by locale; tests do not assert translated text. See [ENGINEERING_BASELINE.md](ENGINEERING_BASELINE.md).
-- [] Establish PR conventions: description, executed tests, migrations (if applicable), and a security checklist for public/payment endpoint changes. See [the pull request template](../../.github/pull_request_template.md).
+- [x] Record the baseline: Java, Maven, PostgreSQL, Redis, Docker versions, and required environment variables. See [ENGINEERING_BASELINE.md](ENGINEERING_BASELINE.md).
+- [x] Run `mvn test` and record the current result in PR/CI. Current issues include stale i18n assertions, missing web-slice mocks, and integration tests that require Docker/Testcontainers. See [ENGINEERING_BASELINE.md](ENGINEERING_BASELINE.md).
+- [x] Define a single error contract: domain/use cases throw **message keys** (for example, `validation.alias_invalid_chars`); the controller/exception handler resolves them by locale; tests do not assert translated text. See [ENGINEERING_BASELINE.md](ENGINEERING_BASELINE.md).
+- [x] Establish PR conventions: description, executed tests, migrations (if applicable), and a security checklist for public/payment endpoint changes. See [the pull request template](../../.github/pull_request_template.md).
 
 **Done when:** the baseline is documented and CI distinguishes unit tests from integration tests.
 
